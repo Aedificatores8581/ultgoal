@@ -8,5 +8,5 @@
  - Come up with a better structure for `Robots`
  	- Write files.
  ---
- - Set up git.
+ - Make more detailed `README.md` for all repositories on the github.
 ### *Among other things*...
