@@ -34,7 +34,7 @@ public class DigitalCamera {
 
 	public DigitalCamera(double focalLength, double pixelSize, double resolutionX, double resolutionY, double mag) {
 		this.focalLength = focalLength;
-		cameraSensor = new CameraSensor(pixelSize, resolutionX * mag, resolutionY * mag)
+		cameraSensor = new CameraSensor(pixelSize, resolutionX * mag, resolutionY * mag);
 	}
 
     public DigitalCamera(double focalLength, double width, double height) {

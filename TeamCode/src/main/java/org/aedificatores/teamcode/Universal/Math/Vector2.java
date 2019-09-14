@@ -1,12 +1,11 @@
 package org.aedificatores.teamcode.Universal.Math;
 
-import java.util.Vector;
-
 public class Vector2 {
 	public double x, y;
 
 	public Vector2() {
-		x, y = 0.0;
+		x = 0.0;
+		y = 0.0;
 	}
 
 	public Vector2(double x, double y) {

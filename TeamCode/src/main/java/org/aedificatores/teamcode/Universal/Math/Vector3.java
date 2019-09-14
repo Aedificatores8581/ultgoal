@@ -4,7 +4,9 @@ public class Vector3 {
 	public double x, y, z;
 
 	public Vector3() {
-		x, y, z = 0;
+		x = 0;
+		y = 0;
+		z = 0;
 	}
 
 	public Vector3(double x, double y, double z) {

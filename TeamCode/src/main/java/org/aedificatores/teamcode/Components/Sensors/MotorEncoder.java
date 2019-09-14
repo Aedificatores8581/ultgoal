@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Sensors;
+package org.aedificatores.teamcode.Components.Sensors;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -7,7 +7,7 @@ public class MotorEncoder {
 	public int resetPosition, currentPosition = 0;
 
 	public MotorEncoder(DcMotor motor) {
-		this.motor = motor
+		this.motor = motor;
 	}
 
 	public void initEncoder() {
@@ -25,6 +25,7 @@ public class MotorEncoder {
 
 	public void hardResetEncoder() {
 		motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-		currentPosition, resetPosition = 0;
+		currentPosition = 0;
+		resetPosition = 0;
 	}
 }

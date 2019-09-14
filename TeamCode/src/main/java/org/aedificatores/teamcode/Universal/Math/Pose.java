@@ -4,7 +4,9 @@ public class Pose {
 	public double x, y, angle;
 
 	public Pose() {
-		x, y, angle = 0;
+		x = 0;
+		y = 0;
+		angle = 0;
 	}
 
 	public Pose(double x, double y) {
@@ -21,7 +23,7 @@ public class Pose {
 		this.angle = angle;
 	}
 
-	public add(Pose p) {
+	public void add(Pose p) {
 		x += p.x;
 		y += p.y;
 		angle += p.angle;
@@ -31,11 +33,11 @@ public class Pose {
 		return new Vector2(x, y);
 	}
 
-	public radius() {
+	public double radius() {
 		return Math.hypot(x, y);
 	}
 
-	public angleOfVector() {
+	public double angleOfVector() {
 		return Math.atan2(y, x);
 	}
 

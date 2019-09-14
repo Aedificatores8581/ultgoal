@@ -19,7 +19,12 @@ public class Pose3 {
     }
 
     public Pose3() {
-        x, y, z, xAngle, yAngle, zAngle = 0;
+        x = 0;
+        y = 0;
+        z = 0;
+        xAngle = 0;
+        yAngle = 0;
+        zAngle = 0;
     }
     public void add(Pose3 pose){
         x += pose.x;

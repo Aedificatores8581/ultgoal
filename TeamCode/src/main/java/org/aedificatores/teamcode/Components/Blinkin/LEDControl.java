@@ -27,12 +27,12 @@ public class BlinkinLEDControl {
 
 	public void init(HardwareMap hardwareMap) {
 		colorControlServo = hardwareMap.servo.get("blinkin");
-		lightState = blinkinLightsState.AESTHETIC;
+		lightState = lightState.AESTHETIC;
 		setSolidColor(blinkinPresets.BLUE);
 	}
 
 	public void init() {
-		lightState = blinkinLightsState.AESTHETIC;
+		lightState = lightState.AESTHETIC;
 		setSolidColor(blinkinPresets.RAW_PWM_AQUA);
 	}
 
@@ -59,7 +59,7 @@ public class BlinkinLEDControl {
 
 	public void grabCustomSetting() { }
 
-	public void switchDisplayState(blinkinLightsState state) { lightState = state; }
+	public void switchDisplayState(BlinkinLightsState state) { lightState = state; }
 
 	public void switchDisplayState() {
 		if (lightState == BlinkinLightsState.AESTHETIC) {

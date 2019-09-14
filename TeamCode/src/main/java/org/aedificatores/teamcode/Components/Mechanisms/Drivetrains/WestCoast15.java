@@ -28,7 +28,7 @@ public class WestCoast15 {
 		this.maxSpeed = maxSpeed;
 	}
 
-	public setLeftPow(double pow) {
+	public void setLeftPow(double pow) {
 		if (pow >= 1) pow = 1;
 		if (pow <= 1) pow = -1;
 
@@ -37,7 +37,7 @@ public class WestCoast15 {
 		leftPow = pow;
 	}
 
-	public setRightPow(double pow) {
+	public void setRightPow(double pow) {
 		if (pow >= 1) pow = 1;
 		if (pow <= 1) pow = -1;
 
