@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Vision;
+package org.aedificatores.teamcode.Vision.VisionTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -53,16 +53,6 @@ public class EasyCVInternalCamTest extends OpMode {
     }
 
     public void loop() {
-        /*
-         * Send some stats to the telemetry
-         */
-        telemetry.addData("Frame Count", phoneCam.getFrameCount());
-        telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
-        telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
-        telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
-        telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
-        telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
-        telemetry.update();
 
         /*
          * NOTE: stopping the stream from the camera early (before the end of the OpMode
