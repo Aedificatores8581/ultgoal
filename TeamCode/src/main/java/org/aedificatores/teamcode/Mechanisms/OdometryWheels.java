@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Components.Mechanisms;
+package org.aedificatores.teamcode.Mechanisms;
 
 import org.aedificatores.teamcode.Universal.Math.Pose;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
