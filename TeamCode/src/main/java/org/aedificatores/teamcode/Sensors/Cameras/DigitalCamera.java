@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Components.Sensors.Cameras;
+package org.aedificatores.teamcode.Sensors.Cameras;
 
 import org.aedificatores.teamcode.Universal.Math.Pose3;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
@@ -13,16 +13,16 @@ public class DigitalCamera {
     public double focalLength, x, y, z, xAng, yAng, zAng = 0;
 
     public class CameraSensor {
-		public static final double WIDTH, HEIGHT;
+		public double width, height;
 
         public CameraSensor(double width, double height) {
-            this.WIDTH = width;
-            this.HEIGHT = height;
+            this.width = width;
+            this.height = height;
         }
 
         public CameraSensor(double pixelSize, double numPixelsX, double numPixelsY){
-            this.WIDTH = pixelSize * numPixelsX;
-            this.HEIGHT = pixelSize * numPixelsY;
+            this.width = pixelSize * numPixelsX;
+            this.height = pixelSize * numPixelsY;
         }
 
     }

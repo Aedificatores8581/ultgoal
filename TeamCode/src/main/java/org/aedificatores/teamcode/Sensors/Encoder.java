@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Components.Sensors;
+package org.aedificatores.teamcode.Sensors;
 
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
@@ -7,18 +7,18 @@ public class Encoder {
 
 	public static int directionMult;
 	public static double ticks;
-	public static final double TICK_VOLTAGE;
+	public static double tickVoltage;
 	public RotationDirection rotationDirection;
 
 	public Encoder(AnalogInput enc, double voltage, RotationDirection dir) {
-		TICK_VOLTAGE = voltage;
+		tickVoltage = voltage;
 		directionMult = dir.equals(RotationDirection.CLOCKWISE) ? 1 : -1;
 		encoder = enc;
 	}
 
 	public void updateEncoder() {
-		if (encoder.getVoltage() > TICK_VOLTAGE) {
-			tick += directionMult;
+		if (encoder.getVoltage() > tickVoltage) {
+			ticks += directionMult;
 		}
 	}
 

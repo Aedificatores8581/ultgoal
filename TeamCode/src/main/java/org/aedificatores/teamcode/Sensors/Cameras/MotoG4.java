@@ -1,6 +1,6 @@
 package org.aedificatores.teamcode.Sensors.Cameras;
 
-import org.aedificatores.teamcode.Components.Sensors.Cameras.DigitalCamera;
+import org.aedificatores.teamcode.Sensors.Cameras.DigitalCamera;
 import org.opencv.core.Point;
 import org.opencv.core.Point3;
 import org.opencv.core.Size;
