@@ -10,7 +10,7 @@ enum BlinkinLightsState {
 	TEST
 }
 
-public class BlinkinLEDControl {
+public class LEDControl {
 	public Servo colorControlServo;
 	public PWMOutputController colorControlModulator;
 	public BlinkinPresets blinkinPresets;
