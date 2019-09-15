@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Components.Mechanisms.Drivetrains;
+package org.aedificatores.teamcode.Mechanisms.Drivetrains;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -8,6 +8,9 @@ import org.aedificatores.teamcode.Components.Sensors.MotorEncoder;
 import org.aedificatores.teamcode.Universal.Math.Pose;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.aedificatores.teamcode.Universal.UniversalFunctions;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 public class WestCoast15 {
 	public DcMotor rightFore, leftFore, leftRear, rightRear;
@@ -107,10 +110,10 @@ public class WestCoast15 {
 	// TODO: Implement updateLocation()
 
 	public double averageLeftEncoders() {
-		return (leftForeEnc.currentPosition() + leftRearEnc.currentPosition()) / 2;
+		return (leftForeEnc.currentPosition + leftRearEnc.currentPosition) / 2;
 	}
 
 	public double averageRightEncoders() {
-		return (rightForeEnc.currentPosition() + rightRearEnc.currentPosition()) / 2;
+		return (rightForeEnc.currentPosition + rightRearEnc.currentPosition) / 2;
 	}
 }
