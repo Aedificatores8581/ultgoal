@@ -15,6 +15,15 @@ public class UniversalFunctions {
         return Math.max(Math.min(max, test), min);
     }
 
+    public static int clamp(int min, int test, int max) {
+        if (max < min) {
+            int temp = min;
+            min = max;
+            max = temp;
+        }
+        return Math.max(Math.min(max, test), min);
+    }
+
     public static boolean withinTolerance(double test, double centerPoint, double lowerLimit, double upperLimit) {
         return test == clamp(centerPoint - lowerLimit, test, centerPoint + upperLimit);
     }
