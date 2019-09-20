@@ -24,8 +24,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
 * */
 
 // TODO: Cleanup This code
-@TeleOp(name = "Stone Detecting Test")
-public class StoneDetectingTest extends OpMode {
+@TeleOp(name = "Vision Detecting Test")
+public class VisionDetectingTest extends OpMode {
 
     Gamepad prev1;
     enum ValueEditState {H_MIN, S_MIN, V_MIN, H_MAX, S_MAX, V_MAX}
@@ -34,9 +34,9 @@ public class StoneDetectingTest extends OpMode {
     private OpenCvCamera phoneCam;
     private StonePipeline pipe;
     private int hMin = 0,
-                sMin = 0,
+                sMin = 185,
                 vMin = 0,
-                hMax = 255,
+                hMax = 70,
                 sMax = 255,
                 vMax = 255;
     public void init() {
