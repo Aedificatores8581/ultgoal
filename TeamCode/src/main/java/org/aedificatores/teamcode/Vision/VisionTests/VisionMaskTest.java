@@ -108,6 +108,7 @@ public class VisionMaskTest extends OpMode {
 
         void close() {
             retMat.release();
+            blackMat.release();
             roiMat.release();
         }
     }
