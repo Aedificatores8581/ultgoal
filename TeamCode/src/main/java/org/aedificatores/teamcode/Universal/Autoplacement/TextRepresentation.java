@@ -2,6 +2,16 @@ package org.aedificatores.teamcode.Universal.Autoplacement;
 
 import java.util.Arrays;
 
+// @Untested-Functional
+
+/**
+ * Written by Theodore Lovinski 6/10/2019
+ *
+ * Visual placement representation for intended block placement in auto.
+ *
+ * Keep in mind that (0, 0) is functionally (1, 1), where (1, 1, 0) and (1, 1, 1) are different.
+ */
+
 public class TextRepresentation {
 	private enum OrientationFromOrigin { UP, DOWN, LEFT, RIGHT }
 	private static int maxAllowedHeight;
