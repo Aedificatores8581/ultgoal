@@ -26,11 +26,17 @@ public class TextRepresentation {
 		Arrays.fill(representation, (byte) 0x00);
 	}
 
+	// @Overload
+	TextRepresentation(int mah, byte[] existingRepresentation) {
+		maxAllowedHeight = mah;
+		representation = existingRepresentation;
+	}
+
 	private int twoToOneDimensions(int x, int y, int z) {
 		return (x * 4) + (y * 8) + (z * maxAllowedHeight);
 	}
 
-	public void placeStone(OrientationFromOrigin orientation, int x, int y, int z) {
+	public void placeStone(OrientationFromOrigin orientation, int x, int y, int z, byte r) {
 		int auxX = x;
 		int auxY = y;
 		switch (orientation) {
@@ -49,14 +55,14 @@ public class TextRepresentation {
 		}
 
 		if (!allowFloatingBlocks && (representation[twoToOneDimensions(x, y, z - 1)] == 0x01 || representation[twoToOneDimensions(auxX, auxY, z - 1)] == 0x01)) {
-			representation[twoToOneDimensions(x, y, z)] = (byte) 0x01;
-			representation[twoToOneDimensions(auxX, auxY, z)] = (byte) 0x01;
+			representation[twoToOneDimensions(x, y, z)] = r;
+			representation[twoToOneDimensions(auxX, auxY, z)] = r;
 		}
 	}
 
-	// @Overload
-	public void placeStone(OrientationFromOrigin orientation, int x, int y) {
-		placeStone(orientation, x, y, currentZLevel);
+	// @Overload @CouldBeBetter
+	public void placeStone(OrientationFromOrigin orientation, int x, int y, byte r) {
+		placeStone(orientation, x, y, currentZLevel, r);
 	}
 
 	public String display(String i1, String i2) {
