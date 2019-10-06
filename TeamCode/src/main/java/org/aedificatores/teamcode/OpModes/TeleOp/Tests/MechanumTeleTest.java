@@ -10,7 +10,7 @@ import org.aedificatores.teamcode.Universal.Math.Vector2;
 public class MechanumTeleTest extends OpMode {
     private Mechanum drivetrain;
 
-    double x, y;
+    double x, y, speedMult = .3;
 
 
     @Override
@@ -20,9 +20,18 @@ public class MechanumTeleTest extends OpMode {
 
     @Override
     public void loop() {
-        x = .3 * gamepad1.left_stick_x;
-        y = .3 * gamepad1.left_stick_y;
-        drivetrain.setVelocity(new Vector2(x,y));
+        if(gamepad1.left_bumper || gamepad1.right_bumper)
+            speedMult = 1;
+        else
+            speedMult = .3;
+        x = speedMult * gamepad1.left_stick_x;
+        y = speedMult * gamepad1.left_stick_y;
+        //drivetrain.setVelocity(new Vector2(x,y));
+        //drivetrain.refreshMotors();
+        drivetrain.leftForePower = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+        drivetrain.leftAftPower = gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+        drivetrain.rightForePower = gamepad1.left_stick_y + gamepad1.left_stick_x -gamepad1.right_stick_x;
+        drivetrain.rightAftPower = gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
         drivetrain.refreshMotors();
     }
 }
