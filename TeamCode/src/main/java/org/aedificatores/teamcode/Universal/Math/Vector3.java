@@ -16,9 +16,10 @@ public class Vector3 {
 	}
 
 	public Vector3(double i, double j, double k, double magnitude){
-        x = magnitude / Math.sqrt(i * i + k * k + j * j) * i;
-        y = magnitude / Math.sqrt(i * i + k * k + j * j) * j;
-        z = magnitude / Math.sqrt(i * i + k * k + j * j) * k;
+		final double v = i * i + k * k + j * j;
+		x = magnitude / Math.sqrt(v) * i;
+        y = magnitude / Math.sqrt(v) * j;
+        z = magnitude / Math.sqrt(v) * k;
     }
 
     public Vector3(Vector3 componentForm, double magnitude){

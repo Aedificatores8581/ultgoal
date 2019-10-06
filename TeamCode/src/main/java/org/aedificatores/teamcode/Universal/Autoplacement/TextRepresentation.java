@@ -1,5 +1,7 @@
 package org.aedificatores.teamcode.Universal.Autoplacement;
 
+import org.aedificatores.teamcode.Universal.Math.Vector3;
+
 import java.util.Arrays;
 
 // @Untested-Functional
@@ -17,7 +19,8 @@ public class TextRepresentation {
 	private static int maxAllowedHeight;
 	public static boolean allowFloatingBlocks = false;
 	public static boolean orientViewHorizontally = false;
-	public static int currentZLevel = 0;
+	public static Vector3 editing = new Vector3(0.0, 0.0, 0.0);
+	public static OrientationFromOrigin cursorOrientation = OrientationFromOrigin.UP;
 	private static final byte IS_EDITING_ALIAS = 0x30;
 	private static byte representation[] = new byte[32 * maxAllowedHeight];
 
@@ -62,7 +65,7 @@ public class TextRepresentation {
 
 	// @Overload @CouldBeBetter
 	public void placeStone(OrientationFromOrigin orientation, int x, int y, byte r) {
-		placeStone(orientation, x, y, currentZLevel, r);
+		placeStone(orientation, x, y, (int) editing.z, r);
 	}
 
 	public String display(String i1, String i2) {
@@ -71,6 +74,7 @@ public class TextRepresentation {
 			sRepresentation.append(representation[i] == 0x01 ? i1 : i2);
 			if (i % (orientViewHorizontally ? 4 : 8) == 0) sRepresentation.append("\n");
 		}
+
 		return sRepresentation.toString();
 	}
 }
