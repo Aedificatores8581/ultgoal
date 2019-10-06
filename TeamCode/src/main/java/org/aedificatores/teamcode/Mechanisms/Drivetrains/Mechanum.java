@@ -37,23 +37,7 @@ public class Mechanum {
     private static final double FRONT_TO_BACK_POWER_RATIO = 1;
     private DcMotor leftFore, leftRear, rightFore, rightRear;
 
-    public Mechanum() {
-        leftFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        maxSpeed = 1;
-    }
-
-    public Mechanum(double ratio, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double speed) {
-        leftFore.setZeroPowerBehavior(zeroPowerBehavior);
-        leftRear.setZeroPowerBehavior(zeroPowerBehavior);
-        rightFore.setZeroPowerBehavior(zeroPowerBehavior);
-        rightRear.setZeroPowerBehavior(zeroPowerBehavior);
-        maxSpeed = speed;
-    }
-
-    public void initMotors(HardwareMap map) {
+    public Mechanum(HardwareMap map) {
         rightFore = map.dcMotor.get("rf");
         leftFore = map.dcMotor.get("lf");
         leftRear = map.dcMotor.get("la");
@@ -63,7 +47,32 @@ public class Mechanum {
         rightRear.setDirection(REVERSE);
         leftFore.setDirection(FORWARD);
         leftRear.setDirection(FORWARD);
+
+        leftFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        maxSpeed = 1;
     }
+
+    public Mechanum(double ratio, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double speed, HardwareMap map) {
+        rightFore = map.dcMotor.get("rf");
+        leftFore = map.dcMotor.get("lf");
+        leftRear = map.dcMotor.get("la");
+        rightRear = map.dcMotor.get("ra");
+
+        rightFore.setDirection(REVERSE);
+        rightRear.setDirection(REVERSE);
+        leftFore.setDirection(FORWARD);
+        leftRear.setDirection(FORWARD);
+
+        leftFore.setZeroPowerBehavior(zeroPowerBehavior);
+        leftRear.setZeroPowerBehavior(zeroPowerBehavior);
+        rightFore.setZeroPowerBehavior(zeroPowerBehavior);
+        rightRear.setZeroPowerBehavior(zeroPowerBehavior);
+        maxSpeed = speed;
+    }
+
 
     // NOTE: Maybe these shouldn't be in Roman Numerals but idk who cares.
     // So maybe change?
