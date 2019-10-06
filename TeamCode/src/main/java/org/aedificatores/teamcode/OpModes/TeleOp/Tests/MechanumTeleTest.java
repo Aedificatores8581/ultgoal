@@ -28,6 +28,8 @@ public class MechanumTeleTest extends OpMode {
         y = speedMult * gamepad1.left_stick_y;
         //drivetrain.setVelocity(new Vector2(x,y));
         //drivetrain.refreshMotors();
+
+        // TODO: Note that Franks drivtrain has some reversed motors or whatever, so the following code only works on his drivetrain
         drivetrain.leftForePower = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
         drivetrain.leftAftPower = gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
         drivetrain.rightForePower = gamepad1.left_stick_y + gamepad1.left_stick_x -gamepad1.right_stick_x;
