@@ -93,6 +93,8 @@ public class Mechanum {
     public void refreshMotors() {
         rightFore.setPower(rightForePower * maxSpeed);
         rightRear.setPower(rightAftPower * maxSpeed);
+        leftFore.setPower(leftForePower * maxSpeed);
+        leftRear.setPower(leftAftPower * maxSpeed);
     }
 
    // setTurn(double power) turnPower = power * turnMult;
