@@ -15,8 +15,7 @@ public class MechanumTeleTest extends OpMode {
 
     @Override
     public void init() {
-        drivetrain = new Mechanum();
-        drivetrain.initMotors(hardwareMap);
+        drivetrain = new Mechanum(hardwareMap);
     }
 
     @Override
@@ -24,5 +23,6 @@ public class MechanumTeleTest extends OpMode {
         x = .3 * gamepad1.left_stick_x;
         y = .3 * gamepad1.left_stick_y;
         drivetrain.setVelocity(new Vector2(x,y));
+        drivetrain.refreshMotors();
     }
 }
