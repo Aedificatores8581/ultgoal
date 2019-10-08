@@ -1,6 +1,5 @@
 package org.aedificatores.teamcode.Vision.VisionTests;
 
-import android.os.Environment;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -9,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.aedificatores.teamcode.Universal.TelemetryLogger;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -18,12 +16,11 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 @TeleOp(name = "Skystone CSV Test")
 public class SkystoneCSVTest extends OpMode {
     OpenCvInternalCamera phoneCam;
-    SkystoneDetectingPipeline pipe;
+    SkystoneCSVPipeline pipe;
 
     private static final int SCREEN_WIDTH = 320;
     private static final int SCREEN_HEIGHT = 240;
@@ -33,7 +30,7 @@ public class SkystoneCSVTest extends OpMode {
         phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
 
         phoneCam.openCameraDevice();
-        pipe = new SkystoneDetectingPipeline();
+        pipe = new SkystoneCSVPipeline();
         phoneCam.setPipeline(pipe);
 
         phoneCam.startStreaming(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -44,7 +41,7 @@ public class SkystoneCSVTest extends OpMode {
 
     }
 
-    private class SkystoneDetectingPipeline extends OpenCvPipeline {
+    private class SkystoneCSVPipeline extends OpenCvPipeline {
         Mat hsvImage;
         Mat bgrImage;
         Mat threshold;
@@ -61,7 +58,7 @@ public class SkystoneCSVTest extends OpMode {
                 S_MAX = 255,
                 V_MAX = 255;
 
-        public SkystoneDetectingPipeline() {
+        public SkystoneCSVPipeline() {
             hsvImage = new Mat();
             bgrImage = new Mat();
             threshold = new Mat();
