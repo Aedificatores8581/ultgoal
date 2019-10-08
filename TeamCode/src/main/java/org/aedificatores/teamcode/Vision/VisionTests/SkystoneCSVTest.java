@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@TeleOp(name = "Skystone Detecting Test")
-public class SkystoneDetectingTest extends OpMode {
+@TeleOp(name = "Skystone CSV Test")
+public class SkystoneCSVTest extends OpMode {
     OpenCvInternalCamera phoneCam;
     SkystoneDetectingPipeline pipe;
 
