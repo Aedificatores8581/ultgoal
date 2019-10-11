@@ -9,8 +9,7 @@ import org.aedificatores.teamcode.Universal.Math.Vector2;
 @TeleOp(name = "Mechanum Tele Test")
 public class MechanumTeleTest extends OpMode {
     private Mechanum drivetrain;
-
-    double x, y, speedMult = .3;
+    double speedMult = .3;
 
 
     @Override
@@ -24,16 +23,15 @@ public class MechanumTeleTest extends OpMode {
             speedMult = 1;
         else
             speedMult = .3;
-        x = speedMult * gamepad1.left_stick_x;
-        y = speedMult * gamepad1.left_stick_y;
-        //drivetrain.setVelocity(new Vector2(x,y));
-        //drivetrain.refreshMotors();
-
-        // TODO: Note that Franks drivtrain has some reversed motors or whatever, so the following code only works on his drivetrain
-        drivetrain.leftForePower = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
-        drivetrain.leftAftPower = gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
-        drivetrain.rightForePower = gamepad1.left_stick_y + gamepad1.left_stick_x -gamepad1.right_stick_x;
-        drivetrain.rightAftPower = gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+        drivetrain.setVelocityBasedOnGamePad(new Vector2(gamepad1.left_stick_x,gamepad1.left_stick_y)
+                ,                            new Vector2(gamepad1.right_stick_x,gamepad1.right_stick_y));
         drivetrain.refreshMotors();
+
+        // TODO: Note that Franks drivetrain has some reversed motors or whatever, so the following code only works on his drivetrain
+//        drivetrain.leftForePower = -gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+//        drivetrain.leftAftPower = gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x;
+//        drivetrain.rightForePower = gamepad1.left_stick_y + gamepad1.left_stick_x -gamepad1.right_stick_x;
+//        drivetrain.rightAftPower = gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x;
+//        drivetrain.refreshMotors();
     }
 }
