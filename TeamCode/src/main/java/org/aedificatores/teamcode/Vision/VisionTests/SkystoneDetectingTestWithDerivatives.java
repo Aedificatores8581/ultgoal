@@ -18,7 +18,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.io.IOException;
 
 @TeleOp(name = "Skystone Detecting Test")
-public class SkystoneDetectingTest extends OpMode {
+public class SkystoneDetectingTestWithDerivatives extends OpMode {
     OpenCvInternalCamera phoneCam;
     SkystoneDetectingPipeline pipe;
 
