@@ -20,7 +20,7 @@ import java.io.IOException;
 @TeleOp(name = "Skystone Detecting With Derivatives Test")
 public class SkystoneDetectingTestWithDerivatives extends OpMode {
     OpenCvInternalCamera phoneCam;
-    SkystoneDetectingPipeline pipe;
+    SkystoneDetectingWithDerivPipeline pipe;
 
     private static final int SCREEN_WIDTH = 240;
     private static final int SCREEN_HEIGHT = 320;
@@ -32,7 +32,7 @@ public class SkystoneDetectingTestWithDerivatives extends OpMode {
         phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
 
         phoneCam.openCameraDevice();
-        pipe = new SkystoneDetectingPipeline();
+        pipe = new SkystoneDetectingWithDerivPipeline();
         phoneCam.setPipeline(pipe);
 
         phoneCam.startStreaming(320, 240);
@@ -44,7 +44,7 @@ public class SkystoneDetectingTestWithDerivatives extends OpMode {
         telemetry.addData("Average",pipe.getAverage());
     }
 
-    class SkystoneDetectingPipeline extends OpenCvPipeline{
+    class SkystoneDetectingWithDerivPipeline extends OpenCvPipeline{
         Mat hsvImage;
         Mat bgrImage;
         Mat threshold;
@@ -74,7 +74,7 @@ public class SkystoneDetectingTestWithDerivatives extends OpMode {
             return average;
         }
 
-        SkystoneDetectingPipeline() {
+        SkystoneDetectingWithDerivPipeline() {
             hsvImage = new Mat();
             bgrImage = new Mat();
             threshold = new Mat();
