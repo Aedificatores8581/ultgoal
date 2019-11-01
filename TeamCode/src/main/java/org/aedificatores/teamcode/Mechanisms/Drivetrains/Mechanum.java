@@ -55,6 +55,24 @@ public class Mechanum {
         maxSpeed = 1;
     }
 
+    public Mechanum(HardwareMap map, String rf, String lf, String lr, String rr) {
+        rightFore = map.dcMotor.get(rf);
+        leftFore = map.dcMotor.get(lf);
+        leftRear = map.dcMotor.get(lr);
+        rightRear = map.dcMotor.get(rr);
+
+        rightFore.setDirection(REVERSE);
+        rightRear.setDirection(REVERSE);
+        leftFore.setDirection(FORWARD);
+        leftRear.setDirection(FORWARD);
+
+        leftFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        maxSpeed = 1;
+    }
+
     public Mechanum(double ratio, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double speed, HardwareMap map) {
         rightFore = map.dcMotor.get("rf");
         leftFore = map.dcMotor.get("lf");
