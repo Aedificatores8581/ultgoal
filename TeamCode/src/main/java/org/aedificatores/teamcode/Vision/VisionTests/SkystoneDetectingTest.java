@@ -40,6 +40,7 @@ public class SkystoneDetectingTest extends OpMode {
 
     @Override
     public void loop() {
+        telemetry.addData("DieRoll",pipe.dieRoll);
         telemetry.addData("Average",pipe.average);
         for (int i : pipe.blockPixelPositions) {
             telemetry.addData("Block Pose",i);
@@ -62,8 +63,7 @@ public class SkystoneDetectingTest extends OpMode {
 
         final int RUNNING_AVG_WINDOW_SIZE = 6;
         int average = 0;
-
-
+        int dieRoll = 0;
 
         int[] blockPixelPositions;
 
@@ -138,6 +138,16 @@ public class SkystoneDetectingTest extends OpMode {
             }
 
             average /= colSumRunningAverage.length;
+
+            {
+                if ((blockPixelPositions[0] % (SCREEN_WIDTH/2)) <= SCREEN_WIDTH/6) {
+                    dieRoll = 1;
+                } else if ((blockPixelPositions[0] % (SCREEN_WIDTH/2)) <= 2*SCREEN_WIDTH/6){
+                    dieRoll = 2;
+                } else {
+                    dieRoll = 3;
+                }
+            }
 
             /*{
                 int i=0;
