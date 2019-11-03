@@ -151,10 +151,10 @@ public class Mechanum {
     }
 
     public void setVelocityBasedOnGamePad(Vector2 leftStick, Vector2 rightStick) {
-        rightForePower = UniversalFunctions.clamp(-1, leftStick.y - (-leftStick.x - rightStick.x), 1);
-        rightAftPower = UniversalFunctions.clamp(-1, leftStick.y + (-leftStick.x + rightStick.x), 1);
-        leftForePower = UniversalFunctions.clamp(-1, leftStick.y - (leftStick.x + rightStick.x), 1);
-        leftAftPower = UniversalFunctions.clamp(-1, leftStick.y + (leftStick.x - rightStick.x), 1);
+        leftForePower = UniversalFunctions.clamp(-1, leftStick.y + leftStick.x + rightStick.x, 1);
+        leftAftPower = UniversalFunctions.clamp(-1, leftStick.y - leftStick.x + rightStick.x, 1);
+        rightAftPower  = UniversalFunctions.clamp(-1, leftStick.y - leftStick.x - rightStick.x, 1);
+        rightForePower = UniversalFunctions.clamp(-1, leftStick.y + leftStick.x - rightStick.x, 1);
     }
 
     private void setVelocity(double angle, double speed) {
