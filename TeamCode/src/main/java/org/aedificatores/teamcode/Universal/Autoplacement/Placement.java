@@ -1,13 +1,9 @@
 package org.aedificatores.teamcode.Universal.Autoplacement;
 
-import org.aedificatores.teamcode.Universal.Math.Pose3;
-import org.aedificatores.teamcode.Universal.Math.Vector3;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Stack;
-import java.nio.file.*;
 
 public class Placement {
 	public enum BlockOrientationAlias {
@@ -21,10 +17,14 @@ public class Placement {
 		int z = 0;
 
 		BlockPose(int x, int y, int z, BlockOrientationAlias o) {
-			x = x;
-			y = y;
-			z = z;
-			orientation = o;
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.orientation = o;
+		}
+
+		public String toString() {
+			return "(" + x + "," + y + "," + z + "), " + orientation;
 		}
 	}
 
@@ -70,8 +70,5 @@ public class Placement {
 		}
 
 		return s.toString();
-	}
-
-	Placement(String file, int _) {
 	}
 }
