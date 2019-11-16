@@ -53,6 +53,15 @@ public class Mechanum {
         rightFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         maxSpeed = 1;
+
+        rightFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public Mechanum(HardwareMap map, String rf, String lf, String lr, String rr) {
@@ -71,6 +80,15 @@ public class Mechanum {
         rightFore.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         maxSpeed = 1;
+
+        rightFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public Mechanum(double ratio, DcMotor.ZeroPowerBehavior zeroPowerBehavior, double speed, HardwareMap map) {
@@ -89,6 +107,15 @@ public class Mechanum {
         rightFore.setZeroPowerBehavior(zeroPowerBehavior);
         rightRear.setZeroPowerBehavior(zeroPowerBehavior);
         maxSpeed = speed;
+
+        rightFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 
@@ -150,11 +177,27 @@ public class Mechanum {
         return getLeftForePower(velocity.angle(), velocity.magnitude());
     }
 
+    public double getLeftForeEncoder(){
+        return leftFore.getCurrentPosition();
+    }
+
+    public double getRightForeEncoder(){
+        return rightFore.getCurrentPosition();
+    }
+
+    public double getLeftRearEncoder(){
+        return leftRear.getCurrentPosition();
+    }
+
+    public double getRightRearEncoder(){
+        return rightRear.getCurrentPosition();
+    }
+
     public void setVelocityBasedOnGamePad(Vector2 leftStick, Vector2 rightStick) {
         leftForePower = UniversalFunctions.clamp(-1, leftStick.y + leftStick.x + rightStick.x, 1);
         leftAftPower = UniversalFunctions.clamp(-1, leftStick.y - leftStick.x + rightStick.x, 1);
-        rightAftPower  = UniversalFunctions.clamp(-1, leftStick.y - leftStick.x - rightStick.x, 1);
-        rightForePower = UniversalFunctions.clamp(-1, leftStick.y + leftStick.x - rightStick.x, 1);
+        rightAftPower  = UniversalFunctions.clamp(-1, leftStick.y + leftStick.x - rightStick.x, 1);
+        rightForePower = UniversalFunctions.clamp(-1, leftStick.y - leftStick.x - rightStick.x, 1);
     }
 
     private void setVelocity(double angle, double speed) {

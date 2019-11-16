@@ -17,7 +17,7 @@ public class MechanumTeleTest extends OpMode {
 
     @Override
     public void init() {
-        drivetrain = new Mechanum(hardwareMap, "front right", "front left", "rear left", "rear right");
+        drivetrain = new Mechanum(hardwareMap);
         leftStick = new Vector2();
     }
 
@@ -35,6 +35,12 @@ public class MechanumTeleTest extends OpMode {
         drivetrain.setVelocityBasedOnGamePad(new Vector2(gamepad1.left_stick_x,gamepad1.left_stick_y)
                 ,                            new Vector2(gamepad1.right_stick_x,gamepad1.right_stick_y));
         drivetrain.refreshMotors();
+
+        telemetry.addData("left fore",drivetrain.getLeftForeEncoder());
+        telemetry.addData("right fore",drivetrain.getRightForeEncoder());
+        telemetry.addData("left rear",drivetrain.getLeftRearEncoder());
+        telemetry.addData("right rear",drivetrain.getRightRearEncoder());
+
 /*
         drivetrain.setVelocity(leftStick);
         drivetrain.refreshMotors();*/
