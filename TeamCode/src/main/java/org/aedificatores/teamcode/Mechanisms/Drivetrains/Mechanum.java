@@ -121,18 +121,18 @@ public class Mechanum {
 
     // NOTE: Maybe these shouldn't be in Roman Numerals but idk who cares.
     // So maybe change?
-    public void refreshMotors(double I, double II, double III, double IV) {
-        rightFore.setPower(I);
-        leftFore.setPower(II);
-        leftRear.setPower(III);
-        rightRear.setPower(IV);
+    public void refreshMotors(double rightFore, double leftFore, double leftRear, double rightRear) {
+        this.rightFore.setPower(rightFore);
+        this.leftFore.setPower(leftFore);
+        this.leftRear.setPower(leftRear);
+        this.rightRear.setPower(rightRear);
     }
 
-    public void refreshMotors(double I, double II, double III, double IV, double speed) {
-        rightFore.setPower(speed * I);
-        leftFore.setPower(speed * II);
-        leftRear.setPower(speed * III);
-        rightRear.setPower(speed * IV);
+    public void refreshMotors(double rightFore, double leftFore, double leftRear, double rightRear, double speed) {
+        this.rightFore.setPower(speed * rightFore);
+        this.leftFore.setPower(speed * leftFore);
+        this.leftRear.setPower(speed * leftRear);
+        this.rightRear.setPower(speed * rightRear);
     }
 
     public void refreshMotors() {
