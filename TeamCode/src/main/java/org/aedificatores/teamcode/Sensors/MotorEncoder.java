@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Components.Sensors;
+package org.aedificatores.teamcode.Sensors;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
