@@ -4,12 +4,18 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
+import org.aedificatores.teamcode.Universal.JSONAutonGetter;
+import org.aedificatores.teamcode.Universal.Math.PIDController;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.aedificatores.teamcode.Universal.UniversalFunctions;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.json.JSONException;
+
+import java.io.IOException;
 
 /*
 * Robot Class for Frank's robot
@@ -21,12 +27,48 @@ public class CleonBot {
 
     public BNO055IMU    imu;
     public Vector2      robotAngle;
+    public Vector2      prevRobotAngle;
     public GyroAngles   gyroangles;
     public Orientation  angles;
     public double       startAngleZ;
     public double       startAngleY;
 
-    public CleonBot(HardwareMap map){
+    private final double DIST_FORE_WHEEL_FROM_CENTER = 7.553149291;
+    private final double DIST_STRAFE_WHEEL_FROM_CENTER = 3.4154453269;
+
+    double prevForeInches;
+    double prevStrafeInches;
+    public Vector2 robotPosition;
+
+    // JSON object for getting PID constant values stored on the phone
+    JSONAutonGetter pidConstantsJson;
+
+    class PidConstantJSONNames {
+        static final String ANGLE_KP = "angleKP";
+        static final String ANGLE_KI = "angleKI";
+        static final String ANGLE_KD = "angleKD";
+
+        static final String X_POS_KP = "XPosKP";
+        static final String X_POS_KI = "XPosKI";
+        static final String X_POS_KD = "XPosKD";
+
+        static final String Y_POS_KP = "YPosKP";
+        static final String Y_POS_KI = "YPosKI";
+        static final String Y_POS_KD = "YPosKD";
+
+        static final String DELTA_TIME = "dt";
+    }
+
+    private final String JSON_PID_FILENAME = "CleonBotOrientationPID.json";
+
+    // PID Controllers for variables relating to robot position and orientation
+    public PIDController robotAnglePID;
+    public PIDController robotXPosPID;
+    public PIDController robotYPosPID;
+
+    public CleonIntake intake;
+
+    public CleonBot(HardwareMap map, boolean initJson) throws IOException, JSONException {
         drivetrain = new Mechanum(map);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -46,8 +88,38 @@ public class CleonBot {
         gyroangles = new GyroAngles(angles);
         robotAngle = new Vector2();
 
+        // This huge chunk of code just gets PID constant values from a json file and intitializes
+        // their respective PID controllers with them
+        if(initJson) {
+            pidConstantsJson = new JSONAutonGetter(JSON_PID_FILENAME);
+
+            robotAnglePID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.ANGLE_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.ANGLE_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.ANGLE_KD),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
+
+            robotXPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KD),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
+
+            robotYPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KD),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
+        } else {
+            robotAnglePID = new PIDController(0,0,0,0);
+            robotXPosPID = new PIDController(0,0,0,0);
+            robotYPosPID = new PIDController(0,0,0,0);
+
+        }
+        robotPosition = new Vector2();
+
         setStartAngleZ();
         setRobotAngle();
+        prevStrafeInches = 0;
+        prevForeInches = 0;
+        prevRobotAngle = new Vector2(robotAngle);
     }
 
     public double getStrafeDistanceInches(){
@@ -87,5 +159,31 @@ public class CleonBot {
     //Sets the angle value of robotAngle
     public void setRobotAngle(){
         robotAngle.setFromPolar(1, Math.toRadians(normalizeGyroAngleZ()));
+    }
+
+    public void updateRobotPosition() {
+        setRobotAngle();
+
+        double deltaForeMovement = getForeDistanceInches() - prevForeInches;
+        double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
+        Vector2 deltaRobotAngle = new Vector2(robotAngle);
+        deltaRobotAngle.subtract(prevRobotAngle);
+
+
+        double deltaForeMovementAfterTurn = deltaForeMovement - Math.abs(deltaRobotAngle.angle() * DIST_FORE_WHEEL_FROM_CENTER);
+        double deltaStrafeMovementAfterTurn = deltaStrafeMovement - Math.abs(deltaRobotAngle.angle() * DIST_STRAFE_WHEEL_FROM_CENTER);
+
+        robotPosition.y = robotPosition.y + deltaForeMovementAfterTurn * Math.sin(robotAngle.angle())
+                + deltaStrafeMovement * Math.cos(robotAngle.angle());
+        robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.cos(robotAngle.angle())
+                + deltaStrafeMovement * Math.sin(robotAngle.angle());
+
+        updatePrevOrientation();
+    }
+
+    public void updatePrevOrientation() {
+        prevForeInches = getForeDistanceInches();
+        prevStrafeInches = getStrafeDistanceInches();
+        prevRobotAngle = robotAngle.copy();
     }
 }

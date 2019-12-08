@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
+import org.json.JSONException;
+
+import java.io.IOException;
 
 // Robot drives in a square
 
@@ -18,7 +21,11 @@ public class OdometryPodsTest extends OpMode {
 
     @Override
     public void init() {
-        bot = new CleonBot(hardwareMap);
+        try {
+            bot = new CleonBot(hardwareMap, true);
+        } catch (IOException | JSONException e) {
+            telemetry.addLine(e.getMessage());
+        }
         state = State.FORWARD;
     }
 
