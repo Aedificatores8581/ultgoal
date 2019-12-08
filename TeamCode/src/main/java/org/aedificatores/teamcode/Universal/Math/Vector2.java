@@ -3,6 +3,11 @@ package org.aedificatores.teamcode.Universal.Math;
 public class Vector2 {
 	public double x, y;
 
+	public Vector2(Vector2 org) {
+		this.x = org.x;
+		this.y = org.y;
+	}
+
 	public Vector2() {
 		x = 0.0;
 		y = 0.0;
@@ -13,6 +18,10 @@ public class Vector2 {
 		this.y = y;
 	}
 
+
+	public Vector2 copy(){
+		return new Vector2(this);
+	}
 	public void setFromPolar(double r, double theta) {
 		this.x = Math.cos(theta) * r;
 		this.y = Math.sin(theta) * r;
