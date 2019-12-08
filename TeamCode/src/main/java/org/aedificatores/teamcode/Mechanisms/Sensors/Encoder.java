@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Sensors;
+package org.aedificatores.teamcode.Mechanisms.Sensors;
 
 import com.qualcomm.robotcore.hardware.AnalogInput;
 

@@ -1,13 +1,9 @@
 package org.aedificatores.teamcode.Mechanisms.Drivetrains;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.aedificatores.teamcode.Components.Sensors.MotorEncoder;
-import org.aedificatores.teamcode.Universal.Math.Pose;
-import org.aedificatores.teamcode.Universal.Math.Vector2;
-import org.aedificatores.teamcode.Universal.UniversalFunctions;
+import org.aedificatores.teamcode.Mechanisms.Sensors.MotorEncoder;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;

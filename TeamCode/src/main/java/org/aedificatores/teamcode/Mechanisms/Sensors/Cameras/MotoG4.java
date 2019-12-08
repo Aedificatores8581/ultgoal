@@ -1,9 +1,7 @@
-package org.aedificatores.teamcode.Sensors.Cameras;
+package org.aedificatores.teamcode.Mechanisms.Sensors.Cameras;
 
-import org.aedificatores.teamcode.Sensors.Cameras.DigitalCamera;
-import org.opencv.core.Point;
 import org.opencv.core.Point3;
-import org.opencv.core.Size;
+
 import java.lang.Math;
 
 public class MotoG4 {

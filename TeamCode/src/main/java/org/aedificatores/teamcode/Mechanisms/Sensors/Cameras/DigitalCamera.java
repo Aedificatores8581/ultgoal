@@ -1,6 +1,5 @@
-package org.aedificatores.teamcode.Sensors.Cameras;
+package org.aedificatores.teamcode.Mechanisms.Sensors.Cameras;
 
-import org.aedificatores.teamcode.Universal.Math.Pose3;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.aedificatores.teamcode.Universal.UniversalFunctions;
 import org.opencv.core.Point;
