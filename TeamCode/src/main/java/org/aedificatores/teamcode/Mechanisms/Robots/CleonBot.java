@@ -69,6 +69,7 @@ public class CleonBot {
     public CleonIntake intake;
 
     public CleonBot(HardwareMap map, boolean initJson) throws IOException, JSONException {
+        // Initialize rev imu
         drivetrain = new Mechanum(map);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -163,20 +164,25 @@ public class CleonBot {
 
     public void updateRobotPosition() {
         setRobotAngle();
-
+        // gets the change in orientation and position since last opmode update
         double deltaForeMovement = getForeDistanceInches() - prevForeInches;
         double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
         Vector2 deltaRobotAngle = new Vector2(robotAngle);
         deltaRobotAngle.subtract(prevRobotAngle);
 
-
+        // Eliminates any encoder ticks that were caused by turning the robot
+        // This makes sense since when the robot turns in place, the amount of ticks in each
+        // odometry pod changes, but the position of the robot doesn't change, so these ticks would
+        // be negligible
+        // This code subtracts the arc length of the turn from the change in enc ticks
         double deltaForeMovementAfterTurn = deltaForeMovement - Math.abs(deltaRobotAngle.angle() * DIST_FORE_WHEEL_FROM_CENTER);
         double deltaStrafeMovementAfterTurn = deltaStrafeMovement - Math.abs(deltaRobotAngle.angle() * DIST_STRAFE_WHEEL_FROM_CENTER);
 
+        // add the change in position to the current position
         robotPosition.y = robotPosition.y + deltaForeMovementAfterTurn * Math.sin(robotAngle.angle())
-                + deltaStrafeMovement * Math.cos(robotAngle.angle());
+                + deltaStrafeMovementAfterTurn * Math.cos(robotAngle.angle());
         robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.cos(robotAngle.angle())
-                + deltaStrafeMovement * Math.sin(robotAngle.angle());
+                + deltaStrafeMovementAfterTurn * Math.sin(robotAngle.angle());
 
         updatePrevOrientation();
     }
