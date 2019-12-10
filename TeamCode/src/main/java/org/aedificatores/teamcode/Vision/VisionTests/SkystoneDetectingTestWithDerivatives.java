@@ -2,6 +2,7 @@ package org.aedificatores.teamcode.Vision.VisionTests;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,6 +18,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.io.IOException;
 
+@Disabled
 @TeleOp(name = "Skystone Detecting With Derivatives Test")
 public class SkystoneDetectingTestWithDerivatives extends OpMode {
     OpenCvInternalCamera phoneCam;

@@ -5,10 +5,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcontroller.internal.ApplicationContext;
 
+@Disabled
 @Autonomous(name = "Phone Rotation Vector Test")
 public class PhoneRotationVectorTest extends OpMode {
     SensorManager manager;

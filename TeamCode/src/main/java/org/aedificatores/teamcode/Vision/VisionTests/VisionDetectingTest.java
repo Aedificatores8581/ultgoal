@@ -1,5 +1,6 @@
 package org.aedificatores.teamcode.Vision.VisionTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
@@ -24,6 +25,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
 * */
 
 // TODO: Cleanup This code
+
+@Disabled
 @TeleOp(name = "Vision Detecting Test")
 public class VisionDetectingTest extends OpMode {
 

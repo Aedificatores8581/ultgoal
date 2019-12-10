@@ -1,5 +1,6 @@
 package org.aedificatores.teamcode.Vision.VisionTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+@Disabled
 @TeleOp(name = "Vision Mask Test")
 public class VisionMaskTest extends OpMode {
     OpenCvInternalCamera phoneCam;
