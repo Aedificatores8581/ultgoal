@@ -27,6 +27,11 @@ public class Vector2 {
 		this.y = Math.sin(theta) * r;
 	}
 
+	public void setComponents(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
 	public void add(Vector2 vector) {
         x += vector.x;
         y += vector.y;
