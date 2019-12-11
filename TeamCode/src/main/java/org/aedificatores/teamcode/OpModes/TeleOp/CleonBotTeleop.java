@@ -1,6 +1,7 @@
 package org.aedificatores.teamcode.OpModes.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
@@ -8,6 +9,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+@TeleOp(name = "Cleon Bot Teleop")
 public class CleonBotTeleop extends OpMode {
     CleonBot bot;
     Vector2 leftStick, rightStick;

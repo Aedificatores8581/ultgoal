@@ -121,6 +121,9 @@ public class CleonBot {
         prevStrafeInches = 0;
         prevForeInches = 0;
         prevRobotAngle = new Vector2(robotAngle);
+
+
+        intake = new CleonIntake(map);
     }
 
     public double getStrafeDistanceInches(){
