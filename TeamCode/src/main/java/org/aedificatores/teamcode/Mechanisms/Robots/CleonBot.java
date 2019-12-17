@@ -195,4 +195,8 @@ public class CleonBot {
         prevStrafeInches = getStrafeDistanceInches();
         prevRobotAngle = robotAngle.copy();
     }
+
+    public void close() throws IOException {
+        pidConstantsJson.close();
+    }
 }
