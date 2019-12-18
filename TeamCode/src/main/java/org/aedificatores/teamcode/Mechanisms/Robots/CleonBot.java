@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
@@ -67,6 +68,7 @@ public class CleonBot {
     public PIDController robotYPosPID;
 
     public CleonIntake intake;
+    public CleonGrabber grabber;
 
     public CleonBot(HardwareMap map, boolean initJson) throws IOException, JSONException {
         // Initialize rev imu
@@ -124,6 +126,7 @@ public class CleonBot {
 
 
         intake = new CleonIntake(map);
+        grabber = new CleonGrabber(map);
     }
 
     public double getStrafeDistanceInches(){

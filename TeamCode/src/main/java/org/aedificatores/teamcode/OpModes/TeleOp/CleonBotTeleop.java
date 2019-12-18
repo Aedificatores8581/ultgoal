@@ -36,5 +36,11 @@ public class CleonBotTeleop extends OpMode {
         rightStick.setComponents(gamepad1.right_stick_x, gamepad1.right_stick_y);
         bot.drivetrain.setVelocityBasedOnGamePad(leftStick, rightStick);
         bot.drivetrain.refreshMotors();
+
+        if (gamepad1.right_bumper) {
+            bot.grabber.closeGrabber();
+        } else if (gamepad1.left_bumper) {
+            bot.grabber.openGrabber();
+        }
     }
 }
