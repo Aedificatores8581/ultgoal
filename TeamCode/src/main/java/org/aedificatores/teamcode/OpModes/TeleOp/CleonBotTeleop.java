@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.OpModes.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.json.JSONException;
@@ -42,5 +43,10 @@ public class CleonBotTeleop extends OpMode {
         } else if (gamepad1.left_bumper) {
             bot.grabber.openGrabber();
         }
+
+        if (gamepad1.a)
+            bot.lift.setLiftState(CleonLift.LiftState.MOVING_UP);
+        else if (gamepad1.b)
+            bot.lift.setLiftState(CleonLift.LiftState.MOVING_DOWN);
     }
 }

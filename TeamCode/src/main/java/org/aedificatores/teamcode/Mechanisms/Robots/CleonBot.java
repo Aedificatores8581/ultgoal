@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
+import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
 import org.aedificatores.teamcode.Universal.JSONAutonGetter;
@@ -69,6 +70,7 @@ public class CleonBot {
 
     public CleonIntake intake;
     public CleonGrabber grabber;
+    public CleonLift lift;
 
     public CleonBot(HardwareMap map, boolean initJson) throws IOException, JSONException {
         // Initialize rev imu
@@ -124,9 +126,9 @@ public class CleonBot {
         prevForeInches = 0;
         prevRobotAngle = new Vector2(robotAngle);
 
-
         intake = new CleonIntake(map);
         grabber = new CleonGrabber(map);
+        lift = new CleonLift(map);
     }
 
     public double getStrafeDistanceInches(){
