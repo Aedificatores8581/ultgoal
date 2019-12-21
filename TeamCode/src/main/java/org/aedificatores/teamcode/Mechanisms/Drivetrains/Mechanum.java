@@ -35,7 +35,7 @@ public class Mechanum {
     private Pose pose = new Pose(0, 0, 0);
     private TurnState turnState;
     private static final double FRONT_TO_BACK_POWER_RATIO = 1;
-    private DcMotor leftFore, leftRear, rightFore, rightRear;
+    public DcMotor leftFore, leftRear, rightFore, rightRear;
 
     public Mechanum(HardwareMap map) {
         rightFore = map.dcMotor.get("rf");
