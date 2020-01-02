@@ -35,7 +35,7 @@ public class Mechanum {
     private Pose pose = new Pose(0, 0, 0);
     private TurnState turnState;
     private static final double FRONT_TO_BACK_POWER_RATIO = 1;
-    private DcMotor leftFore, leftRear, rightFore, rightRear;
+    public DcMotor leftFore, leftRear, rightFore, rightRear;
 
     public Mechanum(HardwareMap map) {
         rightFore = map.dcMotor.get("rf");
@@ -128,6 +128,18 @@ public class Mechanum {
         this.rightRear.setPower(rightRear);
     }
 
+    public void resetMotorEncoders() {
+        this.leftFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.rightFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        this.leftFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.rightFore.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     public void refreshMotors(double rightFore, double leftFore, double leftRear, double rightRear, double speed) {
         this.rightFore.setPower(speed * rightFore);
         this.leftFore.setPower(speed * leftFore);
@@ -200,17 +212,15 @@ public class Mechanum {
         rightForePower = UniversalFunctions.clamp(-1, leftStick.y - leftStick.x - rightStick.x, 1);
     }
 
-    private void setVelocity(double angle, double speed) {
-        rightForePower = getRightForePower(angle, speed);
-        leftForePower = getLeftForePower(angle, speed);
-        leftAftPower = rightForePower / FRONT_TO_BACK_POWER_RATIO;
-        rightAftPower = leftForePower / FRONT_TO_BACK_POWER_RATIO;
-        rightForePower *= FRONT_TO_BACK_POWER_RATIO;
-        leftForePower *= FRONT_TO_BACK_POWER_RATIO;
+    public void setVelocity(double angle, double speed) {
+        setVelocity(new Vector2(angle, speed));
     }
 
     public void setVelocity(Vector2 velocity) {
-        setVelocity(velocity.angle(), velocity.magnitude());
+        leftForePower = UniversalFunctions.clamp(-1, velocity.y + velocity.x, 1);
+        leftAftPower = UniversalFunctions.clamp(-1, velocity.y - velocity.x, 1);
+        rightAftPower  = UniversalFunctions.clamp(-1, velocity.y + velocity.x, 1);
+        rightForePower = UniversalFunctions.clamp(-1, velocity.y - velocity.x, 1);
     }
 
     public void normalizeMotors() {

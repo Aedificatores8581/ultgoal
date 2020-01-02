@@ -23,8 +23,8 @@ public class CleonLift {
     public static final double SPEED = .7;
 
     public CleonLift(HardwareMap map) {
-        leftLiftMotor = map.dcMotor.get("lleft");
-        rightLiftMotor = map.dcMotor.get("rleft");
+        leftLiftMotor = map.dcMotor.get("llift");
+        rightLiftMotor = map.dcMotor.get("rlift");
 
         leftLiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightLiftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
