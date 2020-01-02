@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonFoundation;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
@@ -140,7 +141,7 @@ public class CleonBot {
         intake = new CleonIntake(map);
         grabber = new CleonGrabber(map);
         lift = new CleonLift(map);
-        foundationGrabber = new FoundationGrabber(map, FOUNDATION_GRABBER_NAME, FOUNDATION_GRABBED, FOUNDATION_RELEASED);
+        foundationGrabber = new CleonFoundation(map);
     }
 
     public double getStrafeDistanceInches(){
