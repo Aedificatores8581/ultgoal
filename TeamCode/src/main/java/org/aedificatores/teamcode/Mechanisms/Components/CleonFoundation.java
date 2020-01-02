@@ -15,7 +15,15 @@ public class CleonFoundation {
         servos[1] = map.servo.get(HARDWARE_MAP_NAME + "2");
     }
 
-    public void setServoPosition(double pos) { servo.setPosition(pos); }
-    public void close() { setServoPosition(CLOSED_POSITION); }
-    public void open() { setServoPosition(OPEN_POSITION); }
+    public void setServoPosition(double pos, int which) { servos[which].setPosition(pos); }
+
+    public void close() {
+        setServoPosition(CLOSED_POSITION, 0);
+        setServoPosition(CLOSED_POSITION, 1);
+    }
+
+    public void open() {
+        setServoPosition(OPEN_POSITION, 0);
+        setServoPosition(OPEN_POSITION, 1);
+    }
 }
