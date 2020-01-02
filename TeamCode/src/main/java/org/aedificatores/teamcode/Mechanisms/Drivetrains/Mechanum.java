@@ -14,7 +14,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
  * This is designed for any four-wheeled Mechanum Drivetrain.
  *
  * Created by Frank Portman on 5/21/2018
- * Revised by Theodore Lovinski 15/9/2019
+ * Revised by Theodore Lovinski and Hunter Seachrist (mostly Hunter though) 15/9/2019
  */
 
 public class Mechanum {
