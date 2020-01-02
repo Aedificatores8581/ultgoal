@@ -67,9 +67,9 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
     Alliance alliance;
 
     PIDController drivePID;
-    static final double KP = .12;
+    static final double KP = .14;
     static final double KI = 0.0;
-    static final double KD = .004;
+    static final double KD = .003;
     static final double DELTA_TIME = 0.05;
 
     private static final int SCREEN_WIDTH = 320;
@@ -124,14 +124,15 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         switch (autoState) {
             case DETECT:
                 if (detector.dieRoll == 1 || detector.dieRoll == 4) {
-                    distanceOfSkystone = 10;
+                    distanceOfSkystone = 8;
                 } else if (detector.dieRoll == 2 || detector.dieRoll == 5) {
-                    distanceOfSkystone = 5;
+                    distanceOfSkystone = 4;
                 } else {
                     distanceOfSkystone = 0;
                 }
                 autoState = AutoState.FORE;
                 Log.i(TAG,"Fore");
+                resetStartTime();
                 break;
             case FORE:
                 if (drive(new Vector2(0, -SPEED), 7)) {
@@ -152,7 +153,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case STRAFE_TO_STONE:
-                if (drive(new Vector2(SPEED, 0), 27)) {
+                if (drive(new Vector2(SPEED, 0), 32)) {
                     autoState = AutoState.INTAKE_STONE;
                     Log.i(TAG,"Intake stone");
                 }
@@ -173,7 +174,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case STRAFE_OUT_OF_STONE_AREA:
-                if (drive(new Vector2(-SPEED, 0), 22)) {
+                if (drive(new Vector2(-SPEED, 0), 15)) {
                     autoState = AutoState.RECORRECT_TO_90;
                     Log.i(TAG,"recorrect to 90");
                 }
@@ -185,7 +186,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA:
-                if (drive(new Vector2(0, SPEED), 90+distanceOfSkystone)) {
+                if (drive(new Vector2(0, SPEED), 78+distanceOfSkystone)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
                     Log.i(TAG,"strafe to foundation");
                 }
@@ -262,6 +263,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         telemetry.addData("angle", bot.robotAngle);
         telemetry.addData("actual angle", bot.getGyroAngleZ());
         telemetry.addData("inches", Math.sqrt(Math.pow(bot.getForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2)));
+        telemetry.addData("motor power", bot.drivetrain.leftFore.getPower());
     }
 
     // Returns true if the bot has reached the desired encoder limit
@@ -279,7 +281,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         // bot.drivetrain.setVelocity(v);
 
 
-        if (Math.abs(distance) > inches) {
+        if (Math.abs(distance) > inches || getRuntime() > 5.0) {
             bot.drivetrain.setVelocity(new Vector2(0,0));
             bot.drivetrain.refreshMotors();
             resetStartTime();

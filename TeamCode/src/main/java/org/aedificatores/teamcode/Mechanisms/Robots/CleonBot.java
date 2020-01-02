@@ -76,7 +76,7 @@ public class CleonBot {
     public CleonLift lift;
     public FoundationGrabber foundationGrabber;
 
-    static final String FOUNDATION_GRABBER_NAME = "found1";
+    static final String FOUNDATION_GRABBER_NAME = "foundation";
     static final double FOUNDATION_GRABBED = 0.3;
     static final double FOUNDATION_RELEASED = 1;
 
