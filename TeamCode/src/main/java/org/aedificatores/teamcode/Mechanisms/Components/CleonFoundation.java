@@ -7,8 +7,10 @@ public class CleonFoundation {
     private Servo[] servos;
 
     private static final String HARDWARE_MAP_NAME = "foundation";
-    private final double CLOSED_POSITION = -1.0;
-    private final double OPEN_POSITION = 1.0;
+    private final double CLOSED_POSITION_1 = 0.50;
+    private final double OPEN_POSITION_1 = 0.00;
+    private final double CLOSED_POSITION_2 = 0.30;
+    private final double OPEN_POSITION_2 = 1.00;
 
     public CleonFoundation(HardwareMap map) {
         servos[0] = map.servo.get(HARDWARE_MAP_NAME + "1");
@@ -18,12 +20,12 @@ public class CleonFoundation {
     public void setServoPosition(double pos, int which) { servos[which].setPosition(pos); }
 
     public void close() {
-        setServoPosition(CLOSED_POSITION, 0);
-        setServoPosition(CLOSED_POSITION, 1);
+        setServoPosition(CLOSED_POSITION_1, 0);
+        setServoPosition(CLOSED_POSITION_2, 1);
     }
 
     public void open() {
-        setServoPosition(OPEN_POSITION, 0);
-        setServoPosition(OPEN_POSITION, 1);
+        setServoPosition(OPEN_POSITION_1, 0);
+        setServoPosition(OPEN_POSITION_2, 1);
     }
 }
