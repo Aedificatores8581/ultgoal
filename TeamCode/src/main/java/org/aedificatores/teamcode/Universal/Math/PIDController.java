@@ -29,6 +29,7 @@ public class PIDController {
         KI = ki;
         KD = kd;
         deltaTime = tc;
+        time = UniversalFunctions.getTimeInSeconds();
     }
     public PIDController(double kp, double ki, double kd, double tc, double im){
         KP = kp;
@@ -44,8 +45,8 @@ public class PIDController {
     }
     //one iteration of an ideal PID loop
     public void idealLoop(){
-        if(time + deltaTime >= UniversalFunctions.getTimeInSeconds()) {
-            error = setpoint - processVar;
+        if(UniversalFunctions.getTimeInSeconds() - time >= deltaTime) {
+            // error = setpoint - processVar;
             integral += error * deltaTime;
             integral = integralMax > integral ? integral : integralMax;
             derivative = (error - prevError) / deltaTime;

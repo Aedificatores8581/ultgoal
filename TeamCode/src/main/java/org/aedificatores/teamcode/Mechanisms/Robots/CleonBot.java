@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
+import org.aedificatores.teamcode.Mechanisms.Components.FoundationGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
 import org.aedificatores.teamcode.Universal.JSONAutonGetter;
@@ -28,8 +29,9 @@ public class CleonBot {
     public Mechanum     drivetrain;
 
     public BNO055IMU    imu;
-    public Vector2      robotAngle;
-    public Vector2      prevRobotAngle;
+    public double       robotAngle;
+    public double       prevRobotAngle;
+    public double       deltaRobotAngle;
     public GyroAngles   gyroangles;
     public Orientation  angles;
     public double       startAngleZ;
@@ -40,6 +42,7 @@ public class CleonBot {
 
     double prevForeInches;
     double prevStrafeInches;
+    public double deltaForeMovementAfterTurn;
     public Vector2 robotPosition;
 
     // JSON object for getting PID constant values stored on the phone
@@ -71,6 +74,11 @@ public class CleonBot {
     public CleonIntake intake;
     public CleonGrabber grabber;
     public CleonLift lift;
+    public FoundationGrabber foundationGrabber;
+
+    static final String FOUNDATION_GRABBER_NAME = "foundation";
+    static final double FOUNDATION_GRABBED = 0.3;
+    static final double FOUNDATION_RELEASED = 1;
 
     public CleonBot(HardwareMap map, boolean initJson) throws IOException, JSONException {
         // Initialize rev imu
@@ -91,7 +99,7 @@ public class CleonBot {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, GyroAngles.ORDER, GyroAngles.UNIT);
 
         gyroangles = new GyroAngles(angles);
-        robotAngle = new Vector2();
+        robotAngle = 0.0;
 
         // This huge chunk of code just gets PID constant values from a json file and intitializes
         // their respective PID controllers with them
@@ -124,11 +132,15 @@ public class CleonBot {
         setRobotAngle();
         prevStrafeInches = 0;
         prevForeInches = 0;
-        prevRobotAngle = new Vector2(robotAngle);
+        prevRobotAngle = robotAngle;
+        deltaRobotAngle = 0.0;
+
+        deltaForeMovementAfterTurn = 0.0;
 
         intake = new CleonIntake(map);
         grabber = new CleonGrabber(map);
         lift = new CleonLift(map);
+        foundationGrabber = new FoundationGrabber(map, FOUNDATION_GRABBER_NAME, FOUNDATION_GRABBED, FOUNDATION_RELEASED);
     }
 
     public double getStrafeDistanceInches(){
@@ -167,7 +179,7 @@ public class CleonBot {
 
     //Sets the angle value of robotAngle
     public void setRobotAngle(){
-        robotAngle.setFromPolar(1, Math.toRadians(normalizeGyroAngleZ()));
+        robotAngle = Math.toRadians(getGyroAngleZ());
     }
 
     public void updateRobotPosition() {
@@ -175,30 +187,32 @@ public class CleonBot {
         // gets the change in orientation and position since last opmode update
         double deltaForeMovement = getForeDistanceInches() - prevForeInches;
         double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
-        Vector2 deltaRobotAngle = new Vector2(robotAngle);
-        deltaRobotAngle.subtract(prevRobotAngle);
+        deltaRobotAngle = robotAngle;
+        deltaRobotAngle -= prevRobotAngle;
+
+        if (deltaRobotAngle > Math.PI) {
+            deltaRobotAngle = 2 * Math.PI - deltaRobotAngle;
+        }
 
         // Eliminates any encoder ticks that were caused by turning the robot
         // This makes sense since when the robot turns in place, the amount of ticks in each
         // odometry pod changes, but the position of the robot doesn't change, so these ticks would
         // be negligible
         // This code subtracts the arc length of the turn from the change in enc ticks
-        double deltaForeMovementAfterTurn = deltaForeMovement - Math.abs(deltaRobotAngle.angle() * DIST_FORE_WHEEL_FROM_CENTER);
-        double deltaStrafeMovementAfterTurn = deltaStrafeMovement - Math.abs(deltaRobotAngle.angle() * DIST_STRAFE_WHEEL_FROM_CENTER);
+        deltaForeMovementAfterTurn = deltaForeMovement - deltaRobotAngle * DIST_FORE_WHEEL_FROM_CENTER;
+        //deltaStrafeMovementAfterTurn = deltaStrafeMovement - deltaRobotAngle * DIST_STRAFE_WHEEL_FROM_CENTER;
 
         // add the change in position to the current position
-        robotPosition.y = robotPosition.y + deltaForeMovementAfterTurn * Math.sin(robotAngle.angle())
-                + deltaStrafeMovementAfterTurn * Math.cos(robotAngle.angle());
-        robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.cos(robotAngle.angle())
-                + deltaStrafeMovementAfterTurn * Math.sin(robotAngle.angle());
+        robotPosition.y = robotPosition.y + deltaForeMovementAfterTurn * Math.cos(robotAngle);
+        robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.sin(robotAngle);
 
-        updatePrevOrientation();
+        updatePrevPosition();
     }
 
-    public void updatePrevOrientation() {
+    public void updatePrevPosition() {
         prevForeInches = getForeDistanceInches();
         prevStrafeInches = getStrafeDistanceInches();
-        prevRobotAngle = robotAngle.copy();
+        prevRobotAngle = robotAngle;
     }
 
     public void close() throws IOException {
