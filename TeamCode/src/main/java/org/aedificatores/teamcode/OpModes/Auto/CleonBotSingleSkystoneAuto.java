@@ -34,12 +34,15 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         BACK_TO_BUILD_AREA,
         STRAFE_TO_FOUNDATION,
         GRAB_FOUNDATION,
-        BACK_FROM_INIT_FOUNDATION_AREA,
+        DRAG_FOUNDATION,
         ROTATE_FOUNDATION,
         RELEASE_FOUNDATION,
+        FORE_AROUND_FOUNDATION,
+        STRAFE_AROUND_FOUNDATION,
         PUSH_FOUNDATION,
         BACK_FROM_FOUNDATION,
         TURN_90_TO_DROP_STONE,
+        EXTEND_GRABBER,
         DROP_STONE,
         PARK,
         STOP
@@ -50,8 +53,8 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
     private static final double SPEED = .7;
 
     enum TurnDirection {
-        LEFT(-.33),
-        RIGHT(.33);
+        LEFT(-.3),
+        RIGHT(.3);
 
         private double speed;
         TurnDirection(double s) {
@@ -111,6 +114,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
 
     @Override
     public void init_loop() {
+        // bot.grabber.retract();
         if (gamepad1.a) {
             alliance = Alliance.BLUE;
         } else if (gamepad1.b) {
@@ -119,15 +123,21 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         telemetry.addData("Alliance (press 'a' for blue, 'b' for red)",alliance);
     }
 
+    @Override
+    public void start() {
+        super.start();
+        bot.grabber.init();
+    }
+
     // This particular code is repeated a bunch, so it's put in a function
     @Override
     public void loop() {
         switch (autoState) {
             case DETECT:
                 if (detector.dieRoll == 1 || detector.dieRoll == 4) {
-                    distanceOfSkystone = 9;
+                    distanceOfSkystone = 7;
                 } else if (detector.dieRoll == 2 || detector.dieRoll == 5) {
-                    distanceOfSkystone = 4;
+                    distanceOfSkystone = 3;
                 } else {
                     distanceOfSkystone = 0;
                 }
@@ -161,7 +171,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 break;
             case INTAKE_STONE:
                 bot.intake.setIntakePower(1.0);
-                if (drive(new Vector2(0, -SPEED/1.2), 4, 2)) {
+                if (drive(new Vector2(0, -SPEED/1.2), 7, 2)) {
                     autoState = AutoState.WAIT_FOR_STONE_TO_INTAKE;
                     resetStartTime();
                     Log.i(TAG,"strafe from stone");
@@ -187,7 +197,8 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA:
-                if (drive(new Vector2(0, SPEED), 78+distanceOfSkystone, 4.5)) {
+                bot.grabber.closePusher();
+                if (drive(new Vector2(0, SPEED), 72+distanceOfSkystone, 4.5)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
                     Log.i(TAG,"strafe to foundation");
                 }
@@ -201,18 +212,19 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 break;
             case GRAB_FOUNDATION:
                 bot.foundationGrabber.close();
+                bot.grabber.closeGrabber();
                 if (getRuntime() > 1.0) {
-                    autoState = AutoState.BACK_FROM_INIT_FOUNDATION_AREA;
-                    Log.i(TAG,"back from init foundation area");
+                    autoState = AutoState.DRAG_FOUNDATION;
+                    Log.i(TAG,"drag foundation");
                 }
                 break;
-            case BACK_FROM_INIT_FOUNDATION_AREA:
-                if (drive(new Vector2(-SPEED, 0), 11, 2)) {
-                    autoState = AutoState.ROTATE_FOUNDATION;
-                    Log.i(TAG,"rotate foundation");
+            case DRAG_FOUNDATION:
+                if (drive(new Vector2(-SPEED, 0), 70, 4)) {
+                    autoState = AutoState.RELEASE_FOUNDATION;
+                    Log.i(TAG,"release foundation");
                 }
                 break;
-            case ROTATE_FOUNDATION:
+            case ROTATE_FOUNDATION: // Unused State
                 bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(-SPEED/2,0), new Vector2(SPEED/2,0));
                 if (bot.robotAngle < 0) {
                     bot.drivetrain.setVelocity(new Vector2(0,0));
@@ -225,14 +237,29 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
             case RELEASE_FOUNDATION:
                 bot.foundationGrabber.open();
                 if (getRuntime() > 1.0) {
+                    autoState = AutoState.FORE_AROUND_FOUNDATION;
+                    Log.i(TAG,"fore around foundation");
+                }
+                break;
+            case FORE_AROUND_FOUNDATION:
+                bot.grabber.extend();
+                if (drive(new Vector2(0, -SPEED), 22, 2.5)) {
+                    autoState = AutoState.STRAFE_AROUND_FOUNDATION;
+                    Log.i(TAG,"strafe around foundation");
+                }
+                break;
+            case STRAFE_AROUND_FOUNDATION:
+                bot.grabber.extend();
+                if (drive(new Vector2(SPEED, 0), 26, 2.5)) {
                     autoState = AutoState.PUSH_FOUNDATION;
-                    Log.i(TAG,"Push Foundation");
+                    resetStartTime();
+                    Log.i(TAG,"push foundation");
                 }
                 break;
             case PUSH_FOUNDATION:
-                if (drive(new Vector2(SPEED, 0), 24, 2)) {
-                    autoState = AutoState.BACK_FROM_FOUNDATION;
-                    Log.i(TAG,"Back from foundation");
+                if (drive(new Vector2(0, SPEED), 10, 1.5)) {
+                    autoState = AutoState.EXTEND_GRABBER;
+                    Log.i(TAG,"extend grabber");
                 }
                 break;
             case BACK_FROM_FOUNDATION:
@@ -243,15 +270,26 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 break;
             case TURN_90_TO_DROP_STONE:
                 if (turn(Math.PI/2, TurnDirection.RIGHT)) {
-                    autoState = AutoState.DROP_STONE;
-                    Log.i(TAG,"drop stone");
+                    autoState = AutoState.EXTEND_GRABBER;
+                    resetStartTime();
+                    Log.i(TAG,"extend grabber");
                 }
                 break;
+            case EXTEND_GRABBER:
+                autoState = AutoState.DROP_STONE;
+                break;
             case DROP_STONE:
+                bot.grabber.openGrabber();
+                if (getRuntime() > 1.5) {
+                    autoState = AutoState.PARK;
+                    resetStartTime();
+
+                }
                 break;
             case PARK:
-                if (drive(new Vector2(-SPEED, 0.0), 90, 2)) {
+                if (drive(new Vector2(0.0, -SPEED), 30, 2)) {
                     autoState = AutoState.STOP;
+                    Log.i(TAG,"stop");
                 }
                 break;
             case STOP:
@@ -264,7 +302,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
 
         telemetry.addData("actual angle", bot.getGyroAngleZ());
         telemetry.addData("inches", Math.sqrt(Math.pow(bot.getForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2)));
-        telemetry.addData("motor power", bot.drivetrain.leftFore.getPower());
+        telemetry.addData("\nmotor power", bot.drivetrain.leftFore.getPower());
         telemetry.addData("fore inch", bot.getForeDistanceInches());
         telemetry.addData("strafe inch", bot.getStrafeDistanceInches());
     }
@@ -302,13 +340,20 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
 
         if (alliance == Alliance.BLUE) {
             turnSpeed = -turnSpeed;
+            angle = -angle;
         }
-
 
         bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(), new Vector2(turnSpeed, 0.0));
 
         if (dir == TurnDirection.LEFT) {
-            if (bot.robotAngle > angle) {
+            if (bot.robotAngle > angle && alliance == Alliance.RED) {
+                bot.drivetrain.setVelocity(new Vector2(0,0));
+                bot.drivetrain.refreshMotors();
+                resetStartTime();
+                bot.drivetrain.resetMotorEncoders();
+                return true;
+            }
+            if (bot.robotAngle < angle && alliance == Alliance.BLUE) {
                 bot.drivetrain.setVelocity(new Vector2(0,0));
                 bot.drivetrain.refreshMotors();
                 resetStartTime();
@@ -316,7 +361,14 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 return true;
             }
         } else if (dir == TurnDirection.RIGHT) {
-            if (bot.robotAngle < angle) {
+            if (bot.robotAngle < angle && alliance == Alliance.RED) {
+                bot.drivetrain.setVelocity(new Vector2(0,0));
+                bot.drivetrain.refreshMotors();
+                resetStartTime();
+                bot.drivetrain.resetMotorEncoders();
+                return true;
+            }
+            if (bot.robotAngle > angle && alliance == Alliance.BLUE) {
                 bot.drivetrain.setVelocity(new Vector2(0,0));
                 bot.drivetrain.refreshMotors();
                 resetStartTime();

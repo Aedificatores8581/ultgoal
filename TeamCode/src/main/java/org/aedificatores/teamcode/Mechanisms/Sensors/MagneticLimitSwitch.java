@@ -12,7 +12,7 @@ public class MagneticLimitSwitch {
 	}
 
 	public boolean isActive() {
-		return limitSwitch.getState();
+		return !limitSwitch.getState();
 	}
 
 	public String toString() {
