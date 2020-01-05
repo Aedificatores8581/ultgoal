@@ -23,7 +23,7 @@ public class SkystoneDetector extends OpenCvPipeline {
 
     final int RUNNING_AVG_WINDOW_SIZE = 6;
     int average = 0;
-    int dieRoll = 0;
+    public int dieRoll = 0;
 
     int[] blockPixelPositions;
 
@@ -35,7 +35,7 @@ public class SkystoneDetector extends OpenCvPipeline {
             S_MAX = 255,
             V_MAX = 255;
 
-    SkystoneDetector(int screenWidth, int screenHeight) {
+    public SkystoneDetector(int screenWidth, int screenHeight) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
@@ -48,7 +48,7 @@ public class SkystoneDetector extends OpenCvPipeline {
         colSumArray = new int[screenWidth];
         colSumRunningAverage = new int[colSumArray.length- RUNNING_AVG_WINDOW_SIZE];
         colSumRunningAverageDeriv = new int[colSumRunningAverage.length - 1];
-        roi = new Rect(0, 170, 240, 150);
+        roi = new Rect(0, 0, 10, 10);
 
         blockPixelPositions = new int[2];
     }

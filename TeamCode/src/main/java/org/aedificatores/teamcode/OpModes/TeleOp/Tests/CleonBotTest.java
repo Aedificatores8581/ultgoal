@@ -48,5 +48,7 @@ public class CleonBotTest extends OpMode {
         telemetry.addData("RF", bot.drivetrain.getRightForeEncoder());
         telemetry.addData("LR", bot.drivetrain.getLeftForeEncoder());
         telemetry.addData("RR", bot.drivetrain.getRightRearEncoder());
+        telemetry.addData("deltaTheta", bot.deltaRobotAngle);
+        telemetry.addData("Fore Move after turn", bot.deltaForeMovementAfterTurn);
     }
 }

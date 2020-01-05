@@ -22,21 +22,29 @@ public class HummingbirdFoundationAuto extends OpMode {
         }
     }
 
-    private static final double SPEED = .7;
+    private static final double SPEED = .25;
 
     static HummingbirdBot bot;
 
+    enum Alliance {
+        BLUE,
+        RED
+    }
+
+    // enum for red auto state machine,
+    // to get blue auto, negate the x component of the velocity vector
     enum AutoState {
-        STRAFE_TO_CORNER(new VelocityEncoderPair(new Vector2(-SPEED, 0.0), 1000)),
-        FORE_TO_FOUNDATION(new VelocityEncoderPair(new Vector2(0.0, SPEED), 1000)),
+        STRAFE_TO_CORNER(new VelocityEncoderPair(new Vector2(-SPEED, 0.0), 1300)),
+        FORE_TO_FOUNDATION(new VelocityEncoderPair(new Vector2(0.0, -SPEED), 1500)),
         GRAB(new VelocityEncoderPair(new Vector2(0.0, 0.0), 0)),
-        BACK_TO_WALL(new VelocityEncoderPair(new Vector2(0.0, -SPEED), 500)),
+        BACK_TO_WALL(new VelocityEncoderPair(new Vector2(0.0, SPEED), 100)),
         // TURN state moves differently than states like STRAFE_TO_CORNER, so the
         // velocity vector isn't used. However, the encoder value is.
-        TURN(new VelocityEncoderPair(new Vector2(0.0, 0.0), 600)),
-        PUSH(new VelocityEncoderPair(new Vector2(0.0, SPEED), 2000)),
+        TURN(new VelocityEncoderPair(new Vector2(0.0, 0.0), 2800)),
+        PUSH(new VelocityEncoderPair(new Vector2(0.0, -SPEED), 140)),
         RELEASE(new VelocityEncoderPair(new Vector2(0.0, 0.0), 0)),
-        BACK_FROM_FOUNDATION(new VelocityEncoderPair(new Vector2(0.0, -SPEED), 1000)),
+        STRAFE_LEFT_TO_STOP(new VelocityEncoderPair(new Vector2(SPEED, 0.0), 1000)),
+        BACK_FROM_FOUNDATION(new VelocityEncoderPair(new Vector2(0.0, SPEED), 1800)),
         STOP(new VelocityEncoderPair(new Vector2(0.0, 0.0), 0));
 
         private VelocityEncoderPair vep;
@@ -51,9 +59,25 @@ public class HummingbirdFoundationAuto extends OpMode {
     }
 
     private AutoState state = AutoState.STRAFE_TO_CORNER;
+    private Alliance alliance;
+
     @Override
     public void init() {
         bot = new HummingbirdBot(hardwareMap);
+        bot.foundationGrabber.release();
+        alliance = Alliance.RED;
+    }
+
+    @Override
+    public void init_loop() {
+        super.init_loop();
+        if (gamepad1.a)
+            alliance = Alliance.BLUE;
+        else if (gamepad1.b)
+            alliance = Alliance.RED;
+
+        telemetry.addData("Alliance", alliance);
+        updateTelemetry(telemetry);
     }
 
     @Override
@@ -80,13 +104,24 @@ public class HummingbirdFoundationAuto extends OpMode {
                 break;
 
             case TURN:
-                bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(0.0, -SPEED),
-                                                         new Vector2(-.4,0.0));
-                if (bot.drivetrain.getLeftForeEncoder() > state.getVEP().encoder) {
-                    bot.drivetrain.setVelocity(new Vector2(0,0));
-                    resetStartTime();
-                    bot.drivetrain.resetMotorEncoders();
-                    state = AutoState.RELEASE;
+                if (alliance == Alliance.RED) {
+                    bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(0.0, SPEED),
+                            new Vector2(SPEED, 0.0));
+                    if (Math.abs(bot.drivetrain.getLeftForeEncoder()) > state.getVEP().encoder) {
+                        bot.drivetrain.setVelocity(new Vector2(0,0));
+                        resetStartTime();
+                        bot.drivetrain.resetMotorEncoders();
+                        state = AutoState.PUSH;
+                    }
+                } else if (alliance == Alliance.BLUE) {
+                    bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(0.0, SPEED),
+                            new Vector2(-SPEED, 0.0));
+                    if (Math.abs(bot.drivetrain.getLeftForeEncoder()) > state.getVEP().encoder + 200) {
+                        bot.drivetrain.setVelocity(new Vector2(0,0));
+                        resetStartTime();
+                        bot.drivetrain.resetMotorEncoders();
+                        state = AutoState.PUSH;
+                    }
                 }
                 break;
             case PUSH:
@@ -95,9 +130,12 @@ public class HummingbirdFoundationAuto extends OpMode {
             case RELEASE:
                 bot.foundationGrabber.release();
                 if (getRuntime() > 1.0) {
-                    state = AutoState.BACK_FROM_FOUNDATION;
+                    state = AutoState.STRAFE_LEFT_TO_STOP;
                     bot.drivetrain.resetMotorEncoders();
                 }
+                break;
+            case STRAFE_LEFT_TO_STOP:
+                if (runToPosition(state)) state = AutoState.BACK_FROM_FOUNDATION;
                 break;
             case BACK_FROM_FOUNDATION:
                 if (runToPosition(state)) state = AutoState.STOP;
@@ -108,12 +146,22 @@ public class HummingbirdFoundationAuto extends OpMode {
         }
 
         bot.drivetrain.refreshMotors();
+
+        telemetry.addData("State", state);
+        telemetry.addData("\nGoal Velocity", state.getVEP().velocity);
+        telemetry.addData("\nGoal Encoder", state.getVEP().encoder);
+        telemetry.addData("Actual Encoder", bot.drivetrain.getLeftForeEncoder());
     }
 
     // This particular code is repeated a bunch, so it's put in a function
     // Returns true if the bot has reached the desired encoder limit
     private boolean runToPosition(AutoState state) {
-        bot.drivetrain.setVelocity(state.getVEP().velocity);
+        Vector2 v = new Vector2(state.getVEP().velocity);
+        if (alliance == Alliance.BLUE) {
+            v.x = -v.x;
+        }
+
+        bot.drivetrain.setVelocity(v);
         if (Math.abs(bot.drivetrain.getLeftForeEncoder()) > state.getVEP().encoder) {
             bot.drivetrain.setVelocity(new Vector2(0,0));
             resetStartTime();

@@ -5,7 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.HummingbirdBlockGrabber;
-import org.aedificatores.teamcode.Mechanisms.Components.HummingbirdFoundationGrabber;
+import org.aedificatores.teamcode.Mechanisms.Components.FoundationGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
@@ -25,7 +25,7 @@ public class HummingbirdBot {
 
     public Vector2 robotPosition;
 
-    public HummingbirdFoundationGrabber foundationGrabber;
+    public FoundationGrabber foundationGrabber;
     public HummingbirdBlockGrabber blockGrabber;
 
     class DrivetrainConfig {
@@ -42,12 +42,14 @@ public class HummingbirdBot {
     }
 
     static final String FOUNDATION_GRAB_CONFIG = "foundation servo";
+    static final double FOUNDATION_GRABBED = 0.95;
+    static final double FOUNDATION_RELEASED = 0.45;
 
     public HummingbirdBot(HardwareMap map) {
         // Initialize rev imu
         initIMU(map);
         drivetrain = new Mechanum(map, DrivetrainConfig.RF, DrivetrainConfig.LF, DrivetrainConfig.RL, DrivetrainConfig.RR);
-        foundationGrabber = new HummingbirdFoundationGrabber(map, FOUNDATION_GRAB_CONFIG);
+        foundationGrabber = new FoundationGrabber(map, FOUNDATION_GRAB_CONFIG, FOUNDATION_GRABBED, FOUNDATION_RELEASED);
         blockGrabber = new HummingbirdBlockGrabber(map, GrabberConfig.PITCH_SERVO, GrabberConfig.ROLL_SERVO, GrabberConfig.GRABBER);
     }
 
