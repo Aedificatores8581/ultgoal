@@ -26,12 +26,15 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         FORE,
         LINEUP_WITH_STONE,
         TURN_90,
+        RETURN_90,
+        BLUE_TURN,
         STRAFE_TO_STONE,
         INTAKE_STONE,
         WAIT_FOR_STONE_TO_INTAKE,
         STRAFE_OUT_OF_STONE_AREA,
         RECORRECT_TO_90,
         BACK_TO_BUILD_AREA,
+        BLUE_180_TO_GRAB,
         STRAFE_TO_FOUNDATION,
         GRAB_FOUNDATION,
         DRAG_FOUNDATION,
@@ -39,11 +42,13 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         RELEASE_FOUNDATION,
         FORE_AROUND_FOUNDATION,
         STRAFE_AROUND_FOUNDATION,
+        BLUE_180_TO_PUSH,
         PUSH_FOUNDATION,
         BACK_FROM_FOUNDATION,
         TURN_90_TO_DROP_STONE,
         EXTEND_GRABBER,
         DROP_STONE,
+        RECORRECT_90_PARK,
         PARK,
         STOP
     }
@@ -146,9 +151,16 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 resetStartTime();
                 break;
             case FORE:
-                if (drive(new Vector2(0, -SPEED), 7, 2)) {
-                    autoState = AutoState.LINEUP_WITH_STONE;
-                    Log.i(TAG,"Lineup");
+                if (alliance == Alliance.RED) {
+                    if (drive(new Vector2(0, -SPEED), 7, 2)) {
+                        autoState = AutoState.LINEUP_WITH_STONE;
+                        Log.i(TAG, "Lineup");
+                    }
+                } else {
+                    if (drive(new Vector2(0, -SPEED), 18, 2)) {
+                        autoState = AutoState.BLUE_TURN;
+                        Log.i(TAG, "Lineup");
+                    }
                 }
                 break;
             case LINEUP_WITH_STONE:
@@ -159,8 +171,20 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 break;
             case TURN_90:
                 if (turn(Math.PI/2, TurnDirection.LEFT)) {
+                    autoState = AutoState.RETURN_90;
+                    Log.i(TAG,"Retrun 90");
+                }
+                break;
+            case RETURN_90:
+                if (turn(Math.PI/2, TurnDirection.RIGHT)) {
                     autoState = AutoState.STRAFE_TO_STONE;
                     Log.i(TAG,"Strafe to stone");
+                }
+                break;
+            case BLUE_TURN:
+                if (turn(-Math.PI/2, TurnDirection.RIGHT)) {
+                    autoState = AutoState.BACK_TO_BUILD_AREA;
+                    Log.i(TAG,"Intake stone");
                 }
                 break;
             case STRAFE_TO_STONE:
@@ -179,7 +203,6 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 break;
             case WAIT_FOR_STONE_TO_INTAKE:
                 if (getRuntime() > 0.0) {
-                    bot.intake.setIntakePower(0);
                     resetStartTime();
                     autoState = AutoState.STRAFE_OUT_OF_STONE_AREA;
                 }
@@ -197,17 +220,43 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA:
+                bot.intake.setIntakePower(0.0);
                 bot.grabber.closePusher();
-                if (drive(new Vector2(0, SPEED), 72+distanceOfSkystone, 4.5)) {
+                if (alliance == Alliance.RED) {
+                    if (drive(new Vector2(0, SPEED), 72 + distanceOfSkystone, 4.5)) {
+                        autoState = AutoState.BLUE_180_TO_GRAB;
+                        Log.i(TAG, "strafe to foundation");
+                    }
+                } else {
+                    if (drive(new Vector2(0, -SPEED), 68, 4.5)) {
+                        autoState = AutoState.BLUE_180_TO_GRAB;
+                        Log.i(TAG, "strafe to foundation");
+                    }
+                }
+                break;
+            case BLUE_180_TO_GRAB:
+                if (alliance == Alliance.BLUE) {
+                    if(turn(-Math.PI/2, TurnDirection.RIGHT)) {
+                        autoState = AutoState.STRAFE_TO_FOUNDATION;
+                        Log.i(TAG,"Back to build area");
+                    }
+                } else {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
-                    Log.i(TAG,"strafe to foundation");
                 }
                 break;
             case STRAFE_TO_FOUNDATION:
-                if (drive(new Vector2(SPEED, 0), 24, 2)) {
-                    autoState = AutoState.GRAB_FOUNDATION;
-                    resetStartTime();
-                    Log.i(TAG,"grab foundation");
+                if (alliance == Alliance.RED) {
+                    if (drive(new Vector2(SPEED, 0), 24, 2)) {
+                        autoState = AutoState.GRAB_FOUNDATION;
+                        resetStartTime();
+                        Log.i(TAG, "grab foundation");
+                    }
+                } else {
+                    if (drive(new Vector2(-SPEED, 0), 24, 2)) {
+                        autoState = AutoState.GRAB_FOUNDATION;
+                        resetStartTime();
+                        Log.i(TAG, "grab foundation");
+                    }
                 }
                 break;
             case GRAB_FOUNDATION:
@@ -219,9 +268,16 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case DRAG_FOUNDATION:
-                if (drive(new Vector2(-SPEED, 0), 70, 4)) {
-                    autoState = AutoState.RELEASE_FOUNDATION;
-                    Log.i(TAG,"release foundation");
+                if (alliance == Alliance.RED) {
+                    if (drive(new Vector2(-SPEED, 0), 70, 4)) {
+                        autoState = AutoState.RELEASE_FOUNDATION;
+                        Log.i(TAG, "release foundation");
+                    }
+                } else {
+                    if (drive(new Vector2(SPEED, 0), 70, 4)) {
+                        autoState = AutoState.RELEASE_FOUNDATION;
+                        Log.i(TAG, "release foundation");
+                    }
                 }
                 break;
             case ROTATE_FOUNDATION: // Unused State
@@ -242,18 +298,43 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 }
                 break;
             case FORE_AROUND_FOUNDATION:
-                bot.grabber.extend();
-                if (drive(new Vector2(0, -SPEED), 22, 2.5)) {
-                    autoState = AutoState.STRAFE_AROUND_FOUNDATION;
-                    Log.i(TAG,"strafe around foundation");
+                if (alliance == Alliance.RED) {
+                    bot.grabber.extend();
+                    if (drive(new Vector2(0, -SPEED), 24, 2.5)) {
+                        autoState = AutoState.STRAFE_AROUND_FOUNDATION;
+                        Log.i(TAG, "strafe around foundation");
+                    }
+                } else {
+                    if (drive(new Vector2(0, SPEED), 24, 2.5)) {
+                        autoState = AutoState.STRAFE_AROUND_FOUNDATION;
+                        Log.i(TAG,"strafe around foundation");
+                    }
                 }
                 break;
             case STRAFE_AROUND_FOUNDATION:
-                bot.grabber.extend();
-                if (drive(new Vector2(SPEED, 0), 26, 2.5)) {
+                if (alliance == Alliance.RED) {
+                    bot.grabber.extend();
+                    if (drive(new Vector2(SPEED, 0), 23, 2.5)) {
+                        autoState = AutoState.BLUE_180_TO_PUSH;
+                        resetStartTime();
+                        Log.i(TAG, "push foundation");
+                    }
+                } else {
+                    if (drive(new Vector2(-SPEED, 0), 23, 2.5)) {
+                        autoState = AutoState.BLUE_180_TO_PUSH;
+                        resetStartTime();
+                        Log.i(TAG, "push foundation");
+                    }
+                }
+                break;
+            case BLUE_180_TO_PUSH:
+                if (alliance == Alliance.BLUE) {
+                    if(turn(-Math.PI/2, TurnDirection.LEFT)) {
+                        autoState = AutoState.PUSH_FOUNDATION;
+                        Log.i(TAG,"Back to build area");
+                    }
+                } else {
                     autoState = AutoState.PUSH_FOUNDATION;
-                    resetStartTime();
-                    Log.i(TAG,"push foundation");
                 }
                 break;
             case PUSH_FOUNDATION:
@@ -281,13 +362,19 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
             case DROP_STONE:
                 bot.grabber.openGrabber();
                 if (getRuntime() > 1.5) {
-                    autoState = AutoState.PARK;
+                    autoState = AutoState.RECORRECT_90_PARK;
                     resetStartTime();
 
                 }
                 break;
+            case RECORRECT_90_PARK:
+                if(turn(Math.PI/2, TurnDirection.LEFT)) {
+                    autoState = AutoState.STOP;
+                    Log.i(TAG,"STOP");
+                }
+                break;
             case PARK:
-                if (drive(new Vector2(0.0, -SPEED), 30, 2)) {
+                if (drive(new Vector2(0.0, -SPEED), 20, 2)) {
                     autoState = AutoState.STOP;
                     Log.i(TAG,"stop");
                 }

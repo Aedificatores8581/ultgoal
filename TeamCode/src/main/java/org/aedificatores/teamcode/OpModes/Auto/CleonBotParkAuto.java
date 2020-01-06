@@ -84,26 +84,29 @@ public class CleonBotParkAuto extends OpMode {
     public void start(){
         switch (alliance){
             case BLUE:
-                speed = -.7;
+                speed = -.5;
                 break;
             case RED:
-                speed = .7;
+                speed = .5;
                 break;
         }
 
         if (startPosition == StartPosition.BUILDING_AREA){
             speed = speed * -1.0;
         }
+
+        resetStartTime();
     }
 
     @Override
     public void loop() {
-        if(Math.abs(bot.getStrafeDistanceInches()) < INCHES_TO_PARK) {
-            bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(speed, 0.0), new Vector2());
-        } else {
-            bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(0.0,0.0),new Vector2(0.0,0.0));
-            bot.drivetrain.refreshMotors();
-            stop();
+        if (getRuntime() > 29.0) {
+            if (Math.abs(bot.getStrafeDistanceInches()) < INCHES_TO_PARK) {
+                bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(speed, 0.0), new Vector2());
+            } else {
+                bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0));
+                bot.drivetrain.refreshMotors();
+            }
         }
         bot.drivetrain.refreshMotors();
     }
