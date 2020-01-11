@@ -1,6 +1,6 @@
 {
-  "angleKP": 1,
-  "angleKI": 0,
+  "angleKP": .6,
+  "angleKI": 0.1,
   "angleKD": 0,
   "XPosKP": 1,
   "XPosKI": 0,
@@ -8,5 +8,5 @@
   "YPosKP": 1,
   "YPosKI": 0,
   "YPosKD": 0,
-  "dt": 50
+  "dt": .05
 }

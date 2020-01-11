@@ -27,6 +27,20 @@ import java.io.IOException;
 * Creator: Hunter Seachrist
 * */
 public class CleonBot {
+
+    public enum TurnDirection {
+        LEFT(-1.0), // Turns positive angles
+        RIGHT(1.0); // Turns negative angles
+        private double multiplier;
+        TurnDirection(double m) {
+            multiplier = m;
+        }
+
+        public double getMultiplier() {
+            return multiplier;
+        }
+    }
+
     public Mechanum     drivetrain;
 
     public BNO055IMU    imu;
@@ -38,8 +52,8 @@ public class CleonBot {
     public double       startAngleZ;
     public double       startAngleY;
 
-    private final double DIST_FORE_WHEEL_FROM_CENTER = 7.553149291;
-    private final double DIST_STRAFE_WHEEL_FROM_CENTER = 3.4154453269;
+    public final double DIST_FORE_WHEEL_FROM_CENTER = 7.553149291;
+    public final double DIST_STRAFE_WHEEL_FROM_CENTER = 15.0/16.0; //3.4154453269;
 
     double prevForeInches;
     double prevStrafeInches;
@@ -208,6 +222,24 @@ public class CleonBot {
         robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.sin(robotAngle);
 
         updatePrevPosition();
+    }
+
+    /**
+     * Commands the robot to turn a certain number of radians. If the robot has met
+     * the angle, it stops and returns true
+     * @param targetAngle the angle the robot will turn relative to it's starting angle.
+     * @param
+     * @return Returns true if the robot has met it's angle
+     */
+    public boolean turnPID(double targetAngle, TurnDirection turnDir) {
+        robotAnglePID.setpoint = targetAngle;
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+
+        Vector2 v = new Vector2(robotAnglePID.currentOutput * turnDir.multiplier, 0.0);
+        drivetrain.setVelocityBasedOnGamePad(new Vector2(), v);
+
+        return false;
     }
 
     public void updatePrevPosition() {

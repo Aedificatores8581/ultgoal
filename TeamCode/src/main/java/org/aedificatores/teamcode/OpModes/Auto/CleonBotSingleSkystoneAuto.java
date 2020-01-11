@@ -125,6 +125,8 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         } else if (gamepad1.b) {
             alliance = Alliance.RED;
         }
+
+        telemetry.addLine("WARNING: This auto doesn't work since the PID function has changed since this was last edited");
         telemetry.addData("Alliance (press 'a' for blue, 'b' for red)",alliance);
     }
 
