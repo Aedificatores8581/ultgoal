@@ -8,7 +8,6 @@ import org.aedificatores.teamcode.Mechanisms.Components.CleonFoundation;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
-import org.aedificatores.teamcode.Mechanisms.Components.FoundationGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
 import org.aedificatores.teamcode.Universal.JSONAutonGetter;
@@ -68,9 +67,9 @@ public class CleonBot {
         static final String ANGLE_KI = "angleKI";
         static final String ANGLE_KD = "angleKD";
 
-        static final String X_POS_KP = "XPosKP";
-        static final String X_POS_KI = "XPosKI";
-        static final String X_POS_KD = "XPosKD";
+        static final String DRIVE_KP = "DriveKP";
+        static final String DRIVE_KI = "DriveKI";
+        static final String DRIVE_KD = "DriveKD";
 
         static final String Y_POS_KP = "YPosKP";
         static final String Y_POS_KI = "YPosKI";
@@ -83,7 +82,7 @@ public class CleonBot {
 
     // PID Controllers for variables relating to robot position and orientation
     public PIDController robotAnglePID;
-    public PIDController robotXPosPID;
+    public PIDController robotPosPID;
     public PIDController robotYPosPID;
 
     public CleonIntake intake;
@@ -126,18 +125,19 @@ public class CleonBot {
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.ANGLE_KD),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
 
-            robotXPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KP),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KI),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KD),
+            robotPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KD),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
 
-            robotYPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KP),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KI),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.X_POS_KD),
+            robotYPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KD),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
         } else {
             robotAnglePID = new PIDController(0,0,0,0);
-            robotXPosPID = new PIDController(0,0,0,0);
+            robotPosPID = new PIDController(0,0,0,0);
+            robotPosPID.integralMax = 100.0;
             robotYPosPID = new PIDController(0,0,0,0);
 
         }
@@ -162,8 +162,12 @@ public class CleonBot {
         return (drivetrain.getRightRearEncoder() * (.0132335/4));
     }
 
-    public double getForeDistanceInches(){
+    public double getLeftForeDistanceInches(){
         return (drivetrain.getRightForeEncoder() * (.0132335/4));
+    }
+
+    public double getRightForeDistanceInches(){
+        return (drivetrain.getLeftRearEncoder() * (.0132335/4));
     }
 
     public double getGyroAngleX(){
@@ -200,7 +204,7 @@ public class CleonBot {
     public void updateRobotPosition() {
         setRobotAngle();
         // gets the change in orientation and position since last opmode update
-        double deltaForeMovement = getForeDistanceInches() - prevForeInches;
+        double deltaForeMovement = getLeftForeDistanceInches() - prevForeInches;
         double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
         deltaRobotAngle = robotAngle;
         deltaRobotAngle -= prevRobotAngle;
@@ -242,8 +246,22 @@ public class CleonBot {
         return false;
     }
 
+    public boolean drivePID(Vector2 velocity, double inches) {
+        double distance = Math.sqrt(Math.pow(getRightForeDistanceInches(), 2) + Math.pow(getStrafeDistanceInches(), 2));
+
+        robotPosPID.setpoint = inches;
+        robotPosPID.processVar = distance;
+        robotPosPID.idealLoop();
+
+        Vector2 v = new Vector2(velocity);
+        v.scalarMultiply(robotPosPID.currentOutput);
+        drivetrain.setVelocity(v);
+
+        return false;
+    }
+
     public void updatePrevPosition() {
-        prevForeInches = getForeDistanceInches();
+        prevForeInches = getLeftForeDistanceInches();
         prevStrafeInches = getStrafeDistanceInches();
         prevRobotAngle = robotAngle;
     }

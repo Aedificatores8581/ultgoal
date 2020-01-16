@@ -53,7 +53,7 @@ public class SkystoneDetector extends OpenCvPipeline {
         colSumArray = new int[screenWidth];
         colSumRunningAverage = new int[colSumArray.length- RUNNING_AVG_WINDOW_SIZE];
         colSumRunningAverageDeriv = new int[colSumRunningAverage.length - 1];
-        roi = new Rect(0, 0, 10, 10);
+        roi = new Rect(0, 97, 320, 78);
 
         blockPixelPositions = new int[2];
     }
@@ -118,7 +118,13 @@ public class SkystoneDetector extends OpenCvPipeline {
             }
         }
         return input;
+    }
 
-
+    public void close() {
+        hsvImage.release();
+        bgrImage.release();
+        threshold.release();
+        thresholdAfterROI.release();
+        colSum.release();
     }
 }

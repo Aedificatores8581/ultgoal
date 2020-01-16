@@ -25,8 +25,10 @@ public class CleonManualOdomTest extends OpMode {
     public void loop() {
         telemetry.addData("strafe inch", bot.getStrafeDistanceInches());
         telemetry.addData("strafe enc", bot.drivetrain.getRightRearEncoder());
-        telemetry.addData("\nfore inch", bot.getForeDistanceInches());
-        telemetry.addData("fore enc", bot.drivetrain.getRightForeEncoder());
+        telemetry.addData("\nleft fore inch", bot.getLeftForeDistanceInches());
+        telemetry.addData("left fore enc", bot.drivetrain.getRightForeEncoder());
+        telemetry.addData("\nright fore inch", bot.getRightForeDistanceInches());
+        telemetry.addData("right fore enc", bot.drivetrain.getLeftRearEncoder());
         telemetry.addData("\n\nlf", bot.drivetrain.getLeftForeEncoder());
         telemetry.addData("rf", bot.drivetrain.getRightForeEncoder());
         telemetry.addData("la", bot.drivetrain.getLeftRearEncoder());

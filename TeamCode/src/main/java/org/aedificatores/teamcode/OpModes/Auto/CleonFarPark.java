@@ -8,9 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.PIDController;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
-import org.aedificatores.teamcode.Vision.SkystoneDetector;
 import org.json.JSONException;
-import org.openftc.easyopencv.OpenCvCamera;
 
 import java.io.IOException;
 
@@ -129,7 +127,7 @@ public class CleonFarPark extends OpMode {
             v.x = -v.x;
         }
 
-        double distance = Math.sqrt(Math.pow(bot.getForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2));
+        double distance = Math.sqrt(Math.pow(bot.getLeftForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2));
 
         drivePID.error = inches - distance;
         drivePID.idealLoop();

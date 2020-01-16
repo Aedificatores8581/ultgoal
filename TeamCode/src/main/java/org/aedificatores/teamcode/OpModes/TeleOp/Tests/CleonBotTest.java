@@ -40,7 +40,7 @@ public class CleonBotTest extends OpMode {
 
         telemetry.addData("x",bot.robotPosition.x);
         telemetry.addData("y",bot.robotPosition.y);
-        telemetry.addData("fore inch",bot.getForeDistanceInches());
+        telemetry.addData("fore inch",bot.getLeftForeDistanceInches());
         telemetry.addData("strafe inch",bot.getStrafeDistanceInches());
         telemetry.addData("angle",bot.getGyroAngleZ());
 

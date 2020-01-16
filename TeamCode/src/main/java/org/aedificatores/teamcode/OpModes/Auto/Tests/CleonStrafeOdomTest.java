@@ -47,7 +47,7 @@ public class CleonStrafeOdomTest extends OpMode {
         double strafeArc = bot.robotAngle * bot.DIST_STRAFE_WHEEL_FROM_CENTER;
         double foreArc = bot.robotAngle * bot.DIST_FORE_WHEEL_FROM_CENTER;
         try {
-            logger.writeToLogInCSV(opmodeTicks, bot.robotAngle,bot.getStrafeDistanceInches(),strafeArc,bot.getForeDistanceInches(),foreArc);
+            logger.writeToLogInCSV(opmodeTicks, bot.robotAngle,bot.getStrafeDistanceInches(),strafeArc,bot.getLeftForeDistanceInches(),foreArc);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +56,7 @@ public class CleonStrafeOdomTest extends OpMode {
         telemetry.addLine("strafe Odom:\t" + bot.getStrafeDistanceInches());
         telemetry.addLine("strafe Actual:\t" + strafeArc);
 
-        telemetry.addLine("\nFore Odom:\t\t" + bot.getForeDistanceInches());
+        telemetry.addLine("\nFore Odom:\t\t" + bot.getLeftForeDistanceInches());
         telemetry.addLine("Fore Actual:\t\t" + foreArc);
 
         telemetry.addLine("\nKP: " + bot.robotAnglePID.KP);

@@ -31,7 +31,7 @@ public class OdometryPodsTest extends OpMode {
 
     @Override
     public void init_loop() {
-        telemetry.addData("fore\tinches",bot.getForeDistanceInches());
+        telemetry.addData("fore\tinches",bot.getLeftForeDistanceInches());
         telemetry.addData("strafe\tinches",bot.getStrafeDistanceInches());
         telemetry.addData("angle x",bot.getGyroAngleX());
         telemetry.addData("angle y",bot.getGyroAngleY());

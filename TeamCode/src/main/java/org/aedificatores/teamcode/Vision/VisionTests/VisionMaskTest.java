@@ -1,23 +1,28 @@
 package org.aedificatores.teamcode.Vision.VisionTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-@Disabled
-@TeleOp(name = "Vision Mask Test")
+
+@Autonomous(name = "Vision Mask Test")
 public class VisionMaskTest extends OpMode {
     OpenCvInternalCamera phoneCam;
+    OpenCvCamera webCam;
     MaskPipeline pipe;
 
     private static final int SCREEN_WIDTH = 320;
@@ -29,16 +34,20 @@ public class VisionMaskTest extends OpMode {
     @Override
     public void init() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        // phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
 
-        phoneCam.openCameraDevice();
+        webCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class,"Webcam 1"), cameraMonitorViewId);
+
+        // phoneCam.openCameraDevice();
+        webCam.openCameraDevice();
         pipe = new MaskPipeline(320,240);
-        phoneCam.setPipeline(pipe);
-
-        phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+        // phoneCam.setPipeline(pipe);
+        webCam.setPipeline(pipe);
+        // phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+        webCam.startStreaming(320,240, OpenCvCameraRotation.UPRIGHT);
     }
 
-    public void init_loop(){
+    public void init_loop() {
 
     }
 
@@ -65,6 +74,12 @@ public class VisionMaskTest extends OpMode {
                         (int)(gamepad1.left_stick_y * 2),
                         widthAdjust,
                         heightAdjust);
+
+        telemetry.addData("width",pipe.roi.width);
+        telemetry.addData("height",pipe.roi.height);
+        telemetry.addData("x",pipe.roi.x);
+        telemetry.addData("y",pipe.roi.y);
+
     }
 
     public void stop() {
@@ -72,21 +87,21 @@ public class VisionMaskTest extends OpMode {
     }
 
     private class MaskPipeline extends OpenCvPipeline {
-        Rect roi;
+        public Rect roi;
+        Mat inputRotate;
         Mat retMat;
         Mat roiMat;
         Mat blackMat;
 
         int inputWidth, inputHeight;
         MaskPipeline(int width, int height) {
-            // TODO: Figure out why height and width are reversed
-            roi = new Rect(0,0,height,width);
-            inputWidth = height;
-            inputHeight = width;
+            roi = new Rect(0,0,width,height);
+            inputWidth = width;
+            inputHeight = height;
 
             roiMat = new Mat();
             retMat = new Mat();
-            blackMat = new Mat(width, height, CvType.CV_8UC4, new Scalar(0,0,0,0));
+            blackMat = new Mat(height, width, CvType.CV_8UC4, new Scalar(0,0,0,0));
         }
 
         void adjustRect(int x, int y, int width, int height) {

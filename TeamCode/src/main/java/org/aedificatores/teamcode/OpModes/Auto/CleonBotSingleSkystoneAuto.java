@@ -390,10 +390,15 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         bot.drivetrain.refreshMotors();
 
         telemetry.addData("actual angle", bot.getGyroAngleZ());
-        telemetry.addData("inches", Math.sqrt(Math.pow(bot.getForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2)));
+        telemetry.addData("inches", Math.sqrt(Math.pow(bot.getLeftForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2)));
         telemetry.addData("\nmotor power", bot.drivetrain.leftFore.getPower());
-        telemetry.addData("fore inch", bot.getForeDistanceInches());
+        telemetry.addData("fore inch", bot.getLeftForeDistanceInches());
         telemetry.addData("strafe inch", bot.getStrafeDistanceInches());
+    }
+
+    @Override
+    public void stop() {
+        detector.close();
     }
 
     // Returns true if the bot has reached the desired encoder limit
@@ -403,7 +408,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
             v.x = -v.x;
         }
 
-        double distance = Math.sqrt(Math.pow(bot.getForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2));
+        double distance = Math.sqrt(Math.pow(bot.getLeftForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2));
 
         drivePID.error = inches - distance;
         drivePID.idealLoop();
