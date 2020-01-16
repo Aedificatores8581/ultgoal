@@ -1,8 +1,5 @@
 package org.aedificatores.teamcode.Vision;
 
-import android.util.Log;
-
-import org.aedificatores.teamcode.Universal.TelemetryLogger;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -10,8 +7,6 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
-
-import java.io.IOException;
 
 public class SkystoneDetector extends OpenCvPipeline {
     Mat hsvImage;
