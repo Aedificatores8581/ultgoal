@@ -7,12 +7,15 @@ import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.OpModes.Auto.CleonBotSingleSkystoneAuto;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
+import org.aedificatores.teamcode.Universal.UniversalFunctions;
 import org.json.JSONException;
 
 import java.io.IOException;
 
 @TeleOp(name = "Cleon Bot Teleop")
 public class CleonBotTeleop extends OpMode {
+	private static boolean foundationGrabberClosed = false;
+
     CleonBot robot;
     Vector2 leftStick, rightStick;
 
@@ -46,27 +49,18 @@ public class CleonBotTeleop extends OpMode {
             robot.drivetrain.setVelocityBasedOnGamePad(leftStick, rightStick);
         }
 
-        if (gamepad2.left_bumper) {
-            recorrect(CleonBotSingleSkystoneAuto.TurnDirection.LEFT);
-        } else if (gamepad2.right_bumper) {
-            recorrect(CleonBotSingleSkystoneAuto.TurnDirection.RIGHT);
-        }
+        robot.intake.setIntakePower(Math.abs(gamepad1.left_trigger));
 
-        if (gamepad1.right_bumper) {
+        if (gamepad2.x && !foundationGrabberClosed) {
+        	robot.foundationGrabber.close();
+        	foundationGrabberClosed = true;
+		}
 
-        }
+        if (gamepad2.x && foundationGrabberClosed) {
+        	robot.foundationGrabber.open();
+        	foundationGrabberClosed = false;
+		}
 
         robot.drivetrain.refreshMotors();
-    }
-
-    private void recorrect(CleonBotSingleSkystoneAuto.TurnDirection dir) {
-        double turnSpeed = dir.getSpeed();
-        robot.drivetrain.setVelocityBasedOnGamePad(new Vector2(), new Vector2(turnSpeed, 0.00));
-        if (robot.robotAngle != Math.PI / 2) {
-            robot.drivetrain.setVelocity(new Vector2(0,0));
-            robot.drivetrain.refreshMotors();
-            resetStartTime();
-            robot.drivetrain.resetMotorEncoders();
-        }
     }
 }

@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonFoundation;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
@@ -26,6 +27,20 @@ import java.io.IOException;
 * Creator: Hunter Seachrist
 * */
 public class CleonBot {
+
+    public enum TurnDirection {
+        LEFT(-1.0), // Turns positive angles
+        RIGHT(1.0); // Turns negative angles
+        private double multiplier;
+        TurnDirection(double m) {
+            multiplier = m;
+        }
+
+        public double getMultiplier() {
+            return multiplier;
+        }
+    }
+
     public Mechanum     drivetrain;
 
     public BNO055IMU    imu;
@@ -37,8 +52,8 @@ public class CleonBot {
     public double       startAngleZ;
     public double       startAngleY;
 
-    private final double DIST_FORE_WHEEL_FROM_CENTER = 7.553149291;
-    private final double DIST_STRAFE_WHEEL_FROM_CENTER = 3.4154453269;
+    public final double DIST_FORE_WHEEL_FROM_CENTER = 7.553149291;
+    public final double DIST_STRAFE_WHEEL_FROM_CENTER = 15.0/16.0; //3.4154453269;
 
     double prevForeInches;
     double prevStrafeInches;
@@ -76,7 +91,7 @@ public class CleonBot {
     public CleonLift lift;
     public CleonFoundation foundationGrabber;
 
-    static final String FOUNDATION_GRABBER_NAME = "found1";
+    static final String FOUNDATION_GRABBER_NAME = "foundation";
     static final double FOUNDATION_GRABBED = 0.3;
     static final double FOUNDATION_RELEASED = 1;
 
@@ -140,7 +155,7 @@ public class CleonBot {
         intake = new CleonIntake(map);
         grabber = new CleonGrabber(map);
         lift = new CleonLift(map);
-        foundationGrabber = new FoundationGrabber(map, FOUNDATION_GRABBER_NAME, FOUNDATION_GRABBED, FOUNDATION_RELEASED);
+        foundationGrabber = new CleonFoundation(map);
     }
 
     public double getStrafeDistanceInches(){
@@ -207,6 +222,24 @@ public class CleonBot {
         robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.sin(robotAngle);
 
         updatePrevPosition();
+    }
+
+    /**
+     * Commands the robot to turn a certain number of radians. If the robot has met
+     * the angle, it stops and returns true
+     * @param targetAngle the angle the robot will turn relative to it's starting angle.
+     * @param
+     * @return Returns true if the robot has met it's angle
+     */
+    public boolean turnPID(double targetAngle, TurnDirection turnDir) {
+        robotAnglePID.setpoint = targetAngle;
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+
+        Vector2 v = new Vector2(robotAnglePID.currentOutput * turnDir.multiplier, 0.0);
+        drivetrain.setVelocityBasedOnGamePad(new Vector2(), v);
+
+        return false;
     }
 
     public void updatePrevPosition() {

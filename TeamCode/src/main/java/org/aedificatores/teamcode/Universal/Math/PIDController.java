@@ -46,7 +46,7 @@ public class PIDController {
     //one iteration of an ideal PID loop
     public void idealLoop(){
         if(UniversalFunctions.getTimeInSeconds() - time >= deltaTime) {
-            // error = setpoint - processVar;
+            error = setpoint - processVar;
             integral += error * deltaTime;
             integral = integralMax > integral ? integral : integralMax;
             derivative = (error - prevError) / deltaTime;

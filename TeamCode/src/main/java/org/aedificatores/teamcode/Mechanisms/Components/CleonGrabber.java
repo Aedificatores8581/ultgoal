@@ -1,70 +1,118 @@
 package org.aedificatores.teamcode.Mechanisms.Components;
 
+import android.util.Log;
+
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class CleonGrabber {
-    private Servo pusherServo;
-    private Servo grabberServoFront;
-    private Servo grabberServoBack;
-    private Servo rotationServo;
+import org.aedificatores.teamcode.Mechanisms.Sensors.MagneticLimitSwitch;
 
-    private static final String HARDWARE_MAP_NAME_PREFIX = "grab";
-    private static final String HARDWARE_MAP_NAME_PUSHER = "pushb";
-    private static final String HARDWARE_MAP_NAME_FRONT = "front";
-    private static final String HARDWARE_MAP_NAME_BACK = "back";
-    private static final String HARDWARE_MAP_NAME_ROTATION = "grotate";
-    private static final double FRONT_CLOSED = 0.3;
-    private static final double FRONT_OPEN = 0;
-    private static final double BACK_CLOSED = 0.3;
-    private static final double BACK_OPEN = 0;
-    private static final double PUSHER_UP = 0.00;
-    private static final double PUSHER_MIN = 0.45;
-    private static final double ROTATION_RESET = 0.50;
-    private static final double ROTATION_ALT = 0.85;
+public class CleonGrabber {
+
+    enum GrabberState {
+        KICKING,
+        GRABBING,
+        EXTENDING,
+        RELEASING,
+        RETRACTING,
+        UNKICKING,
+        STOP,
+    }
+
+    private GrabberState grabberState;
+
+    private Servo pusherServo;
+    private Servo grabberServo;
+    private Servo rotationServo;
+    private CRServo extension;
+    private MagneticLimitSwitch extendedSwitch;
+    private MagneticLimitSwitch retractedSwitch;
+
+    private static final String HARDWARE_MAP_NAME_EXTEND_SWTICH = "frontextension";
+    private static final String HARDWARE_MAP_NAME_RETRACTED_SWTICH = "backextension";
+    private static final String HARDWARE_MAP_NAME_GRAB = "grab";
+    private static final String HARDWARE_MAP_NAME_PUSHER = "kickerservo";
+    private static final String HARDWARE_MAP_NAME_ROTATION = "turndeposit";
+    private static final String HARDWARE_MAP_NAME_EXTENSION = "extensionservo";
+    private static final double GRABBER_CLOSED = 0.2;
+    private static final double GRABBER_OPEN = .65;
+    private static final double PUSHER_OPEN = .5;
+    private static final double PUSHER_CLOSED = 0;
+    private static final double ROTATION_FLIPPED = 0.85;
+    private static final double EXTENSION_POWER = .75;
 
     public CleonGrabber(HardwareMap map) {
-        pusherServo = map.servo.get(HARDWARE_MAP_NAME_PREFIX + HARDWARE_MAP_NAME_PUSHER);
-        grabberServoFront = map.servo.get(HARDWARE_MAP_NAME_PREFIX + HARDWARE_MAP_NAME_FRONT);
-        grabberServoBack = map.servo.get(HARDWARE_MAP_NAME_PREFIX + HARDWARE_MAP_NAME_BACK);
+        extendedSwitch = new MagneticLimitSwitch();
+        retractedSwitch = new MagneticLimitSwitch();
+        extendedSwitch.init(map, HARDWARE_MAP_NAME_EXTEND_SWTICH);
+        retractedSwitch.init(map, HARDWARE_MAP_NAME_RETRACTED_SWTICH );
+        pusherServo = map.servo.get(HARDWARE_MAP_NAME_PUSHER);
+        grabberServo = map.servo.get(HARDWARE_MAP_NAME_GRAB);
         rotationServo = map.servo.get(HARDWARE_MAP_NAME_ROTATION);
+        extension = map.crservo.get(HARDWARE_MAP_NAME_EXTENSION);
+    }
+
+    public void init() {
+        openGrabber();
+        openPusher();
     }
 
     public void setServoPosition(Servo servo, double pos) {
         servo.setPosition(pos);
     }
 
-    public void close() {
-        setServoPosition(grabberServoBack, BACK_CLOSED);
-        setServoPosition(grabberServoFront, FRONT_CLOSED);
+    public void closeGrabber() {
+        setServoPosition(grabberServo, GRABBER_CLOSED);
     }
 
-    public void open() {
-        setServoPosition(grabberServoBack, BACK_OPEN);
-        setServoPosition(grabberServoFront, FRONT_OPEN);
+    public void openGrabber() {
+        setServoPosition(grabberServo, GRABBER_OPEN);
     }
 
-    public void pusherUp() {
-        setServoPosition(pusherServo, PUSHER_UP);
+    public void openPusher() {
+        setServoPosition(pusherServo, PUSHER_OPEN);
     }
 
-    public void pusherDown(double pos) {
-        if (pos > PUSHER_MIN) {
-            setServoPosition(pusherServo, pos);
-        } else {
-            setServoPosition(pusherServo, PUSHER_MIN);
+    public void closePusher() {
+        setServoPosition(pusherServo, PUSHER_CLOSED);
+    }
+
+    public void rotateGrabber(double rotation) {
+        setServoPosition(rotationServo, rotation);
+    }
+
+    public void flipGrabber() {
+        setServoPosition(rotationServo, ROTATION_FLIPPED);
+    }
+
+    public boolean extend() {
+        extension.setPower(EXTENSION_POWER);
+
+        Log.i("extendo", "Extended Switch is " + retractedSwitch.toString());
+        if (extendedSwitch.isActive()) {
+            extension.setPower(0.0);
+            Log.i("extendo", "returning true");
+            return true;
         }
+        Log.i("extendo", "returning false");
+        return false;
     }
 
-    public void pusherDown() {
-        setServoPosition(pusherServo, PUSHER_MIN);
+    public boolean retract() {
+        extension.setPower(-EXTENSION_POWER);
+
+        Log.i("retracto", "Retracted Switch is " + retractedSwitch.toString());
+        if (retractedSwitch.isActive()) {
+            extension.setPower(0.0);
+            Log.i("retracto", "returning true");
+            return true;
+        }
+        Log.i("retracto", "returning false");
+        return false;
     }
 
-    public void rotateBack() {
-        setServoPosition(rotationServo, ROTATION_ALT);
-    }
-
-    public void rotateFront() {
-        setServoPosition(rotationServo, ROTATION_RESET);
+    public void setGrabberState(GrabberState state) {
+        grabberState = state;
     }
 }
