@@ -57,16 +57,10 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
 
     private static final double SPEED = .7;
 
-<<<<<<< HEAD
     // Public so that it can be used in Auto TeleOp.
     public enum TurnDirection {
         LEFT(-.33),
         RIGHT(.33);
-=======
-    enum TurnDirection {
-        LEFT(-.3),
-        RIGHT(.3);
->>>>>>> f1c2c1185ad2f13b1ee8bce26733ccbc47963afe
 
         private double speed;
         TurnDirection(double s) {
@@ -446,14 +440,6 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
 
         bot.drivetrain.setVelocityBasedOnGamePad(new Vector2(), new Vector2(turnSpeed, 0.0));
 
-<<<<<<< HEAD
-        if (bot.robotAngle != angle) {
-            bot.drivetrain.setVelocity(new Vector2(0,0));
-            bot.drivetrain.refreshMotors();
-            resetStartTime();
-            bot.drivetrain.resetMotorEncoders();
-            return true;
-=======
         if (dir == TurnDirection.LEFT) {
             if (bot.robotAngle > angle && alliance == Alliance.RED) {
                 bot.drivetrain.setVelocity(new Vector2(0,0));
@@ -484,7 +470,6 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
                 bot.drivetrain.resetMotorEncoders();
                 return true;
             }
->>>>>>> f1c2c1185ad2f13b1ee8bce26733ccbc47963afe
         }
         return false;
     }
