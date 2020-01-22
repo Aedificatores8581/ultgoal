@@ -2,7 +2,7 @@
   "angleKP": .6,
   "angleKI": 0.1,
   "angleKD": 0,
-  "DriveKP": .025,
+  "DriveKP": .022,
   "DriveKI": 0.005,
   "DriveKD": 0,
   "YPosKP": 1,

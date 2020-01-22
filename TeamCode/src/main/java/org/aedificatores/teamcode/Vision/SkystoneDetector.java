@@ -1,5 +1,8 @@
 package org.aedificatores.teamcode.Vision;
 
+import android.util.Log;
+
+import org.aedificatores.teamcode.Universal.TelemetryLogger;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -7,6 +10,8 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.io.IOException;
 
 public class SkystoneDetector extends OpenCvPipeline {
     Mat hsvImage;
@@ -25,7 +30,9 @@ public class SkystoneDetector extends OpenCvPipeline {
     int average = 0;
     public int dieRoll = 0;
 
-    int[] blockPixelPositions;
+    TelemetryLogger logger;
+
+    public int blockPixelPosition;
 
     int screenWidth, screenHeight;
     private int H_MIN = 0,
@@ -48,9 +55,15 @@ public class SkystoneDetector extends OpenCvPipeline {
         colSumArray = new int[screenWidth];
         colSumRunningAverage = new int[colSumArray.length- RUNNING_AVG_WINDOW_SIZE];
         colSumRunningAverageDeriv = new int[colSumRunningAverage.length - 1];
-        roi = new Rect(0, 97, 320, 78);
+        roi = new Rect(0, 20, 316, 82);
 
-        blockPixelPositions = new int[2];
+        blockPixelPosition = 0;
+
+        try {
+            logger = new TelemetryLogger();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -79,7 +92,11 @@ public class SkystoneDetector extends OpenCvPipeline {
             int sum = 0;
 
             for (int j = 0; j < RUNNING_AVG_WINDOW_SIZE; ++j){
-                sum += colSumArray[i+j];
+                if (i + j < colSumRunningAverage.length){
+                    sum += colSumArray[i+j];
+                } else {
+                    sum += colSumArray[i];
+                }
             }
             colSumRunningAverage[i] = sum / RUNNING_AVG_WINDOW_SIZE;
         }
@@ -87,15 +104,13 @@ public class SkystoneDetector extends OpenCvPipeline {
         for (int i = 0; i < colSumRunningAverageDeriv.length; ++i) {
             colSumRunningAverageDeriv[i] = colSumRunningAverage[i+1] - colSumRunningAverage[i];
         }
-
+        derivMin = 0;
         for (int i=0; i < colSumRunningAverageDeriv.length; ++i) {
             if (colSumRunningAverageDeriv[i] < derivMin) {
                 derivMin = colSumRunningAverageDeriv[i];
-                blockPixelPositions[0] = i + screenWidth / 12;
+                blockPixelPosition = i + screenWidth / 6;
             }
         }
-
-        blockPixelPositions[1] = (blockPixelPositions[0] + screenWidth/2) % screenWidth;
 
         for (int i : colSumRunningAverage) {
             average += i;
@@ -104,15 +119,26 @@ public class SkystoneDetector extends OpenCvPipeline {
         average /= colSumRunningAverage.length;
 
         {
-            if ((blockPixelPositions[0] % (screenWidth/2)) <= screenWidth/6) {
+            if (blockPixelPosition <= screenWidth/3) {
                 dieRoll = 1;
-            } else if ((blockPixelPositions[0] % (screenWidth/2)) <= 2*screenWidth/6){
+            } else if (blockPixelPosition <= 2*screenWidth/3){
                 dieRoll = 2;
             } else {
                 dieRoll = 3;
             }
         }
         return input;
+    }
+
+    @Override
+    public void onViewportTapped() {
+        for (int i = 0; i < colSumRunningAverageDeriv.length; ++i) {
+            try {
+                logger.writeToLogInCSV(i,colSumArray[i],colSumRunningAverage[i],colSumRunningAverageDeriv[i]);
+            } catch (IOException e) {
+                Log.e("SKYSTONE DETECTOR", e.getMessage());
+            }
+        }
     }
 
     public void close() {
