@@ -260,6 +260,28 @@ public class CleonBot {
         return false;
     }
 
+    public void driveToPoint2d(Vector2 destination, Vector2 velocity){
+        robotAnglePID.setpoint = UniversalFunctions.normalizeAngleRadians(destination.angle(), robotAngle);
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+
+        Vector2 turnVel = new Vector2(robotAnglePID.currentOutput, 0.0);
+
+        Vector2 destinationRobotRelative = new Vector2(destination);
+        destinationRobotRelative.subtract(robotPosition);
+
+        robotPosPID.setpoint = destinationRobotRelative.magnitude() * Math.cos(robotAnglePID.setpoint);
+        robotPosPID.processVar = 0;
+        robotPosPID.idealLoop();
+
+        Vector2 forwardVel = new Vector2(velocity);
+        forwardVel.scalarMultiply(robotPosPID.currentOutput);
+        drivetrain.setVelocity(forwardVel);
+
+
+        drivetrain.setVelocityBasedOnGamePad(forwardVel, turnVel);
+    }
+
     public void updatePrevPosition() {
         prevForeInches = getLeftForeDistanceInches();
         prevStrafeInches = getStrafeDistanceInches();
