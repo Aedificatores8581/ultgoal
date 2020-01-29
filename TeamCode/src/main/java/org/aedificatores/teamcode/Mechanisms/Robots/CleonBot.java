@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Vector;
 
 /*
 * Robot Class for Frank's robot
@@ -51,31 +52,41 @@ public class CleonBot {
     public double       startAngleZ;
     public double       startAngleY;
 
-    public final double DIST_FORE_WHEEL_FROM_CENTER = 7.553149291;
+    public final double DIST_FORE_WHEEL_FROM_CENTER = 7.5625;
     public final double DIST_STRAFE_WHEEL_FROM_CENTER = 15.0/16.0; //3.4154453269;
 
     double prevForeInches;
     double prevStrafeInches;
     public double deltaForeMovementAfterTurn;
+    public double deltaStrafeMovementAfterTurn;
     public Vector2 robotPosition;
 
     // JSON object for getting PID constant values stored on the phone
     JSONAutonGetter pidConstantsJson;
 
-    class PidConstantJSONNames {
-        static final String ANGLE_KP = "angleKP";
-        static final String ANGLE_KI = "angleKI";
-        static final String ANGLE_KD = "angleKD";
+    interface PidConstantJSONNames {
+        String ANGLE_KP = "angleKP";
+        String ANGLE_KI = "angleKI";
+        String ANGLE_KD = "angleKD";
 
-        static final String DRIVE_KP = "DriveKP";
-        static final String DRIVE_KI = "DriveKI";
-        static final String DRIVE_KD = "DriveKD";
+        String DRIVE_KP = "DriveKP";
+        String DRIVE_KI = "DriveKI";
+        String DRIVE_KD = "DriveKD";
+        String DRIVE_IM = "DriveIM";
 
-        static final String Y_POS_KP = "YPosKP";
-        static final String Y_POS_KI = "YPosKI";
-        static final String Y_POS_KD = "YPosKD";
+        String Y_POS_KP = "YPosKP";
+        String Y_POS_KI = "YPosKI";
+        String Y_POS_KD = "YPosKD";
 
-        static final String DELTA_TIME = "dt";
+        String DELTA_TIME = "dt";
+    }
+
+    // Commmonly used vectors for drivePID are stored here
+    public interface DriveVecConstants {
+        Vector2 FORE            = new Vector2(0.0,-1.0);
+        Vector2 BACK            = new Vector2(0.0,1.0);
+        Vector2 STRAFE_LEFT     = new Vector2(-1.0,0.0);
+        Vector2 STRAFE_RIGHT    = new Vector2(1.0,0.0);
     }
 
     private final String JSON_PID_FILENAME = "CleonBotOrientationPID.json";
@@ -89,6 +100,9 @@ public class CleonBot {
     public CleonGrabber grabber;
     public CleonLift lift;
     public CleonFoundation foundationGrabber;
+
+    long currentTime;
+    long resetTime;
 
     static final String FOUNDATION_GRABBER_NAME = "foundation";
     static final double FOUNDATION_GRABBED = 0.3;
@@ -128,7 +142,8 @@ public class CleonBot {
             robotPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KP),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KI),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KD),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_IM));
 
             robotYPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KP),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KI),
@@ -137,7 +152,7 @@ public class CleonBot {
         } else {
             robotAnglePID = new PIDController(0,0,0,0);
             robotPosPID = new PIDController(0,0,0,0);
-            robotPosPID.integralMax = 100.0;
+            robotPosPID.integralMax = 200.0;
             robotYPosPID = new PIDController(0,0,0,0);
 
         }
@@ -156,6 +171,20 @@ public class CleonBot {
         grabber = new CleonGrabber(map);
         lift = new CleonLift(map);
         foundationGrabber = new CleonFoundation(map);
+        resetTimer();
+    }
+
+    public void resetTimer() {
+        resetTime = System.currentTimeMillis();
+        currentTime = 0;
+    }
+
+    public void updateTimer() {
+        currentTime = System.currentTimeMillis() - resetTime;
+    }
+
+    long getRuntime() {
+        return currentTime;
     }
 
     public double getStrafeDistanceInches(){
@@ -204,7 +233,7 @@ public class CleonBot {
     public void updateRobotPosition() {
         setRobotAngle();
         // gets the change in orientation and position since last opmode update
-        double deltaForeMovement = getLeftForeDistanceInches() - prevForeInches;
+        double deltaForeMovement = getRightForeDistanceInches() - prevForeInches;
         double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
         deltaRobotAngle = robotAngle;
         deltaRobotAngle -= prevRobotAngle;
@@ -219,7 +248,7 @@ public class CleonBot {
         // be negligible
         // This code subtracts the arc length of the turn from the change in enc ticks
         deltaForeMovementAfterTurn = deltaForeMovement - deltaRobotAngle * DIST_FORE_WHEEL_FROM_CENTER;
-        //deltaStrafeMovementAfterTurn = deltaStrafeMovement - deltaRobotAngle * DIST_STRAFE_WHEEL_FROM_CENTER;
+        deltaStrafeMovementAfterTurn = deltaStrafeMovement - deltaRobotAngle * DIST_STRAFE_WHEEL_FROM_CENTER;
 
         // add the change in position to the current position
         robotPosition.y = robotPosition.y + deltaForeMovementAfterTurn * Math.cos(robotAngle);
@@ -232,7 +261,7 @@ public class CleonBot {
      * Commands the robot to turn a certain number of radians. If the robot has met
      * the angle, it stops and returns true
      * @param targetAngle the angle the robot will turn relative to it's starting angle.
-     * @param
+     * @param turnDir the direction to turn
      * @return Returns true if the robot has met it's angle
      */
     public boolean turnPID(double targetAngle, TurnDirection turnDir) {
@@ -243,10 +272,17 @@ public class CleonBot {
         Vector2 v = new Vector2(robotAnglePID.currentOutput * turnDir.multiplier, 0.0);
         drivetrain.setVelocityBasedOnGamePad(new Vector2(), v);
 
+        if (Math.abs(robotAngle) > targetAngle || drivetrain.leftForePower < .01) {
+            drivetrain.setVelocity(new Vector2());
+            drivetrain.resetMotorEncoders();
+            drivetrain.resetMotorEncoders();
+            return true;
+        }
+
         return false;
     }
 
-    public boolean drivePID(Vector2 velocity, double inches) {
+    public boolean drivePID(Vector2 velocity, double targetFaceAngle, double inches, long timer) {
         double distance = Math.sqrt(Math.pow(getRightForeDistanceInches(), 2) + Math.pow(getStrafeDistanceInches(), 2));
 
         robotPosPID.setpoint = inches;
@@ -254,24 +290,45 @@ public class CleonBot {
         robotPosPID.idealLoop();
 
         Vector2 v = new Vector2(velocity);
-        v.scalarMultiply(robotPosPID.currentOutput);
-        drivetrain.setVelocity(v);
+
+        double output;
+
+        // Hacky way to get around the unoptimal PID loop
+        if (Math.abs(inches) < 17.0) {
+            double sigmoidHorizontalShrink = (Math.abs(inches) < 7.0) ? 6 : 4;
+            // Uses the sigmoid function, which caps values between 0-1 in a curve-like fashion
+            output = 2 * (1 / (1 + Math.pow(Math.E, (-sigmoidHorizontalShrink * robotPosPID.currentOutput)))) - 1;
+        } else {
+            output = robotPosPID.currentOutput;
+        }
+        v.scalarMultiply(output);
+
+        // angle pid used to account for error when strafing
+        // sometimes the robot will strafe in an arc when we really want it to go straight
+        robotAnglePID.setpoint = targetFaceAngle;
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+        drivetrain.setVelocityBasedOnGamePad(v, new Vector2(-robotAnglePID.error,0));
+
+        if (distance >= Math.abs(inches) || getRuntime() > timer) {
+            drivetrain.setVelocity(new Vector2());
+            resetTimer();
+            drivetrain.resetMotorEncoders();
+            return true;
+        }
 
         return false;
     }
 
     public void driveToPoint2d(Vector2 destination, Vector2 velocity){
-        robotAnglePID.setpoint = UniversalFunctions.normalizeAngleRadians(destination.angle(), robotAngle);
+        robotAnglePID.setpoint = destination.angle();
         robotAnglePID.processVar = robotAngle;
         robotAnglePID.idealLoop();
 
         Vector2 turnVel = new Vector2(robotAnglePID.currentOutput, 0.0);
 
-        Vector2 destinationRobotRelative = new Vector2(destination);
-        destinationRobotRelative.subtract(robotPosition);
-
-        robotPosPID.setpoint = destinationRobotRelative.magnitude() * Math.cos(robotAnglePID.setpoint);
-        robotPosPID.processVar = 0;
+        robotPosPID.setpoint = destination.magnitude() * Math.cos(robotAnglePID.setpoint);
+        robotPosPID.processVar = robotAngle;
         robotPosPID.idealLoop();
 
         Vector2 forwardVel = new Vector2(velocity);
@@ -283,7 +340,7 @@ public class CleonBot {
     }
 
     public void updatePrevPosition() {
-        prevForeInches = getLeftForeDistanceInches();
+        prevForeInches = getRightForeDistanceInches();
         prevStrafeInches = getStrafeDistanceInches();
         prevRobotAngle = robotAngle;
     }

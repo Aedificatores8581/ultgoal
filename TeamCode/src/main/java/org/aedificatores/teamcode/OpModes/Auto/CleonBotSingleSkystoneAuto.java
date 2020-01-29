@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.OpModes.Auto;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
@@ -17,6 +18,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.io.IOException;
 
+@Disabled
 @Autonomous(name = "Cleon Bot Single Skystone Auto")
 public class CleonBotSingleSkystoneAuto extends OpMode {
 
@@ -137,7 +139,6 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         bot.grabber.init();
     }
 
-    // This particular code is repeated a bunch, so it's put in a function
     @Override
     public void loop() {
         switch (autoState) {
@@ -390,7 +391,7 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         bot.setRobotAngle();
         bot.drivetrain.refreshMotors();
 
-        telemetry.addData("actual angle", bot.getGyroAngleZ());
+        telemetry.addData("actual velocity", bot.getGyroAngleZ());
         telemetry.addData("inches", Math.sqrt(Math.pow(bot.getLeftForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2)));
         telemetry.addData("\nmotor power", bot.drivetrain.leftFore.getPower());
         telemetry.addData("fore inch", bot.getLeftForeDistanceInches());
@@ -417,7 +418,6 @@ public class CleonBotSingleSkystoneAuto extends OpMode {
         v.x = (Math.abs(v.x) > SPEED) ? SPEED * Math.signum(v.x) : v.x;
         v.y = (Math.abs(v.y) > SPEED) ? SPEED * Math.signum(v.y) : v.y;
         bot.drivetrain.setVelocity(v);
-        // bot.drivetrain.setVelocity(v);
 
 
         if (Math.abs(distance) > inches || getRuntime() > timer) {

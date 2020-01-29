@@ -10,24 +10,22 @@ import org.aedificatores.teamcode.Mechanisms.Sensors.MagneticLimitSwitch;
 
 public class CleonGrabber {
 
-    enum GrabberState {
-        KICKING,
-        GRABBING,
-        EXTENDING,
-        RELEASING,
-        RETRACTING,
-        UNKICKING,
-        STOP,
+    enum ExtendState {
+        IDLE,
+        RUN_WITHOUT_SWITCH,
+        STOP_AT_SWITCH,
     }
 
-    private GrabberState grabberState;
+    private ExtendState extendState = ExtendState.RUN_WITHOUT_SWITCH;
 
     private Servo pusherServo;
     private Servo grabberServo;
     private Servo rotationServo;
     private CRServo extension;
-    private MagneticLimitSwitch extendedSwitch;
-    private MagneticLimitSwitch retractedSwitch;
+    private MagneticLimitSwitch limitSwitch;
+
+    private long currentTime;
+    private long resetTime;
 
     private static final String HARDWARE_MAP_NAME_EXTEND_SWTICH = "frontextension";
     private static final String HARDWARE_MAP_NAME_RETRACTED_SWTICH = "backextension";
@@ -35,22 +33,31 @@ public class CleonGrabber {
     private static final String HARDWARE_MAP_NAME_PUSHER = "kickerservo";
     private static final String HARDWARE_MAP_NAME_ROTATION = "turndeposit";
     private static final String HARDWARE_MAP_NAME_EXTENSION = "extensionservo";
-    private static final double GRABBER_CLOSED = 0.2;
-    private static final double GRABBER_OPEN = .65;
-    private static final double PUSHER_OPEN = .5;
-    private static final double PUSHER_CLOSED = 0;
+    private static final double GRABBER_CLOSED = 0.8;
+    private static final double GRABBER_OPEN = .2;
+    private static final double PUSHER_OPEN = .0;
+    private static final double PUSHER_CLOSED = .6;
     private static final double ROTATION_FLIPPED = 0.85;
     private static final double EXTENSION_POWER = .75;
 
     public CleonGrabber(HardwareMap map) {
-        extendedSwitch = new MagneticLimitSwitch();
-        retractedSwitch = new MagneticLimitSwitch();
-        extendedSwitch.init(map, HARDWARE_MAP_NAME_EXTEND_SWTICH);
-        retractedSwitch.init(map, HARDWARE_MAP_NAME_RETRACTED_SWTICH );
+        limitSwitch = new MagneticLimitSwitch();
+        limitSwitch.init(map, HARDWARE_MAP_NAME_EXTEND_SWTICH);
         pusherServo = map.servo.get(HARDWARE_MAP_NAME_PUSHER);
         grabberServo = map.servo.get(HARDWARE_MAP_NAME_GRAB);
         rotationServo = map.servo.get(HARDWARE_MAP_NAME_ROTATION);
         extension = map.crservo.get(HARDWARE_MAP_NAME_EXTENSION);
+        resetTime = System.currentTimeMillis();
+        currentTime = 0;
+    }
+
+    public void resetTimer() {
+        resetTime = System.currentTimeMillis();
+        currentTime = 0;
+    }
+
+    public void updateTimer() {
+        currentTime = System.currentTimeMillis() - resetTime;
     }
 
     public void init() {
@@ -89,30 +96,60 @@ public class CleonGrabber {
     public boolean extend() {
         extension.setPower(EXTENSION_POWER);
 
-        Log.i("extendo", "Extended Switch is " + retractedSwitch.toString());
-        if (extendedSwitch.isActive()) {
-            extension.setPower(0.0);
-            Log.i("extendo", "returning true");
-            return true;
+        switch (extendState) {
+            case IDLE:
+                resetTimer();
+                extendState = ExtendState.RUN_WITHOUT_SWITCH;
+                break;
+            case RUN_WITHOUT_SWITCH:
+                if (currentTime > 100) {
+                    extendState = ExtendState.STOP_AT_SWITCH;
+                }
+                break;
+            case STOP_AT_SWITCH:
+                Log.d("extendo", "Extended Switch is " + limitSwitch.toString());
+                if (limitSwitch.isActive()) {
+                    extension.setPower(0.0);
+                    Log.d("extendo", "returning true");
+                    extendState = ExtendState.IDLE;
+                    return true;
+                }
+                break;
         }
-        Log.i("extendo", "returning false");
+
+
+        Log.d("extendo", "returning false");
+        updateTimer();
         return false;
     }
 
     public boolean retract() {
         extension.setPower(-EXTENSION_POWER);
 
-        Log.i("retracto", "Retracted Switch is " + retractedSwitch.toString());
-        if (retractedSwitch.isActive()) {
-            extension.setPower(0.0);
-            Log.i("retracto", "returning true");
-            return true;
+        switch (extendState) {
+            case IDLE:
+                resetTimer();
+                break;
+            case RUN_WITHOUT_SWITCH:
+                if (currentTime > 100) {
+                    extendState = ExtendState.STOP_AT_SWITCH;
+                }
+                break;
+            case STOP_AT_SWITCH:
+                Log.d("retracto", "Extended Switch is " + limitSwitch.toString());
+                if (limitSwitch.isActive()) {
+                    extension.setPower(0.0);
+                    Log.d("retracto", "returning true");
+                    extendState = ExtendState.IDLE;
+                    return true;
+                }
+                break;
         }
-        Log.i("retracto", "returning false");
+
+
+        Log.d("retracto", "returning false");
+        updateTimer();
         return false;
     }
 
-    public void setGrabberState(GrabberState state) {
-        grabberState = state;
-    }
 }
