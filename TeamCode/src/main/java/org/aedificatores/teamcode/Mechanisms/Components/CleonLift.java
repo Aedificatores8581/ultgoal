@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.Mechanisms.Components;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.aedificatores.teamcode.Components.Sensors.TouchSensor;
+import org.aedificatores.teamcode.Universal.Math.PIDController;
 
 
 public class CleonLift {
@@ -14,21 +15,22 @@ public class CleonLift {
 
     private LiftBrakeState liftState;
 
+    public PIDController liftPID;
 
     private DcMotor liftMotor1;
     private DcMotor liftMotor2;
 
     private TouchSensor limitSwitch;
 
-    public static final double ENC_TO_BOT = 20;
-    public static final double SPEED = .9;
+    private static final double ENC_TO_BOT = 20;
+    private static final double SPEED = .9;
 
-    public static final double MIN_EXTENSION_POWER = 0.2;
-    public static final double MAX_RETRACT_POWER = 0.13;
-    public static final double IDLE_POWER = 0;
-    public static final double BRAKE_POWER = (MIN_EXTENSION_POWER + MAX_RETRACT_POWER) / 2;
+    private static final double MIN_EXTENSION_POWER = 0.2;
+    private static final double MAX_RETRACT_POWER = 0.13;
+    private static final double IDLE_POWER = 0;
+    private static final double BRAKE_POWER = (MIN_EXTENSION_POWER + MAX_RETRACT_POWER) / 2;
 
-    public static final double MOVEMENT_THRESHOLD = 0;
+    private static final double MOVEMENT_THRESHOLD = 0;
     public CleonLift(HardwareMap map) {
         liftMotor1 = map.dcMotor.get("llift");
         liftMotor2 = map.dcMotor.get("rlift");
