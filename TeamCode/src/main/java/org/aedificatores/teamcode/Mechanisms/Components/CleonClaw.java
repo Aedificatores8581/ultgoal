@@ -17,8 +17,8 @@ public class CleonClaw {
     private final double NINTY_DEGREE_POSITION = 0.5;
     private final double ONE_HUNDRED_EIGHTY_DEGREE_POSITION = 1;
 
-    private final double FINGER_OPEN_POSITION = 0;
-    private final double FINGER_CLOSED_POSITION = 1;
+    private final double FINGER_OPEN_POSITION = 0.2;
+    private final double FINGER_CLOSED_POSITION = 0.8;
 
     private final double DISTANCE_TO_DETECT_STONE = 65;
 
@@ -49,6 +49,6 @@ public class CleonClaw {
     }
 
     public boolean hasStone (){
-        return stoneDetector.getDistance(DistanceUnit.MM) > DISTANCE_TO_DETECT_STONE;
+        return stoneDetector.getDistance(DistanceUnit.MM) < DISTANCE_TO_DETECT_STONE;
     }
 }
