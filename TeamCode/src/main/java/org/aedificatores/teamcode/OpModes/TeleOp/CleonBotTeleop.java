@@ -12,7 +12,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
-@TeleOp(name = "Cleon Bot Teleop")
+@TeleOp(name = "Cleon Teleop")
 public class CleonBotTeleop extends OpMode {
 	private static boolean foundationGrabberClosed = false;
 
