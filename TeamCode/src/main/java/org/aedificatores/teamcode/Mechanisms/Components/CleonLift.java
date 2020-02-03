@@ -51,7 +51,7 @@ public class CleonLift {
             setLiftPower(BRAKE_POWER);
     }
 
-    private void setLiftPower(double pow) {
+    public void setLiftPower(double pow) {
 
         if(pow < MIN_EXTENSION_POWER &&(atBottom() || limitSwitch.isPressed())) {
             liftMotor1.setPower(0);

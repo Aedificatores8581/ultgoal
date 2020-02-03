@@ -38,7 +38,7 @@ public class CleonGrabber {
     private static final double PUSHER_OPEN = .0;
     private static final double PUSHER_CLOSED = .6;
     private static final double ROTATION_FLIPPED = 0.85;
-    private static final double EXTENSION_POWER = .75;
+    private static final double EXTENSION_POWER = .9;
 
     public CleonGrabber(HardwareMap map) {
         limitSwitch = new MagneticLimitSwitch();
