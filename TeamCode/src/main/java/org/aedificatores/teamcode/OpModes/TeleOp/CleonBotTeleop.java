@@ -48,9 +48,14 @@ public class CleonBotTeleop extends OpMode {
             robot.lift.idle();
         else if (gamepad2.left_stick_button)
             robot.lift.setLiftPower(-1);
-        else
+        else if(gamepad2.left_stick_y > 0)
             robot.lift.setNormalizedLiftPower(gamepad2.left_stick_y);
-
+        else if(gamepad2.dpad_up)
+            robot.lift.snapToStone(robot.lift.closestBlockHeight + 1);
+        else if(gamepad2.dpad_down)
+            robot.lift.snapToStone(robot.lift.closestBlockHeight - 1);
+        else
+            robot.lift.snapToStone(robot.lift.closestBlockHeight);
 
     }
 
