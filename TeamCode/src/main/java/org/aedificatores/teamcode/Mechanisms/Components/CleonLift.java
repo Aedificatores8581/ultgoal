@@ -11,12 +11,12 @@ public class CleonLift {
     public PIDController liftPID = new PIDController(0,0,0, 150);
 
     private boolean usingPID = false;
-    private DcMotor liftMotor1;
+    public DcMotor liftMotor1;
     private DcMotor liftMotor2;
 
     private TouchSensor limitSwitch;
 
-    private static final double ENC_TO_BOT = 20;
+    public static final int ENC_TO_BOT = 20;
     private static final double SPEED = .9;
 
     private static final double MIN_EXTENSION_POWER = 0.2;

@@ -17,6 +17,8 @@ public class CleonBotTeleop extends OpMode {
     public final static double SLOW_STRAFE_SPEED = 0.5;
     public final static double SLOW_FORWARD_SPEED = 0.375;
 
+
+
     @Override
     public void init() {
         try {
@@ -39,11 +41,6 @@ public class CleonBotTeleop extends OpMode {
 
         //intake code goes here
 
-        if(gamepad1.y)
-            robot.grabber.openGrabber();
-        else if(gamepad2.y)
-            robot.grabber.closeGrabber();
-
         if(gamepad2.left_bumper)
             robot.lift.idle();
         else if (gamepad2.left_stick_button)
@@ -59,6 +56,32 @@ public class CleonBotTeleop extends OpMode {
                 robot.lift.snapToStone(robot.lift.closestBlockHeight);
             robot.lift.setPowerUsinngPID();
         }
+
+        if(robot.grabber.extending)
+            robot.grabber.extend();
+        else
+            robot.grabber.retract();
+        if(gamepad2.right_bumper){
+            if(robot.grabber.isExtended) {
+                robot.grabber.retract();
+                robot.grabber.unflipGrabber();
+            }
+            else if(robot.grabber.isRetracted)
+                robot.grabber.extend();
+        }
+
+        if(robot.grabber.isExtended && gamepad1.b)
+            robot.grabber.flipGrabber();
+
+        if(gamepad1.y)
+            robot.grabber.openGrabber();
+        else if(gamepad2.a)
+            robot.grabber.closeGrabber();
+
+        if(gamepad2.right_trigger > 0.5)
+            robot.grabber.closePusher();
+        else
+            robot.grabber.openPusher();
     }
 
     public void updateGamepadValues(){

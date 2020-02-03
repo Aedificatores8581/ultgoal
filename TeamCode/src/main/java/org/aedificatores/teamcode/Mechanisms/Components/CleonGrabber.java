@@ -24,6 +24,10 @@ public class CleonGrabber {
     private CRServo extension;
     private MagneticLimitSwitch limitSwitch;
 
+    public boolean isExtended = false;
+    public boolean isRetracted = true;
+    public boolean extending = false;
+
     private long currentTime;
     private long resetTime;
 
@@ -38,6 +42,7 @@ public class CleonGrabber {
     private static final double PUSHER_OPEN = .0;
     private static final double PUSHER_CLOSED = .6;
     private static final double ROTATION_FLIPPED = 0.85;
+    private static final double ROTATION_NORMAL = 0.2;
     private static final double EXTENSION_POWER = .9;
 
     public CleonGrabber(HardwareMap map) {
@@ -90,10 +95,14 @@ public class CleonGrabber {
     }
 
     public void flipGrabber() {
-        setServoPosition(rotationServo, ROTATION_FLIPPED);
+        rotateGrabber(ROTATION_FLIPPED);
+    }
+    public void unflipGrabber() {
+        rotateGrabber(ROTATION_NORMAL);
     }
 
     public boolean extend() {
+        extending = true;
         extension.setPower(EXTENSION_POWER);
 
         switch (extendState) {
@@ -107,8 +116,10 @@ public class CleonGrabber {
                 }
                 break;
             case STOP_AT_SWITCH:
+                isExtended = limitSwitch.isActive();
+                isRetracted = false;
                 Log.d("extendo", "Extended Switch is " + limitSwitch.toString());
-                if (limitSwitch.isActive()) {
+                if (isExtended) {
                     extension.setPower(0.0);
                     Log.d("extendo", "returning true");
                     extendState = ExtendState.IDLE;
@@ -124,6 +135,7 @@ public class CleonGrabber {
     }
 
     public boolean retract() {
+        extending = false;
         extension.setPower(-EXTENSION_POWER);
 
         switch (extendState) {
@@ -136,8 +148,10 @@ public class CleonGrabber {
                 }
                 break;
             case STOP_AT_SWITCH:
+                isRetracted = limitSwitch.isActive();
+                isExtended = false;
                 Log.d("retracto", "Extended Switch is " + limitSwitch.toString());
-                if (limitSwitch.isActive()) {
+                if (isRetracted) {
                     extension.setPower(0.0);
                     Log.d("retracto", "returning true");
                     extendState = ExtendState.IDLE;
