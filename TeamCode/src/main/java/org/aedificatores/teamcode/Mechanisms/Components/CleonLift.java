@@ -8,8 +8,9 @@ import org.aedificatores.teamcode.Universal.Math.PIDController;
 
 public class CleonLift {
 
-    public PIDController liftPID;
+    public PIDController liftPID = new PIDController(0,0,0, 150);
 
+    private boolean usingPID = false;
     private DcMotor liftMotor1;
     private DcMotor liftMotor2;
 
@@ -75,7 +76,8 @@ public class CleonLift {
     }
 
     public void snapToStone(int stone){
-
+        usingPID = true;
+        liftPID.setpoint = PID_SETPOINTS[stone - 1];
     }
 
     public void updateBlockHeight(){
@@ -86,12 +88,10 @@ public class CleonLift {
 
     }
 
-    public void updatePID(){
-        liftPID.setpoint = PID_SETPOINTS[closestBlockHeight - 1];
-    }
-
-    public void updatePID(int desiredBlock){
-        liftPID.setpoint = PID_SETPOINTS[desiredBlock - 1];
+    public void setPowerUsinngPID(){
+        liftPID.processVar = liftMotor1.getCurrentPosition();
+        liftPID.idealLoop();
+        setNormalizedLiftPower(liftPID.currentOutput);
     }
 
     public boolean atBottom() {
