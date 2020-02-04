@@ -3,23 +3,21 @@ package org.aedificatores.teamcode.OpModes.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
-import org.aedificatores.teamcode.OpModes.Auto.CleonBotSingleSkystoneAuto;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
-import org.aedificatores.teamcode.Universal.UniversalFunctions;
 import org.json.JSONException;
 
 import java.io.IOException;
 
-@TeleOp(name = "Cleon Bot Teleop")
+@TeleOp(name = "Cleon Teleop")
 public class CleonBotTeleop extends OpMode {
-	private static boolean foundationGrabberClosed = false;
+	CleonBot robot;
+    Vector2 leftStick1, rightStick1, leftStick2;
 
-    CleonBot robot;
-    Vector2 leftStick, rightStick;
+    public final static double SLOW_STRAFE_SPEED = 0.5;
+    public final static double SLOW_FORWARD_SPEED = 0.375;
 
-    private static final double SPEED_MOD = 0.7;
+
 
     @Override
     public void init() {
@@ -31,36 +29,69 @@ public class CleonBotTeleop extends OpMode {
             requestOpModeStop();
         }
 
-        leftStick = new Vector2();
-        rightStick = new Vector2();
+        leftStick1 = new Vector2();
+        rightStick1 = new Vector2();
+        leftStick2 = new Vector2();
     }
 
     @Override
     public void loop() {
-        robot.intake.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
+        updateGamepadValues();
+        robot.drivetrain.setVelocityBasedOnGamePad(leftStick1, rightStick1);
 
-        leftStick.setComponents(gamepad1.left_stick_x, gamepad1.left_stick_y);
-        rightStick.setComponents(gamepad1.right_stick_x, gamepad1.right_stick_y);
+        //intake code goes here
 
-        // Slow movement down when the left bumper is pressed.
-        if (gamepad1.left_bumper) {
-            robot.drivetrain.setVelocityBasedOnGamePad(leftStick.scalarMultiply(SPEED_MOD), rightStick.scalarMultiply(SPEED_MOD));
-        } else {
-            robot.drivetrain.setVelocityBasedOnGamePad(leftStick, rightStick);
+        if(gamepad2.left_bumper)
+            robot.lift.idle();
+        else if (gamepad2.left_stick_button)
+            robot.lift.setLiftPower(-1);
+        else if(gamepad2.left_stick_y > 0)
+            robot.lift.setNormalizedLiftPower(gamepad2.left_stick_y);
+        else {
+            if (gamepad2.dpad_up)
+                robot.lift.snapToStone(robot.lift.closestBlockHeight + 1);
+            else if (gamepad2.dpad_down)
+                robot.lift.snapToStone(robot.lift.closestBlockHeight - 1);
+            else
+                robot.lift.snapToStone(robot.lift.closestBlockHeight);
+            robot.lift.setPowerUsinngPID();
         }
 
-        robot.intake.setIntakePower(Math.abs(gamepad1.left_trigger));
+        if(robot.grabber.extending)
+            robot.grabber.extend();
+        else
+            robot.grabber.retract();
+        if(gamepad2.right_bumper){
+            if(robot.grabber.isExtended) {
+                robot.grabber.retract();
+                robot.grabber.unflipGrabber();
+            }
+            else if(robot.grabber.isRetracted)
+                robot.grabber.extend();
+        }
 
-        if (gamepad2.x && !foundationGrabberClosed) {
-        	robot.foundationGrabber.close();
-        	foundationGrabberClosed = true;
-		}
+        if(robot.grabber.isExtended && gamepad1.b)
+            robot.grabber.flipGrabber();
 
-        if (gamepad2.x && foundationGrabberClosed) {
-        	robot.foundationGrabber.open();
-        	foundationGrabberClosed = false;
-		}
+        if(gamepad1.y)
+            robot.grabber.openGrabber();
+        else if(gamepad2.a)
+            robot.grabber.closeGrabber();
 
-        robot.drivetrain.refreshMotors();
+        if(gamepad2.right_trigger > 0.5)
+            robot.grabber.closePusher();
+        else
+            robot.grabber.openPusher();
+    }
+
+    public void updateGamepadValues(){
+        leftStick1 = new Vector2(gamepad1.left_stick_x, gamepad1.left_trigger - gamepad1.right_trigger);
+        rightStick1 = new Vector2(gamepad1.right_stick_x, gamepad1.right_stick_y);
+        leftStick2 = new Vector2(gamepad1.left_stick_x, gamepad1.left_stick_y);
+
+        leftStick1.x = gamepad1.dpad_left ?  -SLOW_STRAFE_SPEED : leftStick1.x;
+        leftStick1.x = gamepad1.dpad_right ?  SLOW_STRAFE_SPEED : leftStick1.x;
+        leftStick1.y = gamepad1.dpad_up ?  SLOW_FORWARD_SPEED : leftStick1.y;
+        leftStick1.y = gamepad1.dpad_down ?  -SLOW_FORWARD_SPEED : leftStick1.y;
     }
 }
