@@ -37,7 +37,7 @@ public class CleonLift {
         liftMotor1 = map.dcMotor.get("llift");
         liftMotor2 = map.dcMotor.get("rlift");
 
-        limitSwitch.init(map, "botls");
+        //limitSwitch.init(map, "botls");
 
         liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -52,7 +52,7 @@ public class CleonLift {
     public void setNormalizedLiftPower(double pow){
         if (pow > MOVEMENT_THRESHOLD)
             setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MIN_EXTENSION_POWER);
-        if (pow < -MOVEMENT_THRESHOLD)
+        else if (pow < -MOVEMENT_THRESHOLD)
             setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MAX_RETRACT_POWER);
         else
             setLiftPower(BRAKE_POWER);
@@ -60,7 +60,7 @@ public class CleonLift {
 
     public void setLiftPower(double pow) {
 
-        if(pow < MAX_RETRACT_POWER &&(atBottom() || limitSwitch.isPressed())) {
+        if(pow < MAX_RETRACT_POWER &&(atBottom() /*|| limitSwitch.isPressed()*/)) {
             liftMotor1.setPower(0);
             liftMotor1.setPower(0);
             closestBlockHeight = 1;
