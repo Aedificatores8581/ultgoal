@@ -238,5 +238,9 @@ public class Mechanum {
         rightAftPower -= turnPower / FRONT_TO_BACK_POWER_RATIO;
     }
 
+    public void updateLocation3wheels(double left, double center, double right){
+
+    }
+
     // NOTE: Teleop Loop and Auto Loop are not in here add them if you want them.
 }

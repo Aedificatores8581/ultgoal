@@ -50,7 +50,7 @@ public class CleonDrivePIDTest extends OpMode {
 
         boolean reached = bot.drivePID(new Vector2(0.0,-1.0), 0, goal, 300 * 1000);
         bot.drivetrain.refreshMotors();
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
         telemetry.addData("inches",dist);
         telemetry.addData("strafe", bot.getStrafeDistanceInches());
         telemetry.addData("goal",goal);

@@ -73,6 +73,6 @@ public class Cleon2dDriveToPointTest extends OpMode {
 
         bot.drivetrain.refreshMotors();
         bot.setRobotAngle();
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
     }
 }

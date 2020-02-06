@@ -112,7 +112,7 @@ public class CleonFarPark extends OpMode {
                 break;
         }
 
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
         bot.setRobotAngle();
         bot.drivetrain.refreshMotors();
     }

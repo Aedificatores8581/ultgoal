@@ -36,7 +36,7 @@ public class CleonBotTest extends OpMode {
         bot.drivetrain.refreshMotors();
 
         bot.setRobotAngle();
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
 
         telemetry.addData("x",bot.robotPosition.x);
         telemetry.addData("y",bot.robotPosition.y);

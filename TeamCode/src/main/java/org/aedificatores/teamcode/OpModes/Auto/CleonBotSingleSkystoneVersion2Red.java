@@ -1,6 +1,5 @@
 package org.aedificatores.teamcode.OpModes.Auto;
 
-import android.os.Debug;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -297,7 +296,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
         telemetry.addData("strafe", bot.getStrafeDistanceInches());
         telemetry.addData("timer", getRuntime());
         bot.drivetrain.refreshMotors();
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
         bot.updateTimer();
     }
 }

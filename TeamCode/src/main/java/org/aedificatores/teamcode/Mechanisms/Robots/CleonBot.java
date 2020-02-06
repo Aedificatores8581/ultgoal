@@ -1,5 +1,7 @@
 package org.aedificatores.teamcode.Mechanisms.Robots;
 
+import android.widget.MultiAutoCompleteTextView;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -54,6 +56,7 @@ public class CleonBot {
 
     public final double DIST_FORE_WHEEL_FROM_CENTER = 7.5625;
     public final double DIST_STRAFE_WHEEL_FROM_CENTER = 15.0/16.0; //3.4154453269;
+    public final double ENC_PER_INCH = 1440 / (Math.PI * 38 / 25.4);
 
     double prevForeInches;
     double prevStrafeInches;
@@ -234,7 +237,7 @@ public class CleonBot {
         robotAngle = Math.toRadians(getGyroAngleZ());
     }
 
-    public void updateRobotPosition() {
+    public void updateRobotPosition2d() {
         setRobotAngle();
         // gets the change in orientation and position since last opmode update
         double deltaForeMovement = getRightForeDistanceInches() - prevForeInches;
@@ -254,9 +257,50 @@ public class CleonBot {
         deltaForeMovementAfterTurn = deltaForeMovement - deltaRobotAngle * DIST_FORE_WHEEL_FROM_CENTER;
         deltaStrafeMovementAfterTurn = deltaStrafeMovement - deltaRobotAngle * DIST_STRAFE_WHEEL_FROM_CENTER;
 
-        // add the change in position to the current position
-        robotPosition.y = robotPosition.y + deltaForeMovementAfterTurn * Math.cos(robotAngle);
-        robotPosition.x = robotPosition.x + deltaForeMovementAfterTurn * Math.sin(robotAngle);
+        //determines the magnitude and angle of the strafe movement
+        Vector2 arcVect = new Vector2(deltaStrafeMovementAfterTurn, deltaForeMovementAfterTurn);
+        //determines the radius of the turn
+        double turnRadius = arcVect.magnitude() / deltaRobotAngle;
+        //creates the strafe-angle-relative change in position
+        Vector2 deltaPosition = new Vector2(turnRadius * (1 - Math.cos(deltaRobotAngle)), turnRadius * Math.sin(deltaRobotAngle));
+        //rotates the change in position to the feild-relative strafe angle
+        deltaPosition.rotate(robotAngle-arcVect.angle());
+
+        robotPosition.add(deltaPosition);
+
+        updatePrevPosition();
+    }
+
+    public void updateRobotPosition3d() {
+        robotAngle = (getRightForeDistanceInches() + getLeftForeDistanceInches()) / (2 * DIST_FORE_WHEEL_FROM_CENTER);
+        // gets the change in orientation and position since last opmode update
+        double deltaForeMovement = getRightForeDistanceInches() - prevForeInches;
+        double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
+        deltaRobotAngle = robotAngle;
+        deltaRobotAngle -= prevRobotAngle;
+
+        if (deltaRobotAngle > Math.PI) {
+            deltaRobotAngle = 2 * Math.PI - deltaRobotAngle;
+        }
+
+        // Eliminates any encoder ticks that were caused by turning the robot
+        // This makes sense since when the robot turns in place, the amount of ticks in each
+        // odometry pod changes, but the position of the robot doesn't change, so these ticks would
+        // be negligible
+        // This code subtracts the arc length of the turn from the change in enc ticks
+        deltaForeMovementAfterTurn = deltaForeMovement - deltaRobotAngle * DIST_FORE_WHEEL_FROM_CENTER;
+        deltaStrafeMovementAfterTurn = deltaStrafeMovement - deltaRobotAngle * DIST_STRAFE_WHEEL_FROM_CENTER;
+
+        //determines the magnitude and angle of the strafe movement
+        Vector2 arcVect = new Vector2(deltaStrafeMovementAfterTurn, deltaForeMovementAfterTurn);
+        //determines the radius of the turn
+        double turnRadius = arcVect.magnitude() / deltaRobotAngle;
+        //creates the strafe-angle-relative change in position
+        Vector2 deltaPosition = new Vector2(turnRadius * (1 - Math.cos(deltaRobotAngle)), turnRadius * Math.sin(deltaRobotAngle));
+        //rotates the change in position to the feild-relative strafe angle
+        deltaPosition.rotate(robotAngle-arcVect.angle());
+
+        robotPosition.add(deltaPosition);
 
         updatePrevPosition();
     }
