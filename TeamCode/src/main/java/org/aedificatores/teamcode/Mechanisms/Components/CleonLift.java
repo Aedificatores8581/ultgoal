@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.aedificatores.teamcode.Components.Sensors.TouchSensor;
 import org.aedificatores.teamcode.Universal.Math.PIDController;
+import org.aedificatores.teamcode.Universal.UniversalFunctions;
 
 
 public class CleonLift {
@@ -36,11 +37,10 @@ public class CleonLift {
     public CleonLift(HardwareMap map) {
         liftMotor1 = map.dcMotor.get("llift");
         liftMotor2 = map.dcMotor.get("rlift");
-
         //limitSwitch.init(map, "botls");
 
-        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         MIN_SNAP_HEIGHT[0] = 0;
         for (int i = 1; i < 12; i++){
@@ -60,14 +60,14 @@ public class CleonLift {
 
     public void setLiftPower(double pow) {
 
-        if(pow < MAX_RETRACT_POWER &&(atBottom() /*|| limitSwitch.isPressed()*/)) {
+        if(pow < MIN_EXTENSION_POWER && (atBottom() /*|| limitSwitch.isPressed()*/)) {
             liftMotor1.setPower(0);
-            liftMotor1.setPower(0);
+            liftMotor2.setPower(0);
             closestBlockHeight = 1;
         }
         else {
-            liftMotor1.setPower(pow * SPEED);
-            liftMotor2.setPower(pow * SPEED);
+            liftMotor1.setPower(UniversalFunctions.clamp(-1.0, pow * SPEED, 1.0));
+            liftMotor2.setPower(UniversalFunctions.clamp(-1.0, pow * SPEED, 1.0));
         }
     }
 

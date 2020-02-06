@@ -74,6 +74,10 @@ public class CleonBot {
         String DRIVE_KD = "DriveKD";
         String DRIVE_IM = "DriveIM";
 
+        String X_POS_KP = "XPosKP";
+        String X_POS_KI = "XPosKI";
+        String X_POS_KD = "XPosKD";
+
         String Y_POS_KP = "YPosKP";
         String Y_POS_KI = "YPosKI";
         String Y_POS_KD = "YPosKD";
