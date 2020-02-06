@@ -267,6 +267,40 @@ public class CleonBot {
         updatePrevPosition();
     }
 
+    public void updateRobotPosition3d() {
+        robotAngle = (getRightForeDistanceInches() + getLeftForeDistanceInches()) / (2 * DIST_FORE_WHEEL_FROM_CENTER);
+        // gets the change in orientation and position since last opmode update
+        double deltaForeMovement = getRightForeDistanceInches() - prevForeInches;
+        double deltaStrafeMovement = getStrafeDistanceInches() - prevStrafeInches;
+        deltaRobotAngle = robotAngle;
+        deltaRobotAngle -= prevRobotAngle;
+
+        if (deltaRobotAngle > Math.PI) {
+            deltaRobotAngle = 2 * Math.PI - deltaRobotAngle;
+        }
+
+        // Eliminates any encoder ticks that were caused by turning the robot
+        // This makes sense since when the robot turns in place, the amount of ticks in each
+        // odometry pod changes, but the position of the robot doesn't change, so these ticks would
+        // be negligible
+        // This code subtracts the arc length of the turn from the change in enc ticks
+        deltaForeMovementAfterTurn = deltaForeMovement - deltaRobotAngle * DIST_FORE_WHEEL_FROM_CENTER;
+        deltaStrafeMovementAfterTurn = deltaStrafeMovement - deltaRobotAngle * DIST_STRAFE_WHEEL_FROM_CENTER;
+
+        //determines the magnitude and angle of the strafe movement
+        Vector2 arcVect = new Vector2(deltaStrafeMovementAfterTurn, deltaForeMovementAfterTurn);
+        //determines the radius of the turn
+        double turnRadius = arcVect.magnitude() / deltaRobotAngle;
+        //creates the strafe-angle-relative change in position
+        Vector2 deltaPosition = new Vector2(turnRadius * (1 - Math.cos(deltaRobotAngle)), turnRadius * Math.sin(deltaRobotAngle));
+        //rotates the change in position to the feild-relative strafe angle
+        deltaPosition.rotate(robotAngle-arcVect.angle());
+
+        robotPosition.add(deltaPosition);
+
+        updatePrevPosition();
+    }
+
     /**
      * Commands the robot to turn a certain number of radians. If the robot has met
      * the angle, it stops and returns true
