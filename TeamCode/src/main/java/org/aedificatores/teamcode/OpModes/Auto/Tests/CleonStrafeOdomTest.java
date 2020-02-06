@@ -64,7 +64,7 @@ public class CleonStrafeOdomTest extends OpMode {
         telemetry.addLine("KD: " + bot.robotAnglePID.KD);
 
         bot.drivetrain.refreshMotors();
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
 
     }
 }

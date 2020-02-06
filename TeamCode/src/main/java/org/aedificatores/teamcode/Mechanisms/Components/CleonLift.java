@@ -11,12 +11,12 @@ public class CleonLift {
     public PIDController liftPID = new PIDController(0,0,0, 150);
 
     private boolean usingPID = false;
-    public DcMotor liftMotor1;
+    private DcMotor liftMotor1;
     private DcMotor liftMotor2;
 
     private TouchSensor limitSwitch;
 
-    public static final int ENC_TO_BOT = 20;
+    private static final int ENC_TO_BOT = 20;
     private static final double SPEED = .9;
 
     private static final double MIN_EXTENSION_POWER = 0.2;
@@ -42,6 +42,7 @@ public class CleonLift {
         liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //calculates the minimum encoder value needed for the lift to snap to a given stone
         MIN_SNAP_HEIGHT[0] = 0;
         for (int i = 1; i < 12; i++){
             MIN_SNAP_HEIGHT[i] = (PID_SETPOINTS[i] + PID_SETPOINTS[i-1]) / 2;
@@ -59,7 +60,7 @@ public class CleonLift {
     }
 
     public void setLiftPower(double pow) {
-
+        updateBlockHeight();
         if(pow < MAX_RETRACT_POWER &&(atBottom() || limitSwitch.isPressed())) {
             liftMotor1.setPower(0);
             liftMotor1.setPower(0);
