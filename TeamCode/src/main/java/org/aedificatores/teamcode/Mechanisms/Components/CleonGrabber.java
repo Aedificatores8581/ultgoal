@@ -37,8 +37,8 @@ public class CleonGrabber {
     private static final String HARDWARE_MAP_NAME_PUSHER = "kickerservo";
     private static final String HARDWARE_MAP_NAME_ROTATION = "turndeposit";
     private static final String HARDWARE_MAP_NAME_EXTENSION = "extensionservo";
-    private static final double GRABBER_CLOSED = 0.8;
-    private static final double GRABBER_OPEN = .2;
+    private static final double GRABBER_CLOSED = 0.45;
+    private static final double GRABBER_OPEN = .0;
     private static final double PUSHER_OPEN = .0;
     private static final double PUSHER_CLOSED = .6;
     private static final double ROTATION_FLIPPED = 0.85;

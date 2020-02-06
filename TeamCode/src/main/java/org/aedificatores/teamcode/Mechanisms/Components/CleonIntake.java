@@ -14,11 +14,22 @@ public class CleonIntake {
     private static final String INTAKE_LEFT_NAME = "lint";
     private static final String INTAKE_RIGHT_NAME = "rint";
 
+    /**
+     * Instantiates CleonIntake with default hardware map names
+     * @param map Hardware map to get the devices from
+     */
     public CleonIntake(HardwareMap map){
         leftIntake = map.dcMotor.get(INTAKE_LEFT_NAME);
         leftIntake.setDirection(DcMotor.Direction.REVERSE);
         rightIntake = map.dcMotor.get(INTAKE_RIGHT_NAME);
     }
+
+    /**
+     * Instantiates CleonIntake with specified hardware map names
+     * @param map Hardware map to get the devices from
+     * @param leftIntakeName Name of left intake motor
+     * @param rightIntakeName Name of right intake motor
+     */
 
     public CleonIntake(HardwareMap map, String leftIntakeName, String rightIntakeName){
         leftIntake = map.dcMotor.get(leftIntakeName);
