@@ -84,7 +84,7 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.openPusher();
 
         robot.drivetrain.refreshMotors();
-        robot.updateRobotPosition();
+        robot.updateRobotPosition2d();
         robot.updateTimer();
 
         telemetry.addData("Lift enc", robot.lift.liftMotor1.getCurrentPosition());

@@ -164,7 +164,7 @@ public class CleonBotFoundationBlue extends OpMode {
                 break;
         }
 
-        bot.updateRobotPosition();
+        bot.updateRobotPosition2d();
         bot.drivetrain.refreshMotors();
         bot.updateTimer();
     }
