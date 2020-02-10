@@ -1,5 +1,7 @@
 package org.aedificatores.teamcode.OpModes.Auto.Tests;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -15,20 +17,40 @@ public class CleonDrivePIDTest extends OpMode {
     CleonBot bot;
     TelemetryLogger logger;
     double goal = 24;
+    boolean reached;
 
+    private static final String TAG = "CleonDrivePIDTest";
 
     @Override
     public void init() {
         try {
             bot = new CleonBot(hardwareMap, true);
-        } catch (IOException | JSONException e) {
-            telemetry.addData("EXCEPTION", e.getMessage());
+        }  catch (IOException | JSONException e) {
+            Log.e(TAG,e.getMessage());
+            telemetry.addLine(e.getMessage());
+
+            Log.e(TAG,"Stack Trace: ");
+            telemetry.addLine("Stack Trace: ");
+
+            for (StackTraceElement i : e.getStackTrace()) {
+                Log.e(TAG,"\t" + i.toString());
+                telemetry.addLine("\t" + i.toString());
+            }
         }
         try {
             logger = new TelemetryLogger();
             logger.writeToLogInCSV("inches");
         } catch (IOException e) {
-            telemetry.addData("EXCEPTION", e.getMessage());
+            Log.e(TAG,e.getMessage());
+            telemetry.addLine(e.getMessage());
+
+            Log.e(TAG,"Stack Trace: ");
+            telemetry.addLine("Stack Trace: ");
+
+            for (StackTraceElement i : e.getStackTrace()) {
+                Log.e(TAG,"\t" + i.toString());
+                telemetry.addLine("\t" + i.toString());
+            }
         }
     }
 
@@ -48,14 +70,15 @@ public class CleonDrivePIDTest extends OpMode {
             telemetry.addData("EXCEPTION", e.getMessage());
         }
 
-        boolean reached = bot.drivePID(new Vector2(0.0,-1.0), 0, goal, 300 * 1000);
+        if (!reached) {
+            reached = bot.driveForePID(goal, 0);
+        }
         bot.drivetrain.refreshMotors();
         bot.updateRobotPosition2d();
         telemetry.addData("inches",dist);
-        telemetry.addData("strafe", bot.getStrafeDistanceInches());
+        telemetry.addData("Fore", bot.getRightForeDistanceInches());
         telemetry.addData("goal",goal);
         telemetry.addData("goal reached",reached);
-        telemetry.addData("integral", bot.robotPosPID.integral);
 
     }
 
