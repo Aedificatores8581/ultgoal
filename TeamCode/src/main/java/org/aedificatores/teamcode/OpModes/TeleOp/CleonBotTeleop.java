@@ -158,11 +158,9 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.openGrabber();
         else if(gamepad2.a)
             robot.grabber.closeGrabber();
-
-        if(gamepad2.right_trigger > 0.5)
+        if(robot.intake.stoneState == CleonIntake.StoneState.INTAKING)
             robot.grabber.closePusher();
-        else
-            robot.grabber.openPusher();
+
 
         robot.drivetrain.refreshMotors();
         robot.updateRobotPosition2d();
@@ -185,5 +183,6 @@ public class CleonBotTeleop extends OpMode {
     public void extendGrabber(){
         robot.grabber.extend();
         robot.intake.resetIntakeState();
+        robot.grabber.openPusher();
     }
 }
