@@ -1,10 +1,11 @@
 package org.aedificatores.teamcode.Mechanisms.Components;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Universal.UniversalFunctions;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class CleonIntake {
 
@@ -14,6 +15,17 @@ public class CleonIntake {
     private static final String INTAKE_LEFT_NAME = "lint";
     private static final String INTAKE_RIGHT_NAME = "rint";
 
+    private DistanceSensor distanceSensor;
+
+    public enum StoneState {
+        SEARCHING,
+        INTAKING,
+        OBTAINED
+    }
+    public StoneState stoneState = StoneState.SEARCHING;
+
+    private static final double BLOCK_DISTANCE_MM = 50;
+
     /**
      * Instantiates CleonIntake with default hardware map names
      * @param map Hardware map to get the devices from
@@ -22,19 +34,7 @@ public class CleonIntake {
         leftIntake = map.dcMotor.get(INTAKE_LEFT_NAME);
         leftIntake.setDirection(DcMotor.Direction.REVERSE);
         rightIntake = map.dcMotor.get(INTAKE_RIGHT_NAME);
-    }
-
-    /**
-     * Instantiates CleonIntake with specified hardware map names
-     * @param map Hardware map to get the devices from
-     * @param leftIntakeName Name of left intake motor
-     * @param rightIntakeName Name of right intake motor
-     */
-
-    public CleonIntake(HardwareMap map, String leftIntakeName, String rightIntakeName){
-        leftIntake = map.dcMotor.get(leftIntakeName);
-        leftIntake.setDirection(DcMotor.Direction.REVERSE);
-        rightIntake = map.dcMotor.get(rightIntakeName);
+        distanceSensor = map.get(DistanceSensor.class, "intakecolor");
     }
 
     /**
@@ -42,6 +42,7 @@ public class CleonIntake {
      * @param speed intake motor speed (negative vaules makes the intake suck in blocks)
      */
     public void setIntakePower(double speed) {
+        updateIntakeState();
         leftIntake.setPower(UniversalFunctions.clamp(-1.0,speed,1.0));
         rightIntake.setPower(UniversalFunctions.clamp(-1.0,speed,1.0));
     }
@@ -60,5 +61,23 @@ public class CleonIntake {
      */
     public void setRightIntake(double speed){
         rightIntake.setPower(UniversalFunctions.clamp(-1.0,speed, 1.0));
+    }
+
+    public void updateIntakeState(){
+        switch (stoneState) {
+            case SEARCHING:
+                if (distanceSensor.getDistance(DistanceUnit.MM) < BLOCK_DISTANCE_MM) {
+                    stoneState = StoneState.INTAKING;
+                }
+                break;
+            case INTAKING:
+                if (distanceSensor.getDistance(DistanceUnit.MM) > BLOCK_DISTANCE_MM) {
+                    stoneState = StoneState.OBTAINED;
+                }
+                break;
+        }
+    }
+    public void resetIntakeState(){
+        stoneState = StoneState.SEARCHING;
     }
 }

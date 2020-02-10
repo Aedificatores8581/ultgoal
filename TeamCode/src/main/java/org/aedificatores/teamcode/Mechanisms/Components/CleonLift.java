@@ -14,8 +14,6 @@ public class CleonLift {
     private DcMotor liftMotor1;
     private DcMotor liftMotor2;
 
-    private TouchSensor limitSwitch;
-
     private static final int ENC_TO_BOT = 20;
     private static final double SPEED = .9;
 
@@ -36,8 +34,6 @@ public class CleonLift {
     public CleonLift(HardwareMap map) {
         liftMotor1 = map.dcMotor.get("llift");
         liftMotor2 = map.dcMotor.get("rlift");
-
-        limitSwitch.init(map, "botls");
 
         liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -61,7 +57,7 @@ public class CleonLift {
 
     public void setLiftPower(double pow) {
         updateBlockHeight();
-        if(pow < MAX_RETRACT_POWER &&(atBottom() || limitSwitch.isPressed())) {
+        if(pow < MAX_RETRACT_POWER &&(atBottom())) {
             liftMotor1.setPower(0);
             liftMotor1.setPower(0);
             closestBlockHeight = 1;
@@ -82,10 +78,12 @@ public class CleonLift {
     }
 
     public void updateBlockHeight(){
+        /*
         if(MIN_SNAP_HEIGHT[closestBlockHeight - 1] > liftMotor1.getCurrentPosition())
             closestBlockHeight--;
         else if(MIN_SNAP_HEIGHT[closestBlockHeight] < closestBlockHeight)
             closestBlockHeight++;
+        */
 
     }
 
