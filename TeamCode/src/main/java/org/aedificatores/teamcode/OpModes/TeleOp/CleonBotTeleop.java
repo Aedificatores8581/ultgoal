@@ -128,7 +128,7 @@ public class CleonBotTeleop extends OpMode {
             robot.lift.idle();
         else if (gamepad2.left_stick_button)
             robot.lift.setLiftPower(-1);
-        else if(gamepad2.left_stick_y > 0)
+        else if(Math.abs(gamepad2.left_stick_y) > 0.1)
             robot.lift.setNormalizedLiftPower(gamepad2.left_stick_y);
         else {
             if (gamepad2.dpad_up)
@@ -163,6 +163,12 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.closePusher();
         else
             robot.grabber.openPusher();
+
+        robot.drivetrain.refreshMotors();
+        robot.updateRobotPosition2d();
+        robot.updateTimer();
+
+        telemetry.addData("Lift enc", robot.lift.liftMotor1.getCurrentPosition());
     }
 
     public void updateGamepadValues(){
