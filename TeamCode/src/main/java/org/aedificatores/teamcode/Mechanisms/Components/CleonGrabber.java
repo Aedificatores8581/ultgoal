@@ -37,8 +37,8 @@ public class CleonGrabber {
     private static final String HARDWARE_MAP_NAME_PUSHER = "kickerservo";
     private static final String HARDWARE_MAP_NAME_ROTATION = "turndeposit";
     private static final String HARDWARE_MAP_NAME_EXTENSION = "extensionservo";
-    private static final double GRABBER_CLOSED = 0.45;
-    private static final double GRABBER_OPEN = .0;
+    private static final double GRABBER_CLOSED = 0.15;
+    private static final double GRABBER_OPEN = .4;
     private static final double PUSHER_OPEN = .0;
     private static final double PUSHER_CLOSED = .6;
     private static final double ROTATION_FLIPPED = 0.85;
@@ -111,7 +111,7 @@ public class CleonGrabber {
                 extendState = ExtendState.RUN_WITHOUT_SWITCH;
                 break;
             case RUN_WITHOUT_SWITCH:
-                if (currentTime > 100) {
+                if (currentTime > 600) {
                     extendState = ExtendState.STOP_AT_SWITCH;
                 }
                 break;
@@ -143,7 +143,7 @@ public class CleonGrabber {
                 resetTimer();
                 break;
             case RUN_WITHOUT_SWITCH:
-                if (currentTime > 100) {
+                if (currentTime > 600) {
                     extendState = ExtendState.STOP_AT_SWITCH;
                 }
                 break;

@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.OpModes.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.json.JSONException;
@@ -14,11 +15,24 @@ public class CleonBotTeleop extends OpMode {
 	CleonBot robot;
     Vector2 leftStick1, rightStick1, leftStick2;
 
-    public final static double SLOW_STRAFE_SPEED = 0.5;
-    public final static double SLOW_FORWARD_SPEED = 0.375;
+    final static double SLOW_STRAFE_SPEED = 0.5;
+    final static double SLOW_FORWARD_SPEED = 0.375;
 
+    public enum IntakeState{
+        INTAKE,
+        OUTAKE,
+        IDLE
+    }
 
+    IntakeState intakeState = IntakeState.IDLE;
+    boolean canSwitchIntake = true;
 
+    public enum FoundationState{
+        CLOSED,
+        OPEN
+    }
+    FoundationState foundationState = FoundationState.OPEN;
+    boolean canSwitchFoundation = true;
     @Override
     public void init() {
         try {
@@ -32,6 +46,9 @@ public class CleonBotTeleop extends OpMode {
         leftStick1 = new Vector2();
         rightStick1 = new Vector2();
         leftStick2 = new Vector2();
+
+        robot.grabber.openGrabber();
+        robot.grabber.retract();
     }
 
     @Override
@@ -39,7 +56,73 @@ public class CleonBotTeleop extends OpMode {
         updateGamepadValues();
         robot.drivetrain.setVelocityBasedOnGamePad(leftStick1, rightStick1);
 
-        //intake code goes here
+        switch (intakeState) {
+            case IDLE:
+                robot.intake.setIntakePower(0);
+                if (canSwitchIntake) {
+                    if (gamepad1.left_bumper) {
+                        intakeState = IntakeState.INTAKE;
+                        canSwitchIntake = false;
+                    } else if (gamepad1.right_bumper) {
+                        intakeState = IntakeState.OUTAKE;
+                        canSwitchIntake = false;
+                    }
+                }
+                if (!gamepad1.left_bumper && !gamepad1.right_bumper)
+                    canSwitchIntake = true;
+                break;
+            case INTAKE:
+                robot.intake.setIntakePower(0.75);
+                if (canSwitchIntake) {
+                    if (gamepad1.left_bumper || robot.intake.stoneState == CleonIntake.StoneState.OBTAINED) {
+                        intakeState = IntakeState.IDLE;
+                        canSwitchIntake = false;
+                    } else if (gamepad1.right_bumper) {
+                        intakeState = IntakeState.OUTAKE;
+                        canSwitchIntake = false;
+                    }
+                }
+                if (!gamepad1.left_bumper && !gamepad1.right_bumper)
+                    canSwitchIntake = true;
+                break;
+            case OUTAKE:
+                robot.intake.resetIntakeState();
+                robot.intake.setIntakePower(-0.75);
+                if (canSwitchIntake) {
+                    if (gamepad1.left_bumper) {
+                        intakeState = IntakeState.INTAKE;
+                        canSwitchIntake = false;
+                    } else if (gamepad1.right_bumper) {
+                        intakeState = IntakeState.IDLE;
+                        canSwitchIntake = false;
+                    }
+                }
+                if (!gamepad1.left_bumper && !gamepad1.right_bumper)
+                    canSwitchIntake = true;
+                break;
+        }
+
+
+        switch (foundationState){
+            case OPEN:
+                robot.foundationGrabber.open();
+                if(gamepad1.b && canSwitchFoundation){
+                    canSwitchFoundation = false;
+                    foundationState = FoundationState.CLOSED;
+                }
+                if(!gamepad1.b)
+                    canSwitchFoundation = true;
+                break;
+            case CLOSED:
+                robot.foundationGrabber.close();
+                if(gamepad1.b && canSwitchFoundation){
+                    canSwitchFoundation = false;
+                    foundationState = FoundationState.OPEN;
+                }
+                if(!gamepad1.b)
+                    canSwitchFoundation = true;
+                break;
+        }
 
         if(gamepad2.left_bumper)
             robot.lift.idle();
@@ -58,16 +141,14 @@ public class CleonBotTeleop extends OpMode {
         }
 
         if(robot.grabber.extending)
-            robot.grabber.extend();
+            extendGrabber();
         else
             robot.grabber.retract();
         if(gamepad2.right_bumper){
-            if(robot.grabber.isExtended) {
+            if(robot.grabber.isExtended)
                 robot.grabber.retract();
-                robot.grabber.unflipGrabber();
-            }
             else if(robot.grabber.isRetracted)
-                robot.grabber.extend();
+                extendGrabber();
         }
 
         if(robot.grabber.isExtended && gamepad1.b)
@@ -77,11 +158,9 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.openGrabber();
         else if(gamepad2.a)
             robot.grabber.closeGrabber();
-
-        if(gamepad2.right_trigger > 0.5)
+        if(robot.intake.stoneState == CleonIntake.StoneState.INTAKING)
             robot.grabber.closePusher();
-        else
-            robot.grabber.openPusher();
+
 
         robot.drivetrain.refreshMotors();
         robot.updateRobotPosition2d();
@@ -99,5 +178,11 @@ public class CleonBotTeleop extends OpMode {
         leftStick1.x = gamepad1.dpad_right ?  SLOW_STRAFE_SPEED : leftStick1.x;
         leftStick1.y = gamepad1.dpad_up ?  SLOW_FORWARD_SPEED : leftStick1.y;
         leftStick1.y = gamepad1.dpad_down ?  -SLOW_FORWARD_SPEED : leftStick1.y;
+    }
+
+    public void extendGrabber(){
+        robot.grabber.extend();
+        robot.intake.resetIntakeState();
+        robot.grabber.openPusher();
     }
 }

@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.aedificatores.teamcode.Components.Sensors.TouchSensor;
 import org.aedificatores.teamcode.Universal.Math.PIDController;
-import org.aedificatores.teamcode.Universal.UniversalFunctions;
 
 
 public class CleonLift {
@@ -15,9 +14,7 @@ public class CleonLift {
     public DcMotor liftMotor1;
     private DcMotor liftMotor2;
 
-    private TouchSensor limitSwitch;
-
-    public static final int ENC_TO_BOT = 20;
+    private static final int ENC_TO_BOT = 20;
     private static final double SPEED = .9;
 
     private static final double MIN_EXTENSION_POWER = 0.2;
@@ -37,11 +34,11 @@ public class CleonLift {
     public CleonLift(HardwareMap map) {
         liftMotor1 = map.dcMotor.get("llift");
         liftMotor2 = map.dcMotor.get("rlift");
-        //limitSwitch.init(map, "botls");
 
-        liftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //calculates the minimum encoder value needed for the lift to snap to a given stone
         MIN_SNAP_HEIGHT[0] = 0;
         for (int i = 1; i < 12; i++){
             MIN_SNAP_HEIGHT[i] = (PID_SETPOINTS[i] + PID_SETPOINTS[i-1]) / 2;
@@ -52,22 +49,22 @@ public class CleonLift {
     public void setNormalizedLiftPower(double pow){
         if (pow > MOVEMENT_THRESHOLD)
             setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MIN_EXTENSION_POWER);
-        else if (pow < -MOVEMENT_THRESHOLD)
+        if (pow < -MOVEMENT_THRESHOLD)
             setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MAX_RETRACT_POWER);
         else
             setLiftPower(BRAKE_POWER);
     }
 
     public void setLiftPower(double pow) {
-
-        if(pow < MIN_EXTENSION_POWER && (atBottom() /*|| limitSwitch.isPressed()*/)) {
+        updateBlockHeight();
+        if(pow < MAX_RETRACT_POWER &&(atBottom())) {
             liftMotor1.setPower(0);
-            liftMotor2.setPower(0);
+            liftMotor1.setPower(0);
             closestBlockHeight = 1;
         }
         else {
-            liftMotor1.setPower(UniversalFunctions.clamp(-1.0, pow * SPEED, 1.0));
-            liftMotor2.setPower(UniversalFunctions.clamp(-1.0, pow * SPEED, 1.0));
+            liftMotor1.setPower(pow * SPEED);
+            liftMotor2.setPower(pow * SPEED);
         }
     }
 
@@ -81,10 +78,12 @@ public class CleonLift {
     }
 
     public void updateBlockHeight(){
+        /*
         if(MIN_SNAP_HEIGHT[closestBlockHeight - 1] > liftMotor1.getCurrentPosition())
             closestBlockHeight--;
         else if(MIN_SNAP_HEIGHT[closestBlockHeight] < closestBlockHeight)
             closestBlockHeight++;
+        */
 
     }
 
