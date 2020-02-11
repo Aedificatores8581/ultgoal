@@ -41,7 +41,8 @@ public class CleonGrabber {
     private static final double GRABBER_OPEN = .4;
     private static final double PUSHER_OPEN = .0;
     private static final double PUSHER_CLOSED = .6;
-    private static final double ROTATION_FLIPPED = 0.85;
+    private static final double ROTATION_FLIPPED_90 = 0.85;
+    private static final double ROTATION_FLIPPED_180 = 0.85;
     private static final double ROTATION_NORMAL = 0.2;
     private static final double EXTENSION_POWER = .9;
 
@@ -95,7 +96,7 @@ public class CleonGrabber {
     }
 
     public void flipGrabber() {
-        rotateGrabber(ROTATION_FLIPPED);
+        rotateGrabber(ROTATION_FLIPPED_90);
     }
     public void unflipGrabber() {
         rotateGrabber(ROTATION_NORMAL);
@@ -164,6 +165,10 @@ public class CleonGrabber {
         Log.d("retracto", "returning false");
         updateTimer();
         return false;
+    }
+
+    public void orientGrabberToFoundation(double robotAngleRelativeToFoudnation){
+        setServoPosition(grabberServo, ROTATION_FLIPPED_180 - (ROTATION_FLIPPED_180 - ROTATION_NORMAL) * robotAngleRelativeToFoudnation / Math.PI);
     }
 
 }

@@ -181,6 +181,7 @@ public class CleonBotTeleop extends OpMode {
     }
 
     public void extendGrabber(){
+        robot.grabber.closeGrabber();
         robot.grabber.extend();
         robot.intake.resetIntakeState();
         robot.grabber.openPusher();
