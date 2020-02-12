@@ -19,6 +19,8 @@ public class CleonBotTeleop extends OpMode {
     final static double SLOW_STRAFE_SPEED = 0.375;
     final static double SLOW_FORWARD_SPEED = 0.3;
 
+    boolean isExtending = false;
+
     public enum IntakeState{
         INTAKE,
         OUTAKE,
@@ -28,6 +30,13 @@ public class CleonBotTeleop extends OpMode {
     IntakeState intakeState = IntakeState.IDLE;
     boolean canSwitchIntake = true;
 
+    boolean canSwitchExtension = true;
+    enum ExtendoState {
+        EXTENDING,
+        RETRACTING
+    }
+
+    ExtendoState extendoState = ExtendoState.RETRACTING;
     public enum FoundationState{
         CLOSED,
         OPEN
@@ -143,34 +152,38 @@ public class CleonBotTeleop extends OpMode {
             robot.lift.setPowerUsinngPID();
         }
 
-        if(robot.grabber.extending)
-            extendGrabber();
-        else
-            robot.grabber.retract();
         if(gamepad2.right_bumper){
-            if(robot.grabber.isExtended)
-                robot.grabber.retract();
-            else if(robot.grabber.isRetracted)
+
+        }
+
+
+
+
+        switch (extendoState){
+            case EXTENDING:
                 extendGrabber();
+                if(gamepad2.right_bumper){
+                    canSwitchExtension = false;
+                    extendoState = ExtendoState.RETRACTING;
+                }
+                if(!gamepad2.right_bumper)
+                    canSwitchExtension = true;
+                break;
+            case RETRACTING:
+                robot.grabber.retract();
+                if(gamepad2.right_bumper){
+                    canSwitchExtension= false;
+                    extendoState = ExtendoState.EXTENDING;
+                }
+                if(!gamepad2.right_bumper)
+                    canSwitchExtension = true;
+                break;
         }
 
 
 
 
 
-        if(gamepad2.left_stick_button)
-            robot.grabber.extend();
-
-        if(gamepad2.right_stick_button)
-            robot.grabber.retract();
-
-
-
-
-
-        if(robot.grabber.isExtended){
-            extendGrabber();
-        }
 
         if(robot.grabber.isExtended && gamepad1.b)
             robot.grabber.flipGrabber();
