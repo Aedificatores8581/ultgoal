@@ -1,13 +1,18 @@
 {
-  "angleKP": .6,
+  "angleKP": 0.6,
   "angleKI": 0.1,
   "angleKD": 0,
-  "DriveKP": .022,
+  "DriveKP": 0.022,
   "DriveKI": 0.009,
   "DriveIM": 20,
   "DriveKD": 0,
-  "YPosKP": 1,
-  "YPosKI": 0,
-  "YPosKD": 0,
-  "dt": .05
+  
+  "StrafeKP": 0.022,
+  "StrafeKI": 0.009,
+  "StrafeKD": 0,
+  
+  "ForeKP": 0.022,
+  "ForeKI": 0.009,
+  "ForeKD": 0,
+  "dt": 0.05
 }

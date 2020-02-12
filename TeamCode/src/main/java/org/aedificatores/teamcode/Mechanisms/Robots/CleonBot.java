@@ -1,7 +1,5 @@
 package org.aedificatores.teamcode.Mechanisms.Robots;
 
-import android.widget.MultiAutoCompleteTextView;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,6 +8,7 @@ import org.aedificatores.teamcode.Mechanisms.Components.CleonFoundation;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
+import org.aedificatores.teamcode.Mechanisms.Components.CleonSideGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
 import org.aedificatores.teamcode.Universal.JSONAutonGetter;
@@ -21,7 +20,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.util.Vector;
 
 /*
 * Robot Class for Frank's robot
@@ -64,6 +62,19 @@ public class CleonBot {
     public double deltaStrafeMovementAfterTurn;
     public Vector2 robotPosition;
 
+    public CleonSideGrabber backSideGrabber;
+    interface BackSideGrabberValues {
+        String GRAB_MAP_NAME = "autograb";
+        String ROTATE_MAP_NAME = "autograbextend";
+
+        double UP_POSITION = .75;
+        double DOWN_POSITION = .0;
+        double OPEN_GRABBER_THRESH = .2;
+
+        double GRABBED_POSITION = .5;
+        double RELEASED_POSITION = .25;
+    }
+
     // JSON object for getting PID constant values stored on the phone
     JSONAutonGetter pidConstantsJson;
 
@@ -77,13 +88,13 @@ public class CleonBot {
         String DRIVE_KD = "DriveKD";
         String DRIVE_IM = "DriveIM";
 
-        String X_POS_KP = "XPosKP";
-        String X_POS_KI = "XPosKI";
-        String X_POS_KD = "XPosKD";
+        String STRAFE_KP = "StrafeKP";
+        String STRAFE_KI = "StrafeKI";
+        String STRAFE_KD = "StrafeKD";
 
-        String Y_POS_KP = "YPosKP";
-        String Y_POS_KI = "YPosKI";
-        String Y_POS_KD = "YPosKD";
+        String FORE_KP = "ForeKP";
+        String FORE_KI = "ForeKI";
+        String FORE_KD = "ForeKD";
 
         String DELTA_TIME = "dt";
     }
@@ -96,12 +107,17 @@ public class CleonBot {
         Vector2 STRAFE_RIGHT    = new Vector2(1.0,0.0);
     }
 
+    static final double MIN_FORE_MOTOR_POWER = .20;
+    static final double MIN_STRAFE_MOTOR_POWER = .5; //.44
+    static final double FORE_ZERO_POWER_THRESH = .01;
+
     private final String JSON_PID_FILENAME = "CleonBotOrientationPID.json";
 
     // PID Controllers for variables relating to robot position and orientation
     public PIDController robotAnglePID;
     public PIDController robotPosPID;
-    public PIDController robotYPosPID;
+    public PIDController robotStrafePID;
+    public PIDController robotForePID;
 
     public CleonIntake intake;
     public CleonGrabber grabber;
@@ -152,15 +168,20 @@ public class CleonBot {
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_IM));
 
-            robotYPosPID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KP),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KI),
-                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DRIVE_KD),
+            robotStrafePID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.STRAFE_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.STRAFE_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.STRAFE_KD),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
+
+            robotForePID = new PIDController(pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.FORE_KP),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.FORE_KI),
+                    pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.FORE_KD),
                     pidConstantsJson.jsonObject.getDouble(PidConstantJSONNames.DELTA_TIME));
         } else {
             robotAnglePID = new PIDController(0,0,0,0);
             robotPosPID = new PIDController(0,0,0,0);
             robotPosPID.integralMax = 200.0;
-            robotYPosPID = new PIDController(0,0,0,0);
+            robotForePID = new PIDController(0,0,0,0);
 
         }
         robotPosition = new Vector2();
@@ -178,6 +199,13 @@ public class CleonBot {
         grabber = new CleonGrabber(map);
         lift = new CleonLift(map);
         foundationGrabber = new CleonFoundation(map);
+        backSideGrabber = new CleonSideGrabber(map, BackSideGrabberValues.GRAB_MAP_NAME,
+                BackSideGrabberValues.ROTATE_MAP_NAME,
+                BackSideGrabberValues.UP_POSITION,
+                BackSideGrabberValues.DOWN_POSITION,
+                BackSideGrabberValues.OPEN_GRABBER_THRESH,
+                BackSideGrabberValues.GRABBED_POSITION,
+                BackSideGrabberValues.RELEASED_POSITION);
         resetTimer();
     }
 
@@ -330,6 +358,11 @@ public class CleonBot {
         return false;
     }
 
+    /**
+    * Warning: This is an outdated, depricated function that exists here for the sole purpose of running
+    * the old foundation autos
+    * */
+    @Deprecated
     public boolean drivePID(Vector2 velocity, double targetFaceAngle, double inches, long timer) {
         double distance = Math.sqrt(Math.pow(getRightForeDistanceInches(), 2) + Math.pow(getStrafeDistanceInches(), 2));
 
@@ -342,6 +375,8 @@ public class CleonBot {
         double output;
 
         // Hacky way to get around the unoptimal PID loop
+        // This may seem complicated, because it is. it's really just a total mess and a very bad solution
+        // to the problem I was trying to fix
         if (Math.abs(inches) < 17.0) {
             double sigmoidHorizontalShrink = (Math.abs(inches) < 7.0) ? 6 : 4;
             // Uses the sigmoid function, which caps values between 0-1 in a curve-like fashion
@@ -365,6 +400,66 @@ public class CleonBot {
             return true;
         }
 
+        return false;
+    }
+
+    public boolean driveForePID(double inches, double targetFaceAngle) {
+        robotForePID.setpoint = inches;
+        robotForePID.processVar = getRightForeDistanceInches();
+        robotForePID.idealLoop();
+
+        robotAnglePID.setpoint = targetFaceAngle;
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+
+        Vector2 velocity;
+
+        if (Math.abs(robotForePID.currentOutput) < MIN_FORE_MOTOR_POWER && Math.abs(robotForePID.currentOutput) > FORE_ZERO_POWER_THRESH) {
+            velocity = new Vector2(0, Math.signum(-robotForePID.currentOutput) * MIN_FORE_MOTOR_POWER);
+        } else if (Math.abs(robotForePID.currentOutput) <= FORE_ZERO_POWER_THRESH) {
+            velocity = new Vector2();
+        } else {
+            velocity = new Vector2(0, -robotForePID.currentOutput);
+        }
+
+
+        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(0,0));
+        if (getRightForeDistanceInches() >= Math.abs(inches)) {
+            drivetrain.setVelocity(new Vector2());
+            resetTimer();
+            //drivetrain.resetMotorEncoders();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean driveStrafePID(double inches, double targetFaceAngle) {
+        robotStrafePID.setpoint = inches;
+        robotStrafePID.processVar = getStrafeDistanceInches();
+        robotStrafePID.idealLoop();
+
+        robotAnglePID.setpoint = targetFaceAngle;
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+
+        Vector2 velocity;
+
+        if (Math.abs(robotStrafePID.currentOutput) < MIN_STRAFE_MOTOR_POWER && Math.abs(robotStrafePID.currentOutput) > FORE_ZERO_POWER_THRESH) {
+            velocity = new Vector2(Math.signum(robotStrafePID.currentOutput) * MIN_STRAFE_MOTOR_POWER, 0);
+        } else if (Math.abs(robotStrafePID.currentOutput) <= FORE_ZERO_POWER_THRESH) {
+            velocity = new Vector2();
+        } else {
+            velocity = new Vector2(robotStrafePID.currentOutput, 0);
+        }
+
+
+        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(0,0));
+        if (getStrafeDistanceInches() >= Math.abs(inches)) {
+            drivetrain.setVelocity(new Vector2());
+            resetTimer();
+            //drivetrain.resetMotorEncoders();
+            return true;
+        }
         return false;
     }
 
