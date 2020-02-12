@@ -24,7 +24,7 @@ public class CleonIntake {
     }
     public StoneState stoneState = StoneState.SEARCHING;
 
-    private static final double BLOCK_DISTANCE_MM = 50;
+    private static final double BLOCK_DISTANCE_MM = 25;
 
     /**
      * Instantiates CleonIntake with default hardware map names
