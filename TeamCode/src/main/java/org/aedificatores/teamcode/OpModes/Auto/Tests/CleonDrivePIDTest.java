@@ -71,12 +71,14 @@ public class CleonDrivePIDTest extends OpMode {
         }
 
         if (!reached) {
-            reached = bot.driveForePID(goal, 0);
+            reached = bot.driveStrafePID(goal, 0);
         }
         bot.drivetrain.refreshMotors();
         bot.updateRobotPosition2d();
         telemetry.addData("inches",dist);
-        telemetry.addData("Fore", bot.getRightForeDistanceInches());
+        telemetry.addData("Strafe", bot.getStrafeDistanceInches());
+        telemetry.addData("RFore", bot.getRightForeDistanceInches());
+        telemetry.addData("LFore", bot.getLeftForeDistanceInches());
         telemetry.addData("goal",goal);
         telemetry.addData("goal reached",reached);
 

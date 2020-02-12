@@ -94,7 +94,8 @@ public class CleonBot {
         Vector2 STRAFE_RIGHT    = new Vector2(1.0,0.0);
     }
 
-    static final double MIN_FORE_MOTOR_POWER = .17;
+    static final double MIN_FORE_MOTOR_POWER = .20;
+    static final double MIN_STRAFE_MOTOR_POWER = .5; //.44
     static final double FORE_ZERO_POWER_THRESH = .01;
 
     private final String JSON_PID_FILENAME = "CleonBotOrientationPID.json";
@@ -404,6 +405,36 @@ public class CleonBot {
 
         drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(0,0));
         if (getRightForeDistanceInches() >= Math.abs(inches)) {
+            drivetrain.setVelocity(new Vector2());
+            resetTimer();
+            //drivetrain.resetMotorEncoders();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean driveStrafePID(double inches, double targetFaceAngle) {
+        robotStrafePID.setpoint = inches;
+        robotStrafePID.processVar = getStrafeDistanceInches();
+        robotStrafePID.idealLoop();
+
+        robotAnglePID.setpoint = targetFaceAngle;
+        robotAnglePID.processVar = robotAngle;
+        robotAnglePID.idealLoop();
+
+        Vector2 velocity;
+
+        if (Math.abs(robotStrafePID.currentOutput) < MIN_STRAFE_MOTOR_POWER && Math.abs(robotStrafePID.currentOutput) > FORE_ZERO_POWER_THRESH) {
+            velocity = new Vector2(Math.signum(robotStrafePID.currentOutput) * MIN_STRAFE_MOTOR_POWER, 0);
+        } else if (Math.abs(robotStrafePID.currentOutput) <= FORE_ZERO_POWER_THRESH) {
+            velocity = new Vector2();
+        } else {
+            velocity = new Vector2(robotStrafePID.currentOutput, 0);
+        }
+
+
+        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(0,0));
+        if (getStrafeDistanceInches() >= Math.abs(inches)) {
             drivetrain.setVelocity(new Vector2());
             resetTimer();
             //drivetrain.resetMotorEncoders();

@@ -7,8 +7,8 @@
   "DriveIM": 20,
   "DriveKD": 0,
   
-  "StrafeKP": 0,
-  "StrafeKI": 0,
+  "StrafeKP": 0.022,
+  "StrafeKI": 0.009,
   "StrafeKD": 0,
   
   "ForeKP": 0.022,
