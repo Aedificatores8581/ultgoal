@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class CleonBotTeleop extends OpMode {
 
     @Override
     public void loop() {
+        telemetry.addData("intake sensor reading", robot.intake.distanceSensor.getDistance(DistanceUnit.MM));
         updateGamepadValues();
         robot.drivetrain.setVelocityBasedOnGamePad(leftStick1, rightStick1);
 
@@ -87,6 +89,7 @@ public class CleonBotTeleop extends OpMode {
                 break;
             case OUTAKE:
                 robot.intake.resetIntakeState();
+                robot.grabber.openPusher();
                 robot.intake.setIntakePower(-0.75);
                 if (canSwitchIntake) {
                     if (gamepad1.left_bumper) {
@@ -178,6 +181,8 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.closeGrabber();
         if(robot.intake.stoneState == CleonIntake.StoneState.INTAKING)
             robot.grabber.closePusher();
+        if(robot.intake.stoneState == CleonIntake.StoneState.SEARCHING)
+            robot.grabber.openPusher();
 
 
         robot.drivetrain.refreshMotors();
