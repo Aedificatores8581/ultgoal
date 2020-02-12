@@ -1,5 +1,6 @@
 package org.aedificatores.teamcode.Mechanisms.Components;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class CleonSideGrabber {
@@ -16,10 +17,10 @@ public class CleonSideGrabber {
     private final double POSITION_SERVO_INC = .02;
 
     Servo grabberServo;
-    Servo positionServo;
+    Servo rotateServo;
 
 
-    public CleonSideGrabber(String grabMapName, String rotateMapName, double upPosition, double downPosition, double openGrabberThresh, double grabbedPosition, double releasedPosition) {
+    public CleonSideGrabber(HardwareMap map, String grabMapName, String rotateMapName, double upPosition, double downPosition, double openGrabberThresh, double grabbedPosition, double releasedPosition) {
         this.grabMapName = grabMapName;
         this.rotateMapName = rotateMapName;
         this.upPosition = upPosition;
@@ -27,6 +28,9 @@ public class CleonSideGrabber {
         this.openGrabberThresh = openGrabberThresh;
         this.grabbedPosition = grabbedPosition;
         this.releasedPosition = releasedPosition;
+
+        grabberServo = map.servo.get(this.grabMapName);
+        rotateServo = map.servo.get(this.rotateMapName);
     }
 
     public void init() {
@@ -34,12 +38,12 @@ public class CleonSideGrabber {
         moveUp();
     }
 
-    public boolean moveDown() {
-        positionServo.setPosition(positionServo.getPosition() + POSITION_SERVO_INC);
-        if (positionServo.getPosition() > openGrabberThresh) {
+    public boolean moveDownAndRelease() {
+        rotateServo.setPosition(rotateServo.getPosition() + POSITION_SERVO_INC);
+        if (rotateServo.getPosition() > openGrabberThresh) {
             grabberServo.setPosition(grabbedPosition);
         }
-        return positionServo.getPosition() >= downPosition;
+        return rotateServo.getPosition() >= downPosition;
     }
 
     public void openGrabber() {
@@ -51,10 +55,10 @@ public class CleonSideGrabber {
     }
 
     public void moveUp() {
-
+        rotateServo.setPosition(upPosition);
     }
 
-    public void moveDownNoGrabMovement() {
-        positionServo.setPosition(downPosition);
+    public void moveDown() {
+        rotateServo.setPosition(downPosition);
     }
 }

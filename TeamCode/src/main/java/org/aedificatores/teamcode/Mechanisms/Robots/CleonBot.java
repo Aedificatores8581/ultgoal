@@ -8,6 +8,7 @@ import org.aedificatores.teamcode.Mechanisms.Components.CleonFoundation;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonLift;
+import org.aedificatores.teamcode.Mechanisms.Components.CleonSideGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
 import org.aedificatores.teamcode.Universal.GyroAngles;
 import org.aedificatores.teamcode.Universal.JSONAutonGetter;
@@ -16,7 +17,6 @@ import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.aedificatores.teamcode.Universal.UniversalFunctions;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -61,6 +61,19 @@ public class CleonBot {
     public double deltaForeMovementAfterTurn;
     public double deltaStrafeMovementAfterTurn;
     public Vector2 robotPosition;
+
+    public CleonSideGrabber backSideGrabber;
+    interface BackSideGrabberValues {
+        String GRAB_MAP_NAME = "autograb";
+        String ROTATE_MAP_NAME = "autograbextend";
+
+        double UP_POSITION = .75;
+        double DOWN_POSITION = .0;
+        double OPEN_GRABBER_THRESH = .2;
+
+        double GRABBED_POSITION = .5;
+        double RELEASED_POSITION = .25;
+    }
 
     // JSON object for getting PID constant values stored on the phone
     JSONAutonGetter pidConstantsJson;
@@ -186,6 +199,13 @@ public class CleonBot {
         grabber = new CleonGrabber(map);
         lift = new CleonLift(map);
         foundationGrabber = new CleonFoundation(map);
+        backSideGrabber = new CleonSideGrabber(map, BackSideGrabberValues.GRAB_MAP_NAME,
+                BackSideGrabberValues.ROTATE_MAP_NAME,
+                BackSideGrabberValues.UP_POSITION,
+                BackSideGrabberValues.DOWN_POSITION,
+                BackSideGrabberValues.OPEN_GRABBER_THRESH,
+                BackSideGrabberValues.GRABBED_POSITION,
+                BackSideGrabberValues.RELEASED_POSITION);
         resetTimer();
     }
 
