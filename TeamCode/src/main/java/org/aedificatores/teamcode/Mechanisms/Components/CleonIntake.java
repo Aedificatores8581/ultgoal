@@ -15,7 +15,7 @@ public class CleonIntake {
     private static final String INTAKE_LEFT_NAME = "lint";
     private static final String INTAKE_RIGHT_NAME = "rint";
 
-    private DistanceSensor distanceSensor;
+    public DistanceSensor distanceSensor;
 
     public enum StoneState {
         SEARCHING,
