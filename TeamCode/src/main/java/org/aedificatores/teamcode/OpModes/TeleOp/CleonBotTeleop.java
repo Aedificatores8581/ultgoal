@@ -15,8 +15,8 @@ public class CleonBotTeleop extends OpMode {
 	CleonBot robot;
     Vector2 leftStick1, rightStick1, leftStick2;
 
-    final static double SLOW_STRAFE_SPEED = 0.5;
-    final static double SLOW_FORWARD_SPEED = 0.375;
+    final static double SLOW_STRAFE_SPEED = 0.375;
+    final static double SLOW_FORWARD_SPEED = 0.3;
 
     public enum IntakeState{
         INTAKE,
@@ -106,20 +106,20 @@ public class CleonBotTeleop extends OpMode {
         switch (foundationState){
             case OPEN:
                 robot.foundationGrabber.open();
-                if(gamepad1.b && canSwitchFoundation){
+                if(gamepad1.left_stick_button && canSwitchFoundation){
                     canSwitchFoundation = false;
                     foundationState = FoundationState.CLOSED;
                 }
-                if(!gamepad1.b)
+                if(!gamepad1.left_stick_button)
                     canSwitchFoundation = true;
                 break;
             case CLOSED:
                 robot.foundationGrabber.close();
-                if(gamepad1.b && canSwitchFoundation){
+                if(gamepad1.left_stick_button && canSwitchFoundation){
                     canSwitchFoundation = false;
                     foundationState = FoundationState.OPEN;
                 }
-                if(!gamepad1.b)
+                if(!gamepad1.left_stick_button)
                     canSwitchFoundation = true;
                 break;
         }
@@ -151,6 +151,24 @@ public class CleonBotTeleop extends OpMode {
                 extendGrabber();
         }
 
+
+
+
+
+        if(gamepad2.left_stick_button)
+            robot.grabber.extend();
+
+        if(gamepad2.right_stick_button)
+            robot.grabber.retract();
+
+
+
+
+
+        if(robot.grabber.isExtended){
+            extendGrabber();
+        }
+
         if(robot.grabber.isExtended && gamepad1.b)
             robot.grabber.flipGrabber();
 
@@ -170,8 +188,8 @@ public class CleonBotTeleop extends OpMode {
     }
 
     public void updateGamepadValues(){
-        leftStick1 = new Vector2(gamepad1.left_stick_x, gamepad1.left_trigger - gamepad1.right_trigger);
-        rightStick1 = new Vector2(gamepad1.right_stick_x, gamepad1.right_stick_y);
+        leftStick1 = new Vector2(gamepad1.right_stick_x, -gamepad1.left_trigger + gamepad1.right_trigger);
+        rightStick1 = new Vector2(gamepad1.left_stick_x, gamepad1.left_stick_y);
         leftStick2 = new Vector2(gamepad1.left_stick_x, gamepad1.left_stick_y);
 
         leftStick1.x = gamepad1.dpad_left ?  -SLOW_STRAFE_SPEED : leftStick1.x;

@@ -45,8 +45,8 @@ public class CleonLift {
         }
     }
 
-    //normalizes lift power input so that the lift has the same speed, regardless of the sign of the input
-    public void setNormalizedLiftPower(double pow){
+    //normalizes lift power input so the lift has the same speed, regardless of the sign of the input
+    public void setNormalizedLiftPower(double pow) {
         if (pow > MOVEMENT_THRESHOLD)
             setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MIN_EXTENSION_POWER);
         if (pow < -MOVEMENT_THRESHOLD)

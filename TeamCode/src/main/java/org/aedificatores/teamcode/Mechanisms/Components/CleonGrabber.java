@@ -167,8 +167,12 @@ public class CleonGrabber {
         return false;
     }
 
-    public void orientGrabberToFoundation(double robotAngleRelativeToFoudnation){
+    public void orientGrabberToFoundation180(double robotAngleRelativeToFoudnation){
         setServoPosition(grabberServo, ROTATION_FLIPPED_180 - (ROTATION_FLIPPED_180 - ROTATION_NORMAL) * robotAngleRelativeToFoudnation / Math.PI);
+    }
+
+    public void orientGrabberRelativeToFoundation90(double robotAngleRelativeToFoundation){
+        orientGrabberToFoundation180(robotAngleRelativeToFoundation + Math.PI/2);
     }
 
 }
