@@ -68,11 +68,12 @@ public class CleonBot {
         String ROTATE_MAP_NAME = "autograbextend";
 
         double UP_POSITION = .75;
-        double DOWN_POSITION = .0;
-        double OPEN_GRABBER_THRESH = .2;
+        double DOWN_POSITION = .25;
+        double OPEN_GRABBER_THRESH = .5;
+        double HOLD_POSITION = .67;
 
-        double GRABBED_POSITION = .5;
-        double RELEASED_POSITION = .25;
+        double GRABBED_POSITION = .25;
+        double RELEASED_POSITION = .5;
     }
 
     // JSON object for getting PID constant values stored on the phone
@@ -204,6 +205,7 @@ public class CleonBot {
                 BackSideGrabberValues.UP_POSITION,
                 BackSideGrabberValues.DOWN_POSITION,
                 BackSideGrabberValues.OPEN_GRABBER_THRESH,
+                BackSideGrabberValues.HOLD_POSITION,
                 BackSideGrabberValues.GRABBED_POSITION,
                 BackSideGrabberValues.RELEASED_POSITION);
         resetTimer();
