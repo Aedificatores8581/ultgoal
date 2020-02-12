@@ -13,7 +13,7 @@ public class CleonDispenser {
     public boolean extended = false;
     public boolean retracted = false;
 
-    private final double SPEED = 0.9;
+    private final double SPEED = 0.75;
 
     public void init(HardwareMap map){
         extensionMotor = map.crservo.get("extensionservo");
