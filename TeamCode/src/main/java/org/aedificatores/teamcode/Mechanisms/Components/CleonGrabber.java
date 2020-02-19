@@ -119,8 +119,6 @@ public class CleonGrabber {
             case STOP:
                 isExtended = true;
                 extension.setPower(0);
-                if(!limitSwitch.isActive())
-                    extendState = ExtendState.MOVE;
                 break;
         }
     }
@@ -141,8 +139,6 @@ public class CleonGrabber {
             case STOP:
                 isRetracted = true;
                 extension.setPower(0);
-                if(!limitSwitch.isActive())
-                    extendState = ExtendState.MOVE;
                 break;
         }
     }

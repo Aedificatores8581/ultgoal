@@ -173,7 +173,7 @@ public class CleonBotTeleop extends OpMode {
         switch (extendoState){
             case EXTENDING:
                 robot.grabber.extend();
-                if(gamepad2.right_bumper){
+                if(gamepad2.right_bumper && canSwitchExtension){
                     canSwitchExtension = false;
                     extendoState = ExtendoState.RETRACTING;
                     robot.grabber.extendState = CleonGrabber.ExtendState.MOVE;
@@ -183,7 +183,7 @@ public class CleonBotTeleop extends OpMode {
                 break;
             case RETRACTING:
                 robot.grabber.retract();
-                if(gamepad2.right_bumper){
+                if(gamepad2.right_bumper && canSwitchExtension){
                     canSwitchExtension= false;
                     extendoState = ExtendoState.EXTENDING;
                     robot.grabber.extendState = CleonGrabber.ExtendState.MOVE;
