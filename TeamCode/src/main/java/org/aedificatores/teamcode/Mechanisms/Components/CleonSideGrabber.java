@@ -9,23 +9,25 @@ public class CleonSideGrabber {
 
     private double upPosition;
     private double downPosition;
-    private double openGrabberThresh; // TODO: Better variable name
+    private double holdPosition;
+    private double openGrabberThresh;
 
     private double grabbedPosition;
     private double releasedPosition;
 
     private final double POSITION_SERVO_INC = .02;
 
-    Servo grabberServo;
-    Servo rotateServo;
+    public Servo grabberServo;
+    public Servo rotateServo;
 
 
-    public CleonSideGrabber(HardwareMap map, String grabMapName, String rotateMapName, double upPosition, double downPosition, double openGrabberThresh, double grabbedPosition, double releasedPosition) {
+    public CleonSideGrabber(HardwareMap map, String grabMapName, String rotateMapName, double upPosition, double downPosition, double openGrabberThresh, double holdPosition, double grabbedPosition, double releasedPosition) {
         this.grabMapName = grabMapName;
         this.rotateMapName = rotateMapName;
         this.upPosition = upPosition;
         this.downPosition = downPosition;
         this.openGrabberThresh = openGrabberThresh;
+        this.holdPosition = holdPosition;
         this.grabbedPosition = grabbedPosition;
         this.releasedPosition = releasedPosition;
 
@@ -39,11 +41,11 @@ public class CleonSideGrabber {
     }
 
     public boolean moveDownAndRelease() {
-        rotateServo.setPosition(rotateServo.getPosition() + POSITION_SERVO_INC);
-        if (rotateServo.getPosition() > openGrabberThresh) {
-            grabberServo.setPosition(grabbedPosition);
+        rotateServo.setPosition(rotateServo.getPosition() - POSITION_SERVO_INC);
+        if (rotateServo.getPosition() < openGrabberThresh) {
+            openGrabber();
         }
-        return rotateServo.getPosition() >= downPosition;
+        return rotateServo.getPosition() <= downPosition;
     }
 
     public void openGrabber() {
@@ -60,5 +62,9 @@ public class CleonSideGrabber {
 
     public void moveDown() {
         rotateServo.setPosition(downPosition);
+    }
+
+    public void holdBlockPos() {
+        rotateServo.setPosition(holdPosition);
     }
 }

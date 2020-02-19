@@ -51,6 +51,7 @@ public class CleonSideGrabberTest extends OpMode {
         if (gamepad1.dpad_up) {
             bot.backSideGrabber.moveUp();
             telemetry.addLine("Current Function: moveUp");
+            taskComplete = false;
         }
         if (gamepad1.dpad_right) {
             bot.backSideGrabber.moveDown();
@@ -64,5 +65,12 @@ public class CleonSideGrabberTest extends OpMode {
             bot.backSideGrabber.closeGrabber();
             telemetry.addLine("Current Function: closeGrabber");
         }
+        if (gamepad1.a) {
+            bot.backSideGrabber.holdBlockPos();
+            telemetry.addLine("Current Function: holdBlockPos");
+        }
+
+        telemetry.addData("grab servo value", bot.backSideGrabber.grabberServo.getPosition());
+        telemetry.addData("rotate servo value", bot.backSideGrabber.rotateServo.getPosition());
     }
 }
