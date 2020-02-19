@@ -71,7 +71,7 @@ public class CleonDrivePIDTest extends OpMode {
         }
 
         if (!reached) {
-            reached = bot.driveStrafePID(goal, 0);
+            reached = bot.driveForePID(goal, 0);
         }
         bot.drivetrain.refreshMotors();
         bot.updateRobotPosition2d();

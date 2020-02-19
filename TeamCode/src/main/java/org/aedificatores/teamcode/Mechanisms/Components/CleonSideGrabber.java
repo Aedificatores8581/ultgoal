@@ -4,6 +4,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class CleonSideGrabber {
+    enum AutoGetBlockState{
+        REACH_DOWN,
+        GRAB,
+        HOLD_BLOCK_POS
+    }
+
     private String grabMapName;
     private String rotateMapName;
 
@@ -17,6 +23,9 @@ public class CleonSideGrabber {
 
     private final double POSITION_SERVO_INC = .02;
 
+    private AutoGetBlockState autoGetBlockState;
+    private long resetTime;
+    private long currentTime;
     public Servo grabberServo;
     public Servo rotateServo;
 
@@ -33,6 +42,19 @@ public class CleonSideGrabber {
 
         grabberServo = map.servo.get(this.grabMapName);
         rotateServo = map.servo.get(this.rotateMapName);
+        autoGetBlockState = AutoGetBlockState.REACH_DOWN;
+
+        resetTime = System.currentTimeMillis();
+        currentTime = 0;
+    }
+
+    public void resetTimer() {
+        resetTime = System.currentTimeMillis();
+        currentTime = 0;
+    }
+
+    public void updateTimer() {
+        currentTime = System.currentTimeMillis() - resetTime;
     }
 
     public void init() {
@@ -66,5 +88,33 @@ public class CleonSideGrabber {
 
     public void holdBlockPos() {
         rotateServo.setPosition(holdPosition);
+    }
+
+    public boolean autoGetBlock() {
+        switch (autoGetBlockState) {
+            case REACH_DOWN:
+                if (moveDownAndRelease()){
+                    autoGetBlockState = AutoGetBlockState.GRAB;
+                    resetTimer();
+                }
+                break;
+            case GRAB:
+                closeGrabber();
+                if (currentTime > .3) {
+                    autoGetBlockState = AutoGetBlockState.HOLD_BLOCK_POS;
+                    resetTimer();
+                }
+                break;
+            case HOLD_BLOCK_POS:
+                holdBlockPos();
+                if (currentTime > .3) {
+                    autoGetBlockState = AutoGetBlockState.REACH_DOWN;
+                    resetTimer();
+                    return true;
+                }
+                break;
+        }
+        updateTimer();
+        return false;
     }
 }
