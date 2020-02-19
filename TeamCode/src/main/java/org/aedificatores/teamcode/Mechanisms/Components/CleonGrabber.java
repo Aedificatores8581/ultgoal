@@ -39,7 +39,7 @@ public class CleonGrabber {
     private static final double GRABBER_CLOSED = 0.15;
     private static final double GRABBER_OPEN = .4;
     private static final double PUSHER_OPEN = .0;
-    private static final double PUSHER_CLOSED = .6;
+    private static final double PUSHER_CLOSED = .45;
     private static final double ROTATION_FLIPPED_90 = 0.85;
     private static final double ROTATION_FLIPPED_180 = 0.85;
     private static final double ROTATION_NORMAL = 0.2;
