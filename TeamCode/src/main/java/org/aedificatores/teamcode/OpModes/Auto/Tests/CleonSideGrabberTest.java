@@ -69,6 +69,10 @@ public class CleonSideGrabberTest extends OpMode {
             bot.backSideGrabber.holdBlockPos();
             telemetry.addLine("Current Function: holdBlockPos");
         }
+        if (gamepad1.b) {
+            bot.backSideGrabber.autoGetBlock();
+            telemetry.addLine("Current Function: holdBlockPos");
+        }
 
         telemetry.addData("grab servo value", bot.backSideGrabber.grabberServo.getPosition());
         telemetry.addData("rotate servo value", bot.backSideGrabber.rotateServo.getPosition());

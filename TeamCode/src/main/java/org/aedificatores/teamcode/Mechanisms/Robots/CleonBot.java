@@ -416,7 +416,7 @@ public class CleonBot {
 
         Vector2 velocity;
 
-        if (Math.abs(robotForePID.currentOutput) < MIN_FORE_MOTOR_POWER && Math.abs(robotForePID.currentOutput) > FORE_ZERO_POWER_THRESH) {
+        if (Math.abs(robotForePID.currentOutput) < MIN_FORE_MOTOR_POWER) {
             velocity = new Vector2(0, Math.signum(-robotForePID.currentOutput) * MIN_FORE_MOTOR_POWER);
         } else if (Math.abs(robotForePID.currentOutput) <= FORE_ZERO_POWER_THRESH) {
             velocity = new Vector2();
@@ -425,11 +425,11 @@ public class CleonBot {
         }
 
 
-        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(0,0));
-        if (getRightForeDistanceInches() >= Math.abs(inches)) {
+        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(UniversalFunctions.clamp(-1.0,-robotAnglePID.currentOutput, 1.0),0));
+        if (Math.abs(getRightForeDistanceInches()) >= Math.abs(inches)) {
             drivetrain.setVelocity(new Vector2());
             resetTimer();
-            //drivetrain.resetMotorEncoders();
+            drivetrain.resetMotorEncoders();
             return true;
         }
         return false;
@@ -455,11 +455,11 @@ public class CleonBot {
         }
 
 
-        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(0,0));
-        if (getStrafeDistanceInches() >= Math.abs(inches)) {
+        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(UniversalFunctions.clamp(-1.0,-robotAnglePID.currentOutput, 1.0),0));
+        if (Math.abs(getStrafeDistanceInches()) >= Math.abs(inches)) {
             drivetrain.setVelocity(new Vector2());
             resetTimer();
-            //drivetrain.resetMotorEncoders();
+            drivetrain.resetMotorEncoders();
             return true;
         }
         return false;
