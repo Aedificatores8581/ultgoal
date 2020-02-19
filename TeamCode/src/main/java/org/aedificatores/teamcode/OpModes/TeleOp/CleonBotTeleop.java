@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.OpModes.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.aedificatores.teamcode.Mechanisms.Components.CleonGrabber;
 import org.aedificatores.teamcode.Mechanisms.Components.CleonIntake;
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
@@ -19,7 +20,9 @@ public class CleonBotTeleop extends OpMode {
     final static double SLOW_STRAFE_SPEED = 0.375;
     final static double SLOW_FORWARD_SPEED = 0.3;
 
-    boolean isExtending = false;
+    boolean canGrab = true;
+
+
 
     public enum IntakeState{
         INTAKE,
@@ -41,6 +44,7 @@ public class CleonBotTeleop extends OpMode {
         CLOSED,
         OPEN
     }
+
     FoundationState foundationState = FoundationState.OPEN;
     boolean canSwitchFoundation = true;
     @Override
@@ -59,6 +63,13 @@ public class CleonBotTeleop extends OpMode {
 
         robot.grabber.openGrabber();
         robot.grabber.retract();
+    }
+
+    public void init_loop(){
+        if(gamepad2.right_bumper)
+            robot.grabber.extend();
+        else
+            robot.grabber.retract();
     }
 
     @Override
@@ -161,10 +172,11 @@ public class CleonBotTeleop extends OpMode {
 
         switch (extendoState){
             case EXTENDING:
-                extendGrabber();
+                robot.grabber.extend();
                 if(gamepad2.right_bumper){
                     canSwitchExtension = false;
                     extendoState = ExtendoState.RETRACTING;
+                    robot.grabber.extendState = CleonGrabber.ExtendState.MOVE;
                 }
                 if(!gamepad2.right_bumper)
                     canSwitchExtension = true;
@@ -174,16 +186,15 @@ public class CleonBotTeleop extends OpMode {
                 if(gamepad2.right_bumper){
                     canSwitchExtension= false;
                     extendoState = ExtendoState.EXTENDING;
+                    robot.grabber.extendState = CleonGrabber.ExtendState.MOVE;
+                    robot.grabber.closeGrabber();
+                    robot.intake.resetIntakeState();
+                    robot.grabber.openPusher();
                 }
                 if(!gamepad2.right_bumper)
                     canSwitchExtension = true;
                 break;
         }
-
-
-
-
-
 
         if(robot.grabber.isExtended && gamepad1.b)
             robot.grabber.flipGrabber();
@@ -202,7 +213,8 @@ public class CleonBotTeleop extends OpMode {
         robot.updateRobotPosition2d();
         robot.updateTimer();
 
-        telemetry.addData("Lift enc", robot.lift.liftMotor1.getCurrentPosition());
+        telemetry.addData("extensionstate", robot.grabber.extendState);
+        telemetry.addData("isExtended", robot.grabber.isExtended);
     }
 
     public void updateGamepadValues(){
@@ -217,9 +229,10 @@ public class CleonBotTeleop extends OpMode {
     }
 
     public void extendGrabber(){
-        robot.grabber.closeGrabber();
-        robot.grabber.extend();
-        robot.intake.resetIntakeState();
-        robot.grabber.openPusher();
+
+    }
+
+    public void dropBlock (){
+        
     }
 }

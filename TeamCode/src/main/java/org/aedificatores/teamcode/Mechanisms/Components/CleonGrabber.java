@@ -10,13 +10,12 @@ import org.aedificatores.teamcode.Mechanisms.Sensors.MagneticLimitSwitch;
 
 public class CleonGrabber {
 
-    enum ExtendState {
-        IDLE,
-        RUN_WITHOUT_SWITCH,
-        STOP_AT_SWITCH,
+    public enum ExtendState {
+        MOVE,
+        STOP
     }
 
-    private ExtendState extendState = ExtendState.RUN_WITHOUT_SWITCH;
+    public ExtendState extendState = ExtendState.MOVE;
 
     private Servo pusherServo;
     private Servo grabberServo;
@@ -44,7 +43,9 @@ public class CleonGrabber {
     private static final double ROTATION_FLIPPED_90 = 0.85;
     private static final double ROTATION_FLIPPED_180 = 0.85;
     private static final double ROTATION_NORMAL = 0.2;
-    private static final double EXTENSION_POWER = .9;
+    private static final double EXTENSION_POWER = .85;
+
+
 
     public CleonGrabber(HardwareMap map) {
         limitSwitch = new MagneticLimitSwitch();
@@ -102,69 +103,48 @@ public class CleonGrabber {
         rotateGrabber(ROTATION_NORMAL);
     }
 
-    public boolean extend() {
-        extending = true;
-        extension.setPower(EXTENSION_POWER);
-
+    public void extend(){
+        if(!limitSwitch.isActive() && !extending) {
+            extending = true;
+            isRetracted = false;
+        }
         switch (extendState) {
-            case IDLE:
-                resetTimer();
-                extendState = ExtendState.RUN_WITHOUT_SWITCH;
+            case MOVE:
+                extension.setPower(0.75);
+
+                if(limitSwitch.isActive() && extending)
+                    extendState = ExtendState.STOP;
+
                 break;
-            case RUN_WITHOUT_SWITCH:
-                if (currentTime > 600) {
-                    extendState = ExtendState.STOP_AT_SWITCH;
-                }
-                break;
-            case STOP_AT_SWITCH:
-                isExtended = limitSwitch.isActive();
-                isRetracted = false;
-                Log.d("extendo", "Extended Switch is " + limitSwitch.toString());
-                if (isExtended) {
-                    extension.setPower(0.0);
-                    Log.d("extendo", "returning true");
-                    extendState = ExtendState.IDLE;
-                    return true;
-                }
+            case STOP:
+                isExtended = true;
+                extension.setPower(0);
+                if(!limitSwitch.isActive())
+                    extendState = ExtendState.MOVE;
                 break;
         }
-
-
-        Log.d("extendo", "returning false");
-        updateTimer();
-        return false;
     }
 
-    public boolean retract() {
-        extending = false;
-        extension.setPower(-EXTENSION_POWER);
-
+    public void retract(){
+        if(!limitSwitch.isActive() && extending) {
+            extending = false;
+            isExtended = false;
+        }
         switch (extendState) {
-            case IDLE:
-                resetTimer();
+            case MOVE:
+                extension.setPower(-0.75);
+
+                if(limitSwitch.isActive() && !extending)
+                    extendState = ExtendState.STOP;
+
                 break;
-            case RUN_WITHOUT_SWITCH:
-                if (currentTime > 600) {
-                    extendState = ExtendState.STOP_AT_SWITCH;
-                }
-                break;
-            case STOP_AT_SWITCH:
-                isRetracted = limitSwitch.isActive();
-                isExtended = false;
-                Log.d("retracto", "Extended Switch is " + limitSwitch.toString());
-                if (isRetracted) {
-                    extension.setPower(0.0);
-                    Log.d("retracto", "returning true");
-                    extendState = ExtendState.IDLE;
-                    return true;
-                }
+            case STOP:
+                isRetracted = true;
+                extension.setPower(0);
+                if(!limitSwitch.isActive())
+                    extendState = ExtendState.MOVE;
                 break;
         }
-
-
-        Log.d("retracto", "returning false");
-        updateTimer();
-        return false;
     }
 
     public void orientGrabberToFoundation180(double robotAngleRelativeToFoudnation){
