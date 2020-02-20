@@ -20,7 +20,12 @@ public class CleonBotTeleop extends OpMode {
     final static double SLOW_STRAFE_SPEED = 0.375;
     final static double SLOW_FORWARD_SPEED = 0.3;
 
+    enum TeleState{
+        FEEDING,
+        STACKING
+    }
 
+    TeleState teleState = TeleState.STACKING;
 
     public enum IntakeState{
         INTAKE,
@@ -76,6 +81,7 @@ public class CleonBotTeleop extends OpMode {
         updateGamepadValues();
         robot.drivetrain.setVelocityBasedOnGamePad(leftStick1, rightStick1);
 
+
         switch (intakeState) {
             case IDLE:
                 robot.intake.setIntakePower(0);
@@ -94,7 +100,7 @@ public class CleonBotTeleop extends OpMode {
             case INTAKE:
                 robot.intake.setIntakePower(0.75);
                 if (canSwitchIntake) {
-                    if (gamepad1.left_bumper || robot.intake.stoneState == CleonIntake.StoneState.OBTAINED) {
+                    if (gamepad1.left_bumper || robot.intake.stoneState == (teleState == TeleState.STACKING ? CleonIntake.StoneState.OBTAINED : CleonIntake.StoneState.INTAKING)) {
                         intakeState = IntakeState.IDLE;
                         canSwitchIntake = false;
                     } else if (gamepad1.right_bumper) {
@@ -123,6 +129,16 @@ public class CleonBotTeleop extends OpMode {
                 break;
         }
 
+        switch (teleState){
+            case FEEDING:
+                if(gamepad2.right_stick_y > 0.1)
+                    teleState = TeleState.STACKING;
+                break;
+            case STACKING:
+                if(gamepad2.right_stick_y < 0.1)
+                    teleState = TeleState.FEEDING;
+                break;
+        }
 
         switch (foundationState){
             case OPEN:
@@ -212,7 +228,6 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.openGrabber();
             canGrab = true;
         }
-
 
 
         if(robot.intake.stoneState == CleonIntake.StoneState.INTAKING)
