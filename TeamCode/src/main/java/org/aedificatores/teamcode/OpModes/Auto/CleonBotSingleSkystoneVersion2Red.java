@@ -36,6 +36,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
         RELEASE_FOUNDATION("release foundation"),
         PUSH_FOUNDATION("push foundation"),
         DROP_STONE("drop stone"),
+        DIAGONAL_TO_PARK("diagonal to park"),
         PARK("park"),
         STOP("stop");
 
@@ -109,17 +110,17 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
         // TODO: Edit distance of Skystone components
         switch (detector.dieRoll) {
             case 1:
-                skystoneVector.x = 26;
+                skystoneVector.x = 28;
                 skystoneVector.y = 8;
                 skystoneDriveVec = CleonBot.DriveVecConstants.FORE;
                 break;
             case 2:
-                skystoneVector.x = 26;
-                skystoneVector.y = -11;
+                skystoneVector.x = 28;
+                skystoneVector.y = 0;
                 skystoneDriveVec = CleonBot.DriveVecConstants.BACK;
                 break;
             case 3:
-                skystoneVector.x = 26;
+                skystoneVector.x = 28;
                 skystoneVector.y = -5;
                 skystoneDriveVec = CleonBot.DriveVecConstants.BACK;
                 break;
@@ -180,7 +181,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA:
-                if (bot.driveForePID(-70 - skystoneVector.y, 3000)) {
+                if (bot.driveForePID(-70 - skystoneVector.y, 0)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -209,7 +210,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case TURN_FOUNDATION:
-                if (bot.turnPID(-Math.PI / 2, CleonBot.TurnDirection.RIGHT)) {
+                if (bot.turnPID(-Math.PI / 2, CleonBot.TurnDirection.LEFT)) {
                     autoState = AutoState.RELEASE_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -234,14 +235,21 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
             case DROP_STONE:
                 bot.backSideGrabber.openGrabber();
                 if (getRuntime() > 1.0) {
+                    autoState = AutoState.DIAGONAL_TO_PARK;
+                    Log.i(TAG, String.valueOf(autoState));
+                }
+                break;
+            case DIAGONAL_TO_PARK:
+                if (bot.drivePID(new Vector2(1,-1),0,36, 6000)) {
                     autoState = AutoState.PARK;
                     Log.i(TAG, String.valueOf(autoState));
                 }
                 break;
             case PARK:
-                if (bot.drivePID(new Vector2(1,-1),0,36, 6000)) {
+                if (bot.driveForePID(24, 0)) {
                     autoState = AutoState.STOP;
                     Log.i(TAG, String.valueOf(autoState));
+                    resetStartTime();
                 }
                 break;
             case STOP:

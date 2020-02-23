@@ -1,5 +1,8 @@
 package org.aedificatores.teamcode.Mechanisms.Robots;
 
+import android.nfc.Tag;
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -27,6 +30,7 @@ import java.io.IOException;
 * Creator: Hunter Seachrist
 * */
 public class CleonBot {
+private static final String TAG = "CleonBotClass";
 
     public enum TurnDirection {
         LEFT(-1.0), // Turns positive angles
@@ -110,7 +114,7 @@ public class CleonBot {
 
     static final double MIN_FORE_MOTOR_POWER = .20;
     static final double MIN_STRAFE_MOTOR_POWER = .5; //.44
-    static final double FORE_ZERO_POWER_THRESH = .01;
+    static final double ZERO_POWER_THRESH = .01;
 
     private final String JSON_PID_FILENAME = "CleonBotOrientationPID.json";
 
@@ -350,10 +354,11 @@ public class CleonBot {
         Vector2 v = new Vector2(robotAnglePID.currentOutput * turnDir.multiplier, 0.0);
         drivetrain.setVelocityBasedOnGamePad(new Vector2(), v);
 
-        if (Math.abs(robotAngle) > targetAngle || drivetrain.leftForePower < .01) {
+        if (Math.abs(robotAngle) > Math.abs(targetAngle) || Math.abs(drivetrain.leftForePower) < .01) {
             drivetrain.setVelocity(new Vector2());
             drivetrain.resetMotorEncoders();
             drivetrain.resetMotorEncoders();
+            robotAnglePID.integral = 0;
             return true;
         }
 
@@ -418,20 +423,25 @@ public class CleonBot {
 
         if (Math.abs(robotForePID.currentOutput) < MIN_FORE_MOTOR_POWER) {
             velocity = new Vector2(0, Math.signum(-robotForePID.currentOutput) * MIN_FORE_MOTOR_POWER);
-        } else if (Math.abs(robotForePID.currentOutput) <= FORE_ZERO_POWER_THRESH) {
-            velocity = new Vector2();
         } else {
             velocity = new Vector2(0, -robotForePID.currentOutput);
         }
 
+        Vector2 angleModification = new Vector2(UniversalFunctions.clamp(-1.0,-robotAnglePID.currentOutput, 1.0),0);
 
-        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(UniversalFunctions.clamp(-1.0,-robotAnglePID.currentOutput, 1.0),0));
+        drivetrain.setVelocityBasedOnGamePad(velocity, angleModification);
         if (Math.abs(getRightForeDistanceInches()) >= Math.abs(inches)) {
             drivetrain.setVelocity(new Vector2());
             resetTimer();
             drivetrain.resetMotorEncoders();
+            robotForePID.integral = 0;
+            robotAnglePID.integral = 0;
             return true;
         }
+
+//        Log.d(TAG,"Velocity: " + velocity.toString());
+//        Log.d(TAG,"angle mod: " + angleModification.toString());
+
         return false;
     }
 
@@ -439,27 +449,44 @@ public class CleonBot {
         robotStrafePID.setpoint = inches;
         robotStrafePID.processVar = getStrafeDistanceInches();
         robotStrafePID.idealLoop();
-
+//        Log.d(TAG, "driveStrafePID: begins");
+//        Log.d(TAG, "driveStrafePID: setpoint: " + robotStrafePID.setpoint);
+//        Log.d(TAG, "driveStrafePID: processVar: " + robotStrafePID.processVar);
+//        Log.d(TAG, "driveStrafePID: error: " + robotStrafePID.error);
+//        Log.d(TAG, "driveStrafePID: integral: " + robotStrafePID.integral);
+//        Log.d(TAG, "driveStrafePID: error after mult: " + robotStrafePID.error * robotStrafePID.KP);
+//        Log.d(TAG, "driveStrafePID: integral after mult: " + robotStrafePID.integral * robotStrafePID.KI);
+//        Log.d(TAG, "driveStrafePID: current output: " + robotStrafePID.currentOutput);
         robotAnglePID.setpoint = targetFaceAngle;
         robotAnglePID.processVar = robotAngle;
         robotAnglePID.idealLoop();
 
         Vector2 velocity;
 
-        if (Math.abs(robotStrafePID.currentOutput) < MIN_STRAFE_MOTOR_POWER && Math.abs(robotStrafePID.currentOutput) > FORE_ZERO_POWER_THRESH) {
+        if (Math.abs(robotStrafePID.currentOutput) < MIN_STRAFE_MOTOR_POWER && Math.abs(robotStrafePID.currentOutput) > ZERO_POWER_THRESH) {
             velocity = new Vector2(Math.signum(robotStrafePID.currentOutput) * MIN_STRAFE_MOTOR_POWER, 0);
-        } else if (Math.abs(robotStrafePID.currentOutput) <= FORE_ZERO_POWER_THRESH) {
-            velocity = new Vector2();
+//            Log.d(TAG,"driveStrafePID: Condition: less then min strafe power");
         } else {
             velocity = new Vector2(robotStrafePID.currentOutput, 0);
+//            Log.d(TAG,"driveStrafePID: Condition: greater than min strafe power");
         }
 
 
-        drivetrain.setVelocityBasedOnGamePad(velocity, new Vector2(UniversalFunctions.clamp(-1.0,-robotAnglePID.currentOutput, 1.0),0));
+        Vector2 angleModification = new Vector2(UniversalFunctions.clamp(-1.0,-robotAnglePID.currentOutput, 1.0),0);
+        drivetrain.setVelocityBasedOnGamePad(velocity, angleModification);
+
+//        Log.d(TAG,"driveStrafePID: Velocity: " + velocity.toString());
+//        Log.d(TAG,"driveStrafePID: angle mod: " + angleModification.toString());
+
+//        Log.d(TAG, "driveStrafePID: strafe dist: " + getStrafeDistanceInches());
+
         if (Math.abs(getStrafeDistanceInches()) >= Math.abs(inches)) {
             drivetrain.setVelocity(new Vector2());
             resetTimer();
             drivetrain.resetMotorEncoders();
+//            Log.d(TAG, "driveStrafePID: reached goal");
+            robotStrafePID.integral = 0;
+            robotAnglePID.integral = 0;
             return true;
         }
         return false;
