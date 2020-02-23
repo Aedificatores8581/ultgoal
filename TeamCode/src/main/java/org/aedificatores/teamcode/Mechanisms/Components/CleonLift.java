@@ -12,7 +12,7 @@ public class CleonLift {
 
     private boolean usingPID = false;
     public DcMotor liftMotor1;
-    private DcMotor liftMotor2;
+    public DcMotor liftMotor2;
 
     private static final int ENC_TO_BOT = 20;
     private static final double SPEED = .9;
@@ -20,7 +20,7 @@ public class CleonLift {
     private static final double MIN_EXTENSION_POWER = 0.2;
     private static final double MAX_RETRACT_POWER = 0.13;
     private static final double IDLE_POWER = 0;
-    private static final double BRAKE_POWER = (MIN_EXTENSION_POWER + MAX_RETRACT_POWER) / 2;
+    public static final double BRAKE_POWER = (MIN_EXTENSION_POWER + MAX_RETRACT_POWER) / 2;
 
     private static final int[] PID_SETPOINTS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -38,6 +38,9 @@ public class CleonLift {
         liftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        liftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         //calculates the minimum encoder value needed for the lift to snap to a given stone
         MIN_SNAP_HEIGHT[0] = 0;
         for (int i = 1; i < 12; i++){
@@ -48,9 +51,9 @@ public class CleonLift {
     //normalizes lift power input so the lift has the same speed, regardless of the sign of the input
     public void setNormalizedLiftPower(double pow) {
         if (pow > MOVEMENT_THRESHOLD)
-            setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MIN_EXTENSION_POWER);
+            setLiftPower(pow * (1 - MIN_EXTENSION_POWER) + MIN_EXTENSION_POWER);
         if (pow < -MOVEMENT_THRESHOLD)
-            setLiftPower(pow / (1 - MIN_EXTENSION_POWER) + MAX_RETRACT_POWER);
+            setLiftPower(pow * (1 - MIN_EXTENSION_POWER) + MAX_RETRACT_POWER);
         else
             setLiftPower(BRAKE_POWER);
     }
