@@ -163,12 +163,12 @@ public class CleonBotTeleop extends OpMode {
 
         double leftStickY = gamepad2.left_stick_y;
         leftStickY *= -1;
-        double liftPower = 0;
+        double liftPower = 0.16;
         if(!gamepad2.left_stick_button) {
             if (gamepad2.left_bumper)
                 liftPower = 0.08;
             else if (Math.abs(leftStickY) > 0.1)
-                liftPower = leftStickY *.8 + 0.2;
+                liftPower = leftStickY * (1- (0.6+0.08)/2) + (0.6+0.08)/2;
             else {/*
             if (gamepad2.dpad_up)
                 robot.lift.snapToStone(robot.lift.closestBlockHeight + 1);
@@ -178,11 +178,11 @@ public class CleonBotTeleop extends OpMode {
                 robot.lift.snapToStone(robot.lift.closestBlockHeight);
             robot.lift.setPowerUsinngPID();*/
                 if (gamepad2.dpad_up)
-                    liftPower = 0.5;
+                    liftPower = 0.5* (1- (0.6+0.08)/2) + (0.6+0.08)/2;
                 else if (gamepad2.dpad_down)
-                    liftPower = -0.5;
+                    liftPower = -0.5* (1- (0.6+0.08)/2) + (0.6+0.08)/2;
             }
-            robot.lift.setNormalizedLiftPower(liftPower);
+            robot.lift.setLiftPower(liftPower);
         }
         else {
             liftPower = -1;
