@@ -161,14 +161,15 @@ public class CleonBotTeleop extends OpMode {
                 break;
         }
 
-
-        if(gamepad2.left_bumper)
-            robot.lift.idle();
-        else if (gamepad2.left_stick_button)
-            robot.lift.setLiftPower(-1);
-        else if(Math.abs(gamepad2.left_stick_y) > 0.1)
-            robot.lift.setNormalizedLiftPower(gamepad2.left_stick_y);
-        else {/*
+        double leftStickY = gamepad2.left_stick_y;
+        leftStickY *= -1;
+        double liftPower = 0;
+        if(!gamepad2.left_stick_button) {
+            if (gamepad2.left_bumper)
+                liftPower = 0.08;
+            else if (Math.abs(leftStickY) > 0.1)
+                liftPower = leftStickY *.8 + 0.2;
+            else {/*
             if (gamepad2.dpad_up)
                 robot.lift.snapToStone(robot.lift.closestBlockHeight + 1);
             else if (gamepad2.dpad_down)
@@ -176,13 +177,25 @@ public class CleonBotTeleop extends OpMode {
             else
                 robot.lift.snapToStone(robot.lift.closestBlockHeight);
             robot.lift.setPowerUsinngPID();*/
-            if(gamepad2.dpad_up)
-                robot.lift.setNormalizedLiftPower(0.375);
-            else if(gamepad2.dpad_down)
-                robot.lift.setNormalizedLiftPower(-0.375);
+                if (gamepad2.dpad_up)
+                    liftPower = 0.5;
+                else if (gamepad2.dpad_down)
+                    liftPower = -0.5;
+            }
+            robot.lift.setNormalizedLiftPower(liftPower);
+        }
+        else {
+            liftPower = -1;
+            robot.lift.setLiftPower(liftPower);
         }
 
 
+        telemetry.addData("atbottom", robot.lift.atBottom());
+        telemetry.addData("liftPower1", robot.lift.liftMotor1.getPower());
+        telemetry.addData("liftPower2", robot.lift.liftMotor2.getPower());
+        telemetry.addData("gamepad", gamepad2.left_stick_y);
+        telemetry.addData("liftenc1", robot.lift.liftMotor1.getCurrentPosition());
+        telemetry.addData("liftenc2", robot.lift.liftMotor2.getCurrentPosition());
 
         switch (extendoState){
             case EXTENDING:
@@ -194,7 +207,6 @@ public class CleonBotTeleop extends OpMode {
                     robot.intake.resetIntakeState();
                     robot.grabber.openPusher();
                     robot.grabber.tuckGrabber();
-                    robot.grabber.rotateGrabber(robot.grabber.ROTATION_NORMAL);
                 }
                 if(!gamepad2.right_bumper)
                     canSwitchExtension = true;
@@ -216,18 +228,16 @@ public class CleonBotTeleop extends OpMode {
             robot.grabber.rotateGrabber(robot.grabber.ROTATION_FLIPPED_180);
 
         if(gamepad2.right_trigger > 0.1) {
-            if (robot.grabber.isExtended && canGrab) {
+            if (robot.grabber.extending) {
                 robot.grabber.openGrabber();
                 canGrab = false;
             }
-            else if(robot.grabber.isRetracted && canGrab) {
+            else{
                 robot.grabber.closeGrabber();
             }
         }
-        if(robot.grabber.isRetracted && !canGrab){
-            robot.grabber.openGrabber();
-            canGrab = true;
-        }
+
+
 
 
         if(robot.intake.stoneState == CleonIntake.StoneState.INTAKING)
@@ -239,6 +249,14 @@ public class CleonBotTeleop extends OpMode {
         robot.drivetrain.refreshMotors();
         robot.updateRobotPosition2d();
         robot.updateTimer();
+
+        if(robot.grabber.isRetracted)
+            robot.grabber.rotateGrabber(robot.grabber.ROTATION_NORMAL);
+
+        if(gamepad2.b)
+            robot.grabber.closeGrabber();
+        if(gamepad2.a)
+            robot.grabber.openGrabber();
 
         telemetry.addData("extensionstate", robot.grabber.extendState);
         telemetry.addData("isExtended", robot.grabber.isExtended);
