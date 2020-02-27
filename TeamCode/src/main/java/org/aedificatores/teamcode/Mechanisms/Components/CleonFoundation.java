@@ -7,7 +7,7 @@ public class CleonFoundation {
     private Servo[] servos;
 
     private static final String HARDWARE_MAP_NAME = "foundation";
-    private final double CLOSED_POSITION_1 = 0.40;
+    private final double CLOSED_POSITION_1 = 0.35;
     private final double OPEN_POSITION_1 = 1.00;
     // private final double CLOSED_POSITION_2 = 0.25;
     // private final double OPEN_POSITION_2 = 1.00;

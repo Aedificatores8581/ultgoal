@@ -41,7 +41,7 @@ public class CleonStrafeOdomTest extends OpMode {
 
     @Override
     public void loop() {
-        bot.turnPID(Math.PI/2, CleonBot.TurnDirection.LEFT);
+        bot.turnPID(Math.PI/2, CleonBot.TurnDirection.LEFT, 1000000);
 
         opmodeTicks++;
         double strafeArc = bot.robotAngle * bot.DIST_STRAFE_WHEEL_FROM_CENTER;

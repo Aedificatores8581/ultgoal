@@ -33,8 +33,8 @@ public class CleonBot {
 private static final String TAG = "CleonBotClass";
 
     public enum TurnDirection {
-        LEFT(-1.0), // Turns positive angles
-        RIGHT(1.0); // Turns negative angles
+        LEFT(1.0), // Turns positive angles
+        RIGHT(-1.0); // Turns negative angles
         private double multiplier;
         TurnDirection(double m) {
             multiplier = m;
@@ -67,16 +67,30 @@ private static final String TAG = "CleonBotClass";
     public Vector2 robotPosition;
 
     public CleonSideGrabber backSideGrabber;
+    public CleonSideGrabber frontSideGrabber;
     interface BackSideGrabberValues {
         String GRAB_MAP_NAME = "autograb";
         String ROTATE_MAP_NAME = "autograbextend";
 
         double UP_POSITION = .75;
-        double DOWN_POSITION = .25;
-        double OPEN_GRABBER_THRESH = .5;
-        double HOLD_POSITION = .67;
+        double DOWN_GRAB_POSITION = .2;
+        double DOWN_PUSH_POSITION = .40;
+        double HOLD_POSITION = .65;
 
-        double GRABBED_POSITION = .25;
+        double GRABBED_POSITION = 1.0;
+        double RELEASED_POSITION = .65;
+    }
+
+    interface FrontSideGrabberValues {
+        String GRAB_MAP_NAME = "autograbfront";
+        String ROTATE_MAP_NAME = "autograbextendfront";
+
+        double UP_POSITION = .95;
+        double DOWN_GRAB_POSITION = .25;
+        double DOWN_PUSH_POSITION = .55;
+        double HOLD_POSITION = .8;
+
+        double GRABBED_POSITION = .3;
         double RELEASED_POSITION = .5;
     }
 
@@ -114,6 +128,8 @@ private static final String TAG = "CleonBotClass";
 
     static final double MIN_FORE_MOTOR_POWER = .20;
     static final double MIN_STRAFE_MOTOR_POWER = .5; //.44
+    static final double MIN_TURN_MOTOR_POWER = .20;
+    static final double MAX_TURN_MOTOR_POWER = .80;
     static final double ZERO_POWER_THRESH = .01;
 
     private final String JSON_PID_FILENAME = "CleonBotOrientationPID.json";
@@ -207,11 +223,19 @@ private static final String TAG = "CleonBotClass";
         backSideGrabber = new CleonSideGrabber(map, BackSideGrabberValues.GRAB_MAP_NAME,
                 BackSideGrabberValues.ROTATE_MAP_NAME,
                 BackSideGrabberValues.UP_POSITION,
-                BackSideGrabberValues.DOWN_POSITION,
-                BackSideGrabberValues.OPEN_GRABBER_THRESH,
+                BackSideGrabberValues.DOWN_PUSH_POSITION,
+                BackSideGrabberValues.DOWN_GRAB_POSITION,
                 BackSideGrabberValues.HOLD_POSITION,
                 BackSideGrabberValues.GRABBED_POSITION,
                 BackSideGrabberValues.RELEASED_POSITION);
+        frontSideGrabber = new CleonSideGrabber(map, FrontSideGrabberValues.GRAB_MAP_NAME,
+                FrontSideGrabberValues.ROTATE_MAP_NAME,
+                FrontSideGrabberValues.UP_POSITION,
+                FrontSideGrabberValues.DOWN_PUSH_POSITION,
+                FrontSideGrabberValues.DOWN_GRAB_POSITION,
+                FrontSideGrabberValues.HOLD_POSITION,
+                FrontSideGrabberValues.GRABBED_POSITION,
+                FrontSideGrabberValues.RELEASED_POSITION);
         resetTimer();
     }
 
@@ -346,17 +370,23 @@ private static final String TAG = "CleonBotClass";
      * @param turnDir the direction to turn
      * @return Returns true if the robot has met it's angle
      */
-    public boolean turnPID(double targetAngle, TurnDirection turnDir) {
+    public boolean turnPID(double targetAngle, TurnDirection turnDir, long timer) {
         robotAnglePID.setpoint = targetAngle;
         robotAnglePID.processVar = robotAngle;
         robotAnglePID.idealLoop();
 
+        if (Math.abs(robotAnglePID.currentOutput) < MIN_TURN_MOTOR_POWER) {
+            robotAnglePID.currentOutput = Math.signum(robotAnglePID.currentOutput) * MIN_TURN_MOTOR_POWER;
+        }
+
+        robotAnglePID.currentOutput = UniversalFunctions.clamp(-MAX_TURN_MOTOR_POWER, robotAnglePID.currentOutput, MAX_TURN_MOTOR_POWER);
+
         Vector2 v = new Vector2(robotAnglePID.currentOutput * turnDir.multiplier, 0.0);
         drivetrain.setVelocityBasedOnGamePad(new Vector2(), v);
+        updateTimer();
 
-        if (Math.abs(robotAngle) > Math.abs(targetAngle) || Math.abs(drivetrain.leftForePower) < .01) {
+        if (Math.abs(robotAngle) > Math.abs(targetAngle) || Math.abs(drivetrain.leftForePower) < .01 || getRuntime() > timer) {
             drivetrain.setVelocity(new Vector2());
-            drivetrain.resetMotorEncoders();
             drivetrain.resetMotorEncoders();
             robotAnglePID.integral = 0;
             return true;
