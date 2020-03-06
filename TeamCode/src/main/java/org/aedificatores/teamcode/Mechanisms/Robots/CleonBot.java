@@ -126,8 +126,8 @@ private static final String TAG = "CleonBotClass";
         Vector2 STRAFE_RIGHT    = new Vector2(1.0,0.0);
     }
 
-    static final double MIN_FORE_MOTOR_POWER = .20;
-    static final double MIN_STRAFE_MOTOR_POWER = .5; //.44
+    static final double MIN_FORE_MOTOR_POWER = .40;
+    static final double MIN_STRAFE_MOTOR_POWER = .6; //.44
     static final double MIN_TURN_MOTOR_POWER = .20;
     static final double MAX_TURN_MOTOR_POWER = .80;
     static final double ZERO_POWER_THRESH = .01;

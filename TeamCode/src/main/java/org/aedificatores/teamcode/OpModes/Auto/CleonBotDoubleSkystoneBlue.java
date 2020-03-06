@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.Vector2;
+import org.aedificatores.teamcode.Universal.TelemetryLogger;
 import org.aedificatores.teamcode.Vision.SkystoneDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.json.JSONException;
@@ -49,6 +50,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
         RELEASE_FOUNDATION("release foundation"),
         FORE_AROUND_FOUNDATION("fore around foundation"),
         STRAFE_AROUND_FOUNDATION("strafe around foundation"),
+        BUMP_FOUNDATION("bump foundation"),
         PARK("park"),
         STOP("stop");
 
@@ -83,12 +85,13 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
         }
     }
 
-    private static final int secondSkystoneOffset[] = {12, 10, 12};
+    private static final int secondSkystoneOffset[] = {12, 12, 12};
 
     private static ParkPosition parkPosition;
     private static AutoState autoState;
 
     private static CleonBot bot;
+    TelemetryLogger logger;
 
     private static final int SCREEN_WIDTH = 320;
     private static final int SCREEN_HEIGHT = 240;
@@ -116,6 +119,21 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
 
         autoState = AutoState.STRAFE_FROM_INIT_WALL;
         parkPosition = ParkPosition.NEAR_CENTER;
+
+        try {
+            logger = new TelemetryLogger();
+        } catch (IOException e) {
+            Log.e(TAG,e.getMessage());
+            telemetry.addLine(e.getMessage());
+
+            Log.e(TAG,"Stack Trace: ");
+            telemetry.addLine("Stack Trace: ");
+
+            for (StackTraceElement i : e.getStackTrace()) {
+                Log.e(TAG,"\t" + i.toString());
+                telemetry.addLine("\t" + i.toString());
+            }
+        }
 
         try {
             bot = new CleonBot(hardwareMap, true);
@@ -155,7 +173,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
         switch (detector.dieRoll) {
             case 1:
                 skystoneVector.x = 29.5;
-                skystoneVector.y = 9;
+                skystoneVector.y = 4;
                 skystoneDriveVec = CleonBot.DriveVecConstants.FORE;
                 break;
             case 2:
@@ -165,7 +183,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 break;
             case 3:
                 skystoneVector.x = 29.5;
-                skystoneVector.y = -8;
+                skystoneVector.y = -4;
                 skystoneDriveVec = CleonBot.DriveVecConstants.BACK;
                 break;
 
@@ -179,6 +197,21 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
         bot.resetTimer();
         bot.backSideGrabber.init();
         bot.frontSideGrabber.holdBlockPos();
+
+        try {
+            logger.writeToLogInCSV("state","RFore","LFore","Strafe","angle");
+        } catch (IOException e) {
+            Log.e(TAG,e.getMessage());
+            telemetry.addLine(e.getMessage());
+
+            Log.e(TAG,"Stack Trace: ");
+            telemetry.addLine("Stack Trace: ");
+
+            for (StackTraceElement i : e.getStackTrace()) {
+                Log.e(TAG,"\t" + i.toString());
+                telemetry.addLine("\t" + i.toString());
+            }
+        }
     }
 
     @Override
@@ -319,7 +352,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 }
                 break;
             case STRAFE_TO_FOUNDATION_AGAIN:
-                if (bot.driveStrafePID(16, 0)) {
+                if (bot.driveStrafePID(20, 0)) {
                     autoState = AutoState.DROP_STONE_AND_GET_FOUNDATION;
                     resetStartTime();
                     Log.i(TAG, String.valueOf(autoState));
@@ -335,13 +368,12 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 }
                 break;
             case DRAG_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_LEFT,0,100, 5000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_LEFT,0,100, 4000)) {
                     autoState = AutoState.RELEASE_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
                 }
                 break;
-
             case RELEASE_FOUNDATION:
                 bot.foundationGrabber.open();
                 autoState = AutoState.FORE_AROUND_FOUNDATION;
@@ -350,21 +382,28 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 bot.resetTimer();
                 break;
             case FORE_AROUND_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 28, 3000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 34, 3000)) {
                     autoState = AutoState.STRAFE_AROUND_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
                 }
                 break;
             case STRAFE_AROUND_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_RIGHT,0, parkPosition.getDist(), 3000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_RIGHT,0, parkPosition.getDist(), 1500)) {
+                    autoState = AutoState.BUMP_FOUNDATION;
+                    Log.i(TAG, String.valueOf(autoState));
+                    resetStartTime();
+                }
+                break;
+            case BUMP_FOUNDATION:
+                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 20, 2000)) {
                     autoState = AutoState.PARK;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
                 }
                 break;
             case PARK:
-                if (bot.driveForePID(-20, 0)) {
+                if (bot.driveForePID(-30, 0)) {
                     autoState = AutoState.STOP;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -386,5 +425,25 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
         bot.drivetrain.refreshMotors();
         bot.updateRobotPosition2d();
         bot.updateTimer();
+
+
+        try {
+            logger.writeToLogInCSV(autoState.toString(),
+                    bot.getRightForeDistanceInches(),
+                    bot.getLeftForeDistanceInches(),
+                    bot.getStrafeDistanceInches(),
+                    bot.robotAngle);
+        } catch (IOException e) {
+            Log.e(TAG,e.getMessage());
+            telemetry.addLine(e.getMessage());
+
+            Log.e(TAG,"Stack Trace: ");
+            telemetry.addLine("Stack Trace: ");
+
+            for (StackTraceElement i : e.getStackTrace()) {
+                Log.e(TAG,"\t" + i.toString());
+                telemetry.addLine("\t" + i.toString());
+            }
+        }
     }
 }
