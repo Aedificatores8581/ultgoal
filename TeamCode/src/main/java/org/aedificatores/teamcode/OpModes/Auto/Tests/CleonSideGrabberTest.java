@@ -42,19 +42,13 @@ public class CleonSideGrabberTest extends OpMode {
     @Override
     public void loop() {
 
-        if (gamepad1.dpad_down) {
-            if (!taskComplete) {
-                taskComplete = bot.backSideGrabber.moveDownAndRelease();
-                telemetry.addLine("Current Function: moveDownAndRelease");
-            }
-        }
         if (gamepad1.dpad_up) {
             bot.backSideGrabber.moveUp();
             telemetry.addLine("Current Function: moveUp");
             taskComplete = false;
         }
         if (gamepad1.dpad_right) {
-            bot.backSideGrabber.moveDown();
+            bot.backSideGrabber.moveDownGrab();
             telemetry.addLine("Current Function: moveDown");
         }
         if (gamepad1.left_bumper) {
@@ -67,10 +61,6 @@ public class CleonSideGrabberTest extends OpMode {
         }
         if (gamepad1.a) {
             bot.backSideGrabber.holdBlockPos();
-            telemetry.addLine("Current Function: holdBlockPos");
-        }
-        if (gamepad1.b) {
-            bot.backSideGrabber.autoGetBlock();
             telemetry.addLine("Current Function: holdBlockPos");
         }
 

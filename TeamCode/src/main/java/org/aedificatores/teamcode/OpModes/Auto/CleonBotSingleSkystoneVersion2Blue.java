@@ -16,10 +16,10 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.io.IOException;
 
-@Autonomous(name = "Cleon Bot Single Skystone Version 2 Red")
-public class CleonBotSingleSkystoneVersion2Red extends OpMode {
+@Autonomous(name = "Cleon Bot Single Skystone Version 2 Blue")
+public class CleonBotSingleSkystoneVersion2Blue extends OpMode {
 
-    private static final String TAG = "Cleon1SkystoneV2Red";
+    private static final String TAG = "Cleon1SkystoneV2Blue";
 
     enum AutoState {
         STRAFE_FROM_INIT_WALL("strafe from init wall"),
@@ -142,7 +142,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
         switch (detector.dieRoll) {
             case 1:
                 skystoneVector.x = 29.5;
-                skystoneVector.y = 8;
+                skystoneVector.y = 9;
                 skystoneDriveVec = CleonBot.DriveVecConstants.FORE;
                 break;
             case 2:
@@ -152,13 +152,13 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 break;
             case 3:
                 skystoneVector.x = 29.5;
-                skystoneVector.y = -5;
+                skystoneVector.y = -8;
                 skystoneDriveVec = CleonBot.DriveVecConstants.BACK;
                 break;
 
         }
 
-        dieRoll= detector.dieRoll;
+        dieRoll = detector.dieRoll;
         cam.stopStreaming();
         detector.close();
         bot.drivetrain.resetMotorEncoders();
@@ -210,7 +210,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case STRAFE_OUT_OF_STONE_AREA:
-                if (bot.driveStrafePID(-7, 0)) {
+                if (bot.driveStrafePID(-8, 0)) {
                     autoState = AutoState.RECORRECT_TO_90;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -224,7 +224,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA:
-                if (bot.driveForePID(-70 - skystoneVector.y, 0)) {
+                if (bot.driveForePID(67 - skystoneVector.y, 0)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -253,7 +253,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case DRAG_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_LEFT,0,53, 5000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_LEFT,0,53, 8000)) {
                     autoState = AutoState.RELEASE_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -270,7 +270,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case FORE_AROUND_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 28, 3000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 28, 3000)) {
                     autoState = AutoState.STRAFE_AROUND_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -284,7 +284,7 @@ public class CleonBotSingleSkystoneVersion2Red extends OpMode {
                 }
                 break;
             case PARK:
-                if (bot.driveForePID(20, 0)) {
+                if (bot.driveForePID(-20, 0)) {
                     autoState = AutoState.STOP;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();

@@ -5,18 +5,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class CleonSideGrabber {
     enum AutoGetBlockState{
-        REACH_DOWN,
-        GRAB,
-        HOLD_BLOCK_POS
+
     }
 
     private String grabMapName;
     private String rotateMapName;
 
     private double upPosition;
-    private double downPosition;
+    private double downPushPosition;
+    private double downGrabPosition;
     private double holdPosition;
-    private double openGrabberThresh;
 
     private double grabbedPosition;
     private double releasedPosition;
@@ -29,20 +27,26 @@ public class CleonSideGrabber {
     public Servo grabberServo;
     public Servo rotateServo;
 
-
-    public CleonSideGrabber(HardwareMap map, String grabMapName, String rotateMapName, double upPosition, double downPosition, double openGrabberThresh, double holdPosition, double grabbedPosition, double releasedPosition) {
+    public CleonSideGrabber(HardwareMap map,
+                            String grabMapName,
+                            String rotateMapName,
+                            double upPosition,
+                            double downPushPosition,
+                            double downGrabPosition,
+                            double holdPosition,
+                            double grabbedPosition,
+                            double releasedPosition) {
         this.grabMapName = grabMapName;
         this.rotateMapName = rotateMapName;
         this.upPosition = upPosition;
-        this.downPosition = downPosition;
-        this.openGrabberThresh = openGrabberThresh;
+        this.downPushPosition = downPushPosition;
+        this.downGrabPosition = downGrabPosition;
         this.holdPosition = holdPosition;
         this.grabbedPosition = grabbedPosition;
         this.releasedPosition = releasedPosition;
 
         grabberServo = map.servo.get(this.grabMapName);
         rotateServo = map.servo.get(this.rotateMapName);
-        autoGetBlockState = AutoGetBlockState.REACH_DOWN;
 
         resetTime = System.currentTimeMillis();
         currentTime = 0;
@@ -58,22 +62,15 @@ public class CleonSideGrabber {
     }
 
     public void init() {
-        closeGrabber();
-        moveUp();
+        moveDownPush();
+        openGrabber();
     }
 
-    public boolean moveDownAndRelease() {
-        rotateServo.setPosition(rotateServo.getPosition() - POSITION_SERVO_INC);
-        if (rotateServo.getPosition() < openGrabberThresh) {
-            openGrabber();
-        }
-        return rotateServo.getPosition() <= downPosition;
-    }
+
 
     public void openGrabber() {
         grabberServo.setPosition(releasedPosition);
     }
-
     public void closeGrabber() {
         grabberServo.setPosition(grabbedPosition);
     }
@@ -82,39 +79,13 @@ public class CleonSideGrabber {
         rotateServo.setPosition(upPosition);
     }
 
-    public void moveDown() {
-        rotateServo.setPosition(downPosition);
+    public void moveDownPush() {
+        rotateServo.setPosition(downPushPosition);
     }
-
+    public void moveDownGrab() {
+        rotateServo.setPosition(downGrabPosition);
+    }
     public void holdBlockPos() {
         rotateServo.setPosition(holdPosition);
-    }
-
-    public boolean autoGetBlock() {
-        switch (autoGetBlockState) {
-            case REACH_DOWN:
-                if (moveDownAndRelease()){
-                    autoGetBlockState = AutoGetBlockState.GRAB;
-                    resetTimer();
-                }
-                break;
-            case GRAB:
-                closeGrabber();
-                if (currentTime > .3) {
-                    autoGetBlockState = AutoGetBlockState.HOLD_BLOCK_POS;
-                    resetTimer();
-                }
-                break;
-            case HOLD_BLOCK_POS:
-                holdBlockPos();
-                if (currentTime > .3) {
-                    autoGetBlockState = AutoGetBlockState.REACH_DOWN;
-                    resetTimer();
-                    return true;
-                }
-                break;
-        }
-        updateTimer();
-        return false;
     }
 }
