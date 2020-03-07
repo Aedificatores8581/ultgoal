@@ -60,7 +60,7 @@ public class CleonLift {
 
     public void setLiftPower(double pow) {
         updateBlockHeight();
-        if(Math.abs(pow) < MAX_RETRACT_POWER && atBottom()) {
+        if(pow < MAX_RETRACT_POWER && atBottom()) {
             liftMotor1.setPower(0);
             liftMotor1.setPower(0);
             closestBlockHeight = 1;
@@ -97,6 +97,6 @@ public class CleonLift {
     }
 
     public boolean atBottom() {
-        return liftMotor2.getCurrentPosition() < ENC_TO_BOT;
+        return liftMotor1.getCurrentPosition() < ENC_TO_BOT;
     }
 }

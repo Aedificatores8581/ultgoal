@@ -84,7 +84,7 @@ public class CleonBotTeleop extends OpMode {
 
         switch (intakeState) {
             case IDLE:
-                robot.intake.setIntakePower(0);
+                robot.intake.setIntakePower(0.01);
                 if (canSwitchIntake) {
                     if (gamepad1.left_bumper) {
                         intakeState = IntakeState.INTAKE;
@@ -185,7 +185,7 @@ public class CleonBotTeleop extends OpMode {
             robot.lift.setLiftPower(liftPower);
         }
         else {
-            liftPower = -1;
+            liftPower = -0.5;
             robot.lift.setLiftPower(liftPower);
         }
 
@@ -242,7 +242,9 @@ public class CleonBotTeleop extends OpMode {
 
         if(robot.intake.stoneState == CleonIntake.StoneState.INTAKING)
             robot.grabber.closePusher();
-        if(robot.intake.stoneState == CleonIntake.StoneState.SEARCHING)
+        if(intakeState == IntakeState.OUTAKE)
+            robot.grabber.openPusher();
+        else if(robot.intake.stoneState == CleonIntake.StoneState.SEARCHING)
             robot.grabber.openPusher();
 
 
@@ -250,7 +252,7 @@ public class CleonBotTeleop extends OpMode {
         robot.updateRobotPosition2d();
         robot.updateTimer();
 
-        if(robot.grabber.isRetracted)
+        if(!robot.grabber.isExtended)
             robot.grabber.rotateGrabber(robot.grabber.ROTATION_NORMAL);
 
         if(gamepad2.b)
