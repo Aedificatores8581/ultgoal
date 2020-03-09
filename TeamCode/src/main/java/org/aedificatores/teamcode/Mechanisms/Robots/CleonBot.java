@@ -72,13 +72,13 @@ private static final String TAG = "CleonBotClass";
         String GRAB_MAP_NAME = "autograb";
         String ROTATE_MAP_NAME = "autograbextend";
 
-        double UP_POSITION = .75;
-        double DOWN_GRAB_POSITION = .2;
-        double DOWN_PUSH_POSITION = .40;
-        double HOLD_POSITION = .65;
+        double UP_POSITION = .8;
+        double DOWN_GRAB_POSITION = .315;
+        double DOWN_PUSH_POSITION = .415;
+        double HOLD_POSITION = .68;
 
-        double GRABBED_POSITION = .65;
-        double RELEASED_POSITION = .45;
+        double GRABBED_POSITION = .69;
+        double RELEASED_POSITION = .382;
     }
 
     interface FrontSideGrabberValues {
@@ -86,12 +86,12 @@ private static final String TAG = "CleonBotClass";
         String ROTATE_MAP_NAME = "autograbextendfront";
 
         double UP_POSITION = .95;
-        double DOWN_GRAB_POSITION = .25;
-        double DOWN_PUSH_POSITION = .55;
+        double DOWN_GRAB_POSITION = .277;
+        double DOWN_PUSH_POSITION = .58;
         double HOLD_POSITION = .8;
 
-        double GRABBED_POSITION = .3;
-        double RELEASED_POSITION = .5;
+        double GRABBED_POSITION = .273;
+        double RELEASED_POSITION = .58;
     }
 
     // JSON object for getting PID constant values stored on the phone
