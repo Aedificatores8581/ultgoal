@@ -77,8 +77,8 @@ private static final String TAG = "CleonBotClass";
         double DOWN_PUSH_POSITION = .40;
         double HOLD_POSITION = .65;
 
-        double GRABBED_POSITION = 1.0;
-        double RELEASED_POSITION = .65;
+        double GRABBED_POSITION = .65;
+        double RELEASED_POSITION = .45;
     }
 
     interface FrontSideGrabberValues {
