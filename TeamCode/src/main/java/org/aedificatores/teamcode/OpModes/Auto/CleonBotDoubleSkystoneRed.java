@@ -17,11 +17,10 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.io.IOException;
 
-@Autonomous(name = "Cleon Bot Double Skystone Blue")
-public class CleonBotDoubleSkystoneBlue extends OpMode {
+@Autonomous(name = "Cleon Bot Double Red")
+public class CleonBotDoubleSkystoneRed extends OpMode {
 
-    private static final String TAG = "Cleon2SkystoneV1Blue";
-
+    private static final String TAG = "Cleon2SkystoneV1Red";
 
     // Autonomous state machine enum
     // Yes I know, this is a very poor implementation of a state machine (lots of repeated states)
@@ -270,7 +269,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA:
-                if (bot.driveForePID(67 - skystoneVector.y, 0)) {
+                if (bot.driveForePID(-(67 - skystoneVector.y), 0)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     bot.resetTimer();
@@ -299,7 +298,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 }
                 break;
             case BACK_TO_LOAD_AREA:
-                if (bot.driveForePID(-(67 - skystoneVector.y) - secondSkystoneOffset[dieRoll - 1], 0)) {
+                if (bot.driveForePID(67 - skystoneVector.y + secondSkystoneOffset[dieRoll - 1], 0)) {
                     autoState = AutoState.LOWER_SIDE_GRABBER;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -345,7 +344,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 }
                 break;
             case BACK_TO_BUILD_AREA_AGAIN:
-                if (bot.driveForePID(79 - skystoneVector.y + secondSkystoneOffset[dieRoll - 1], 0)) {
+                if (bot.driveForePID(-(79 - skystoneVector.y + secondSkystoneOffset[dieRoll - 1]), 0)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION_AGAIN;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -382,7 +381,7 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 bot.resetTimer();
                 break;
             case FORE_AROUND_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 34, 3000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 34, 3000)) {
                     autoState = AutoState.STRAFE_AROUND_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -396,14 +395,14 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
                 }
                 break;
             case BUMP_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 20, 2000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 20, 2000)) {
                     autoState = AutoState.PARK;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
                 }
                 break;
             case PARK:
-                if (bot.driveForePID(-30, 0)) {
+                if (bot.driveForePID(30, 0)) {
                     autoState = AutoState.STOP;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -446,4 +445,5 @@ public class CleonBotDoubleSkystoneBlue extends OpMode {
             }
         }
     }
+
 }

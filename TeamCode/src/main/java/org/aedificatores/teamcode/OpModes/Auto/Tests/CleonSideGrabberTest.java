@@ -18,7 +18,6 @@ public class CleonSideGrabberTest extends OpMode {
 
 
     CleonBot bot;
-    boolean taskComplete;
     @Override
     public void init() {
         try {
@@ -36,35 +35,40 @@ public class CleonSideGrabberTest extends OpMode {
             }
         }
 
-        taskComplete = false;
+
     }
 
     @Override
     public void loop() {
-
+        // Front servo
         if (gamepad1.dpad_up) {
-            bot.backSideGrabber.moveUp();
-            telemetry.addLine("Current Function: moveUp");
-            taskComplete = false;
-        }
-        if (gamepad1.dpad_right) {
-            bot.backSideGrabber.moveDownGrab();
-            telemetry.addLine("Current Function: moveDown");
-        }
-        if (gamepad1.left_bumper) {
-            bot.backSideGrabber.openGrabber();
-            telemetry.addLine("Current Function: openGrabber");
-        }
-        if (gamepad1.right_bumper) {
-            bot.backSideGrabber.closeGrabber();
-            telemetry.addLine("Current Function: closeGrabber");
-        }
-        if (gamepad1.a) {
-            bot.backSideGrabber.holdBlockPos();
-            telemetry.addLine("Current Function: holdBlockPos");
+            bot.frontSideGrabber.grabberServo.setPosition(bot.frontSideGrabber.grabberServo.getPosition() + .1);
+        } else if (gamepad1.dpad_down) {
+            bot.frontSideGrabber.grabberServo.setPosition(bot.frontSideGrabber.grabberServo.getPosition() - .1);
         }
 
-        telemetry.addData("grab servo value", bot.backSideGrabber.grabberServo.getPosition());
-        telemetry.addData("rotate servo value", bot.backSideGrabber.rotateServo.getPosition());
+        if (gamepad1.right_bumper) {
+            bot.frontSideGrabber.rotateServo.setPosition(bot.frontSideGrabber.rotateServo.getPosition() + .1);
+        } else if (gamepad1.left_bumper) {
+            bot.frontSideGrabber.rotateServo.setPosition(bot.frontSideGrabber.rotateServo.getPosition() - .1);
+        }
+
+        // Back Servo
+        if (gamepad2.dpad_up) {
+            bot.backSideGrabber.grabberServo.setPosition(bot.backSideGrabber.grabberServo.getPosition() + .1);
+        } else if (gamepad2.dpad_down) {
+            bot.backSideGrabber.grabberServo.setPosition(bot.backSideGrabber.grabberServo.getPosition() - .1);
+        }
+
+        if (gamepad2.right_bumper) {
+            bot.backSideGrabber.rotateServo.setPosition(bot.backSideGrabber.rotateServo.getPosition() + .1);
+        } else if (gamepad2.left_bumper) {
+            bot.backSideGrabber.rotateServo.setPosition(bot.backSideGrabber.rotateServo.getPosition() - .1);
+        }
+
+        telemetry.addLine("Front Servo Rotate:\t" + bot.frontSideGrabber.rotateServo.getPosition());
+        telemetry.addLine("Front Servo Grabber:\t" + bot.frontSideGrabber.rotateServo.getPosition());
+        telemetry.addLine("\nBack Servo Rotate:\t" + bot.backSideGrabber.rotateServo.getPosition());
+        telemetry.addLine("Back Servo Grabber:\t" + bot.backSideGrabber.rotateServo.getPosition());
     }
 }

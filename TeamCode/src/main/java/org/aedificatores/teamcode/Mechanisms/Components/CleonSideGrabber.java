@@ -4,9 +4,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class CleonSideGrabber {
-    enum AutoGetBlockState{
-
-    }
 
     private String grabMapName;
     private String rotateMapName;
@@ -21,7 +18,6 @@ public class CleonSideGrabber {
 
     private final double POSITION_SERVO_INC = .02;
 
-    private AutoGetBlockState autoGetBlockState;
     private long resetTime;
     private long currentTime;
     public Servo grabberServo;
