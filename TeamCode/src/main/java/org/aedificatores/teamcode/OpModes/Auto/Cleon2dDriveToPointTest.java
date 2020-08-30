@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.OpModes.Auto;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -12,6 +13,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+@Disabled
 @Autonomous(name = "Cleon 2D Drive To Point Test")
 public class Cleon2dDriveToPointTest extends OpMode {
 

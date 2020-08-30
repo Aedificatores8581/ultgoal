@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.CleonBot;
 import org.aedificatores.teamcode.Universal.Math.PIDController;
-import org.aedificatores.teamcode.Universal.Math.Vector2;
+import org.aedificatores.teamcode.Universal.UniversalFunctions;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -16,33 +16,69 @@ import java.io.IOException;
 public class CleonFarPark extends OpMode {
 
     enum AutoState {
+        WAIT,
         FORE,
         STRAFE,
         STOP,
     }
 
-    enum Alliance {BLUE, RED}
-    enum Position {BUILD_AREA, LOAD_AREA}
+    enum Alliance {
+        BLUE(-1.0),
+        RED(1.0);
 
-    private static final double SPEED = .7;
+        private double strafeMultiplier;
 
-    enum TurnDirection {
-        LEFT(-.3),
-        RIGHT(.3);
-
-        private double speed;
-        TurnDirection(double s) {
-            speed = s;
+        Alliance(double strafeMultiplier) {
+            this.strafeMultiplier = strafeMultiplier;
         }
 
-        public double getSpeed() {
-            return speed;
+        public double getStrafeMultiplier() {
+            return strafeMultiplier;
         }
     }
 
+    enum ParkPosition {
+        NEAR(0.0),
+        FAR(25.0);
+
+        private double foreDistance;
+
+
+        ParkPosition(double foreDistance) {
+            this.foreDistance = foreDistance;
+        }
+
+        public double getForeDistance() {
+            return foreDistance;
+        }
+    }
+
+    enum StartPosition {
+        BUILD_AREA(-1.0),
+        LOAD_AREA(1.0);
+
+        private double strafeMultiplier;
+
+        StartPosition(double strafeMultiplier) {
+            this.strafeMultiplier = strafeMultiplier;
+        }
+
+        public double getStrafeMultiplier() {
+            return strafeMultiplier;
+        }
+
+    }
+
+    private static final double SPEED = .7;
+
     AutoState autoState;
     Alliance alliance;
-    Position position;
+    StartPosition startPosition;
+    ParkPosition parkPosition;
+
+    private double strafeMult;
+
+    private double wait;
 
     PIDController drivePID;
     static final double KP = .14;
@@ -55,15 +91,15 @@ public class CleonFarPark extends OpMode {
     @Override
     public void init() {
         try {
-            bot = new CleonBot(hardwareMap, false);
+            bot = new CleonBot(hardwareMap, true);
         } catch (IOException | JSONException e) {
             Log.e("Cleon FAR PARK",e.getMessage());
             requestOpModeStop();
         }
-        autoState = AutoState.FORE;
+        autoState = AutoState.WAIT;
         alliance = Alliance.RED;
-        position = Position.LOAD_AREA;
-        drivePID = new PIDController(KP, KI, KD, DELTA_TIME);
+        startPosition = StartPosition.LOAD_AREA;
+        parkPosition = ParkPosition.NEAR;
 
         bot.foundationGrabber.open();
 
@@ -78,74 +114,63 @@ public class CleonFarPark extends OpMode {
             alliance = Alliance.RED;
         }
         if (gamepad1.x) {
-            position = Position.LOAD_AREA;
+            startPosition = StartPosition.LOAD_AREA;
         }
         if (gamepad1.y) {
-            position = Position.BUILD_AREA;
+            startPosition = StartPosition.BUILD_AREA;
+        }
+        if (gamepad1.dpad_up) {
+            parkPosition = ParkPosition.FAR;
+        }
+        if (gamepad1.dpad_down) {
+            parkPosition = ParkPosition.NEAR;
         }
 
-        telemetry.addData("Alliance", alliance);
-        telemetry.addData("Position", position);
+        wait = UniversalFunctions.clamp(0.0, wait + .2 * gamepad1.left_stick_y, 30.0);
+
+        telemetry.addData("Alliance (a/b)", alliance);
+        telemetry.addData("Start Position (x/y)", startPosition);
+        telemetry.addData("Park Position (bumpers)", parkPosition);
+
+        telemetry.addData("Wait",wait);
     }
 
     @Override
     public void start() {
-        bot.grabber.init();
         bot.drivetrain.resetMotorEncoders();
         resetStartTime();
+        strafeMult = startPosition.getStrafeMultiplier() * alliance.getStrafeMultiplier();
+        bot.frontSideGrabber.holdBlockPos();
+        bot.backSideGrabber.holdBlockPos();
     }
 
     @Override
     public void loop() {
         switch (autoState) {
+            case WAIT:
+                if (getRuntime() > wait) {
+                    autoState = AutoState.FORE;
+                }
+                break;
             case FORE:
-                if (drive(new Vector2(0, -SPEED), 24, 2)) {
+                if (bot.driveForePID(parkPosition.getForeDistance(), 0)) {
                     autoState = AutoState.STRAFE;
                 }
                 break;
             case STRAFE:
-                if (drive(new Vector2(SPEED,0.0), 20, 2)) {
+                if (bot.driveStrafePID(strafeMult * 12, 0)) {
                     autoState = AutoState.STOP;
                 }
                 break;
             case STOP:
+                bot.frontSideGrabber.moveUp();
+                bot.backSideGrabber.moveUp();
                 break;
         }
 
         bot.updateRobotPosition2d();
         bot.setRobotAngle();
         bot.drivetrain.refreshMotors();
-    }
-
-    private boolean drive(Vector2 velocity, double inches, double timer) {
-        Vector2 v = new Vector2(velocity);
-        if (alliance == Alliance.BLUE) {
-            v.x = -v.x;
-        }
-
-        if (position == Position.BUILD_AREA) {
-            v.x = -v.x;
-        }
-
-        double distance = Math.sqrt(Math.pow(bot.getLeftForeDistanceInches(), 2) + Math.pow(bot.getStrafeDistanceInches(), 2));
-
-        drivePID.error = inches - distance;
-        drivePID.idealLoop();
-        v.scalarMultiply(drivePID.currentOutput);
-        v.x = (Math.abs(v.x) > SPEED) ? SPEED * Math.signum(v.x) : v.x;
-        v.y = (Math.abs(v.y) > SPEED) ? SPEED * Math.signum(v.y) : v.y;
-        bot.drivetrain.setVelocity(v);
-        // bot.drivetrain.setVelocity(v);
-
-
-        if (Math.abs(distance) > inches || getRuntime() > timer) {
-            bot.drivetrain.setVelocity(new Vector2(0,0));
-            bot.drivetrain.refreshMotors();
-            resetStartTime();
-            bot.drivetrain.resetMotorEncoders();
-            return true;
-        }
-        return false;
     }
 }
 

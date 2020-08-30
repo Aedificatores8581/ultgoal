@@ -23,6 +23,7 @@ public class CleonBotFoundationBlue extends OpMode {
         RELEASE_FOUNDATION("release foundation"),
         BACK_AROUND_FOUNDATION("back around foundation"),
         STRAFE_AROUND_FOUNDATION("strafe around foundation"),
+        BUMP_FOUNDATION("bump foundation"),
         PARK("park"),
         STOP("stop");
 
@@ -103,7 +104,7 @@ public class CleonBotFoundationBlue extends OpMode {
     public void loop() {
         switch (autoState){
             case FORE:
-                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 13, 3000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 20, 3000)) {
                     autoState = AutoState.STRAFE_TO_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -125,7 +126,7 @@ public class CleonBotFoundationBlue extends OpMode {
                 }
                 break;
             case DRAG_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_LEFT,0,50, 5000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_LEFT,0,1000, 5000)) {
                     autoState = AutoState.RELEASE_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -140,7 +141,7 @@ public class CleonBotFoundationBlue extends OpMode {
                 }
                 break;
             case BACK_AROUND_FOUNDATION:
-                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 35, 3000)) {
+                if (bot.drivePID(CleonBot.DriveVecConstants.BACK,0, 25, 3000)) {
                     autoState = AutoState.STRAFE_AROUND_FOUNDATION;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
@@ -148,6 +149,13 @@ public class CleonBotFoundationBlue extends OpMode {
                 break;
             case STRAFE_AROUND_FOUNDATION:
                 if (bot.drivePID(CleonBot.DriveVecConstants.STRAFE_RIGHT,0, parkPosition.dist, 3000)) {
+                    autoState = AutoState.BUMP_FOUNDATION;
+                    Log.i(TAG, String.valueOf(autoState));
+                    resetStartTime();
+                }
+                break;
+            case BUMP_FOUNDATION:
+                if (bot.drivePID(CleonBot.DriveVecConstants.FORE,0, 20, 2000)) {
                     autoState = AutoState.PARK;
                     Log.i(TAG, String.valueOf(autoState));
                     resetStartTime();
