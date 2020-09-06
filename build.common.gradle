@@ -69,6 +69,11 @@ android {
         //
         versionCode vCode
         versionName vName
+
+        // required by roadrunner. The default reference limit for apk's is 65536 references because
+        // of some backwards compatibility shenanigans I think
+        // multidex increases this.
+        multiDexEnabled true
     }
 
     // Advanced user code might just want to use Vuforia directly, so we set up the libs as needed
