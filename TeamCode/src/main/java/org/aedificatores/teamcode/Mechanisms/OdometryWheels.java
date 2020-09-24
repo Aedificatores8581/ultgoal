@@ -7,26 +7,27 @@ public class OdometryWheels {
     public double encPerInch;
 
     //the angles are the angles of the motors, not their wheels
-    public Pose wheel1;
-    public Pose wheel2;
-    public Pose wheel3;
+    public Pose rightWheel;
+    public Pose leftWheel;
+    public Pose strafeWheel;
 
-    public OdometryWheels(Pose p1, Pose p2, Pose p3) {
-        wheel1 = p1;
-        wheel2 = p2;
-        wheel3 = p3;
+    public OdometryWheels(Pose p1, Pose p2, Pose p3, double encPerInch) {
+        rightWheel = p1;
+        leftWheel = p2;
+        strafeWheel = p3;
+        this.encPerInch = encPerInch;
     }
 
     public Pose standardPositionTrack(Pose currentPos, double x/*read3*/, double l/*read2*/, double r/*read1*/) {
-        double diff1 = Math.cos(wheel1.angleOfVector() - wheel1.angle),
-                diff2 = Math.cos(wheel2.angleOfVector() - wheel2.angle),
-                diff3 = Math.cos(wheel3.angleOfVector() - wheel3.angle),
-                xDiff = wheel1.radius() / wheel2.radius(),
-                angle = (r / diff1 - l / diff2 * xDiff) / ((wheel1.radius() * 2) * encPerInch);
+        double rightDiff = Math.cos(rightWheel.angleOfVector() - rightWheel.angle),
+                leftDiff = Math.cos(leftWheel.angleOfVector() - leftWheel.angle),
+                strafeDiff = Math.cos(strafeWheel.angleOfVector() - strafeWheel.angle),
+                xDiff = rightWheel.radius() / leftWheel.radius(),
+                angle = (r / rightDiff - l / leftDiff * xDiff) / ((rightWheel.radius() * 2) * encPerInch);
 
-        x -= angle * wheel3.radius() * diff3;
-        r -= angle * wheel1.radius() * diff1;
-        l -= angle * wheel2.radius() * diff2;
+        x -= angle * strafeWheel.radius() * strafeDiff;
+        r -= angle * rightWheel.radius() * rightDiff;
+        l -= angle * leftWheel.radius() * leftDiff;
 
         //assuming the calculations were done correctly, l and r should now be equal
         Vector2 velocity = new Vector2(x, l);

@@ -1,15 +1,18 @@
 package org.aedificatores.teamcode.OpModes.Auto.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
 
-class SawronBotEncoderTest extends OpMode {
+@TeleOp(name = "SawronOdomEncoderTest")
+public class SawronBotEncoderTest extends OpMode {
     SawronBot bot;
 
     @Override
     public void init() {
         bot = new SawronBot(hardwareMap);
+        bot.init();
     }
 
     @Override
