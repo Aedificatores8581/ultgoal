@@ -19,5 +19,8 @@ public class SawronBotEncoderTest extends OpMode {
     public void loop() {
         bot.updateOdometry();
         telemetry.addData("Bot Position", bot.robotPosition.toString());
+        telemetry.addData("Strafe (in)",bot.getStrafeOdomPosition());
+        telemetry.addData("Left (in)",bot.getLeftOdomPosition());
+        telemetry.addData("Right (in)",bot.getRightOdomPosition());
     }
 }

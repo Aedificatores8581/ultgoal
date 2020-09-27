@@ -1,5 +1,7 @@
 package org.aedificatores.teamcode.Universal.Math;
 
+import java.util.Locale;
+
 public class Pose {
 	public double x, y, angle;
 
@@ -45,7 +47,13 @@ public class Pose {
 		return new Pose(x, y, angle);
 	}
 
-	public String toString() {
+	public String toStringNoFormat() {
 		return "Pose(" + x + ", " + y + ", " + angle + ")";
+	}
+
+	public String toString() {
+		return "Pose(" + String.format(Locale.US,"%.2f", x) + ", "
+				+ String.format(Locale.US,"%.2f", y) + ", "
+				+ String.format(Locale.US,"%.2f",angle) + ")";
 	}
 }

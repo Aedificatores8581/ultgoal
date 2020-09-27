@@ -15,11 +15,11 @@ public class SawronBot {
     private static final String LR = "Rear Left";
 
     // ENC_PER_INCH is wheel circumference / enc ticks per inch
-    public final double ENC_PER_INCH = 11.1316365 / 8192;
+    public final double INCH_PER_ENC = 11.1316365 / 8192;
     public final int FRONT_ENC = 0, RIGHT_ENC = 1, LEFT_ENC = 2;
-    public final Pose WHEEL_POSITIONS[] = {new Pose(0, 5.875),
-            new Pose(7.25, 0),
-            new Pose(-7.25, -1.125)};
+    public final Pose WHEEL_POSITIONS[] = {new Pose(0, 5.875, Math.PI/2), // FRONT (Strafe) Encoder
+            new Pose(7.25, 0, 0), // Right Encoder
+            new Pose(-7.25, -1.125, 0)}; // Left Encoder
 
     private double prevStrafeWheelPos = 0;
     private double prevLeftWheelPos = 0;
@@ -32,7 +32,7 @@ public class SawronBot {
     public SawronBot(HardwareMap map) {
         drivetrain = new Mechanum(map, RF, LF, LR, RR);
         odometryWheels = new OdometryWheels(WHEEL_POSITIONS[RIGHT_ENC],
-                WHEEL_POSITIONS[LEFT_ENC], WHEEL_POSITIONS[FRONT_ENC], ENC_PER_INCH);
+                WHEEL_POSITIONS[LEFT_ENC], WHEEL_POSITIONS[FRONT_ENC], 1/INCH_PER_ENC);
         robotPosition = new Pose();
     }
 
@@ -54,15 +54,15 @@ public class SawronBot {
 
 
     public double getStrafeOdomPosition() {
-        return drivetrain.rightFore.getCurrentPosition() * ENC_PER_INCH;
+        return drivetrain.rightFore.getCurrentPosition() * INCH_PER_ENC;
     }
 
     public double getLeftOdomPosition() {
-        return drivetrain.leftFore.getCurrentPosition() * ENC_PER_INCH;
+        return drivetrain.leftFore.getCurrentPosition() * INCH_PER_ENC;
     }
 
     public double getRightOdomPosition() {
-        return drivetrain.leftRear.getCurrentPosition() * ENC_PER_INCH;
+        return drivetrain.leftRear.getCurrentPosition() * INCH_PER_ENC;
     }
 
     public void updateOdometry() {
