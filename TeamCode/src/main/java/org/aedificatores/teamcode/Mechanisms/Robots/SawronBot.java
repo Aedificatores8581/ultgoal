@@ -3,7 +3,7 @@ package org.aedificatores.teamcode.Mechanisms.Robots;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mechanum;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mecanum;
 import org.aedificatores.teamcode.Mechanisms.OdometryWheels;
 import org.aedificatores.teamcode.Universal.Math.Pose;
 
@@ -26,52 +26,14 @@ public class SawronBot {
     private double prevRightWheelPos = 0;
 
     private OdometryWheels odometryWheels;
-    Mechanum drivetrain;
+    Mecanum drivetrain;
     public Pose robotPosition;
 
     public SawronBot(HardwareMap map) {
-        drivetrain = new Mechanum(map, RF, LF, LR, RR);
+        drivetrain = new Mecanum(map);
         odometryWheels = new OdometryWheels(WHEEL_POSITIONS[RIGHT_ENC],
                 WHEEL_POSITIONS[LEFT_ENC], WHEEL_POSITIONS[FRONT_ENC], 1/INCH_PER_ENC);
         robotPosition = new Pose();
     }
 
-    // You may be wondering why we have an init method and a SawronBot constructor.
-    // The reasoning is the constructor concerns only actions relating to the construction of
-    // a SawronBot object (i.e. setting robot position to zero).
-    //
-    // The init method concerns mostly with initializing the hardware of the robot (i.e. setting the
-    // starting positions for certain servos, setting motor modes, etc.).
-    // Maybe we should have a better name than 'init'
-
-    // TODO: More descriptive name than "init?"
-    public void init() {
-        drivetrain.leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drivetrain.leftFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drivetrain.rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drivetrain.rightFore.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-
-    public double getStrafeOdomPosition() {
-        return drivetrain.rightFore.getCurrentPosition() * INCH_PER_ENC;
-    }
-
-    public double getLeftOdomPosition() {
-        return drivetrain.leftFore.getCurrentPosition() * INCH_PER_ENC;
-    }
-
-    public double getRightOdomPosition() {
-        return drivetrain.leftRear.getCurrentPosition() * INCH_PER_ENC;
-    }
-
-    public void updateOdometry() {
-        robotPosition = odometryWheels.standardPositionTrack(robotPosition,
-                getStrafeOdomPosition() - prevStrafeWheelPos,
-                getLeftOdomPosition() - prevLeftWheelPos,
-                getRightOdomPosition() - prevRightWheelPos);
-        prevStrafeWheelPos = getStrafeOdomPosition();
-        prevLeftWheelPos = getLeftOdomPosition();
-        prevRightWheelPos = getRightOdomPosition();
-    }
 }
