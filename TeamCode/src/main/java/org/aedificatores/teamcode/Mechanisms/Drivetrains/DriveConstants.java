@@ -7,8 +7,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 @Config
 public class DriveConstants {
     // These are for the GoBuilda 5202-0002-0014 motors on the drivetrain
-    public static double TICKS_PER_REV = 383.6;
-    public static double MAX_RPM = 435;
+    public static final double TICKS_PER_REV = 383.6;
+    public static final double MAX_RPM = 435;
 
     /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -19,8 +19,8 @@ public class DriveConstants {
      * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
      * Set the value of MOTOR_VELO_PID to `new PIDCoefficients(kP, kI, kD);`
      */
-    public static boolean RUN_USING_ENCODER = false;
-    public static PIDCoefficients MOTOR_VELO_PID = null;
+    public static final boolean RUN_USING_ENCODER = false;
+    public static final PIDCoefficients MOTOR_VELO_PID = null;
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -40,8 +40,8 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
+    public static double kV = 0.022575; // 1.0 / rpmToVelocity(MAX_RPM)
+    public static double kA = 0.004;
     public static double kStatic = 0;
 
     /*
@@ -53,20 +53,20 @@ public class DriveConstants {
      * forces acceleration-limited profiling). All distance units are inches.
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            90, 90, 0.0,
+            34.4, 34.4, 0.0,
             Math.toRadians(360), Math.toRadians(360), 0.0
     );
 
 
-    public static double encoderTicksToInches(double ticks) {
+    public static final double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
     }
 
-    public static double rpmToVelocity(double rpm) {
+    public static final double rpmToVelocity(double rpm) {
         return rpm * GEAR_RATIO * 2 * Math.PI * WHEEL_RADIUS / 60.0;
     }
 
-    public static double getMotorVelocityF() {
+    public static final double getMotorVelocityF() {
         return 32767 * 60.0 / (MAX_RPM * TICKS_PER_REV);
     }
 }

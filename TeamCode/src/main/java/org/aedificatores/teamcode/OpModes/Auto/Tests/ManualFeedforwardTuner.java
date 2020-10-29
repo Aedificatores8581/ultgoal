@@ -94,6 +94,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         MotionProfile activeProfile = generateProfile(true);
         double profileStart = clock.seconds();
 
+        Pose2d poseVelo;
+        double currentVelo;
 
         while (!isStopRequested()) {
             telemetry.addData("mode", mode);
@@ -120,8 +122,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
                     drive.setDrivePower(new Pose2d(targetPower, 0, 0));
                     drive.updatePoseEstimate();
 
-                    Pose2d poseVelo = Objects.requireNonNull(drive.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
-                    double currentVelo = poseVelo.getX();
+                    poseVelo = Objects.requireNonNull(drive.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+                    currentVelo = poseVelo.getX();
 
                     // update telemetry
                     telemetry.addData("targetVelocity", motionState.getV());
@@ -143,6 +145,10 @@ public class ManualFeedforwardTuner extends LinearOpMode {
                                     -gamepad1.right_stick_x
                             )
                     );
+                    drive.updatePoseEstimate();
+                    poseVelo = Objects.requireNonNull(drive.getPoseVelocity(), "poseVelocity() must not be null. Ensure that the getWheelVelocities() method has been overridden in your localizer.");
+                    currentVelo = poseVelo.getX();
+                    telemetry.addData("poseVelocity", currentVelo);
                     break;
             }
 
