@@ -36,8 +36,8 @@ public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 1.772; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 14.5; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = -5.25; // in; offset of the lateral wheel
+    public static double LATERAL_DISTANCE = -14.25; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = -5.20; // in; offset of the lateral wheel
 
     // frontEncoder is a bit of a misnomer. Probably should have been called backEncoder
     // or strafeEncoder
