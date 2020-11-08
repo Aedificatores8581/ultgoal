@@ -1,6 +1,8 @@
 package org.aedificatores.teamcode.OpModes.Auto.Tests;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,11 +40,21 @@ public class LocalizationTest extends LinearOpMode {
             );
 
             drive.update();
-
             Pose2d poseEstimate = drive.getPoseEstimate();
+            double odomHeading = poseEstimate.getHeading();
+            double imuHeading = drive.getRawExternalHeading();
+
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", poseEstimate.getHeading());
+            telemetry.addData("heading", odomHeading);
+            telemetry.addData("imu", imuHeading);
+            telemetry.addData("imuHeadingError", odomHeading - imuHeading);
+            if (odomHeading != 0.0) {
+                telemetry.addData("imuHeadingErrorRatio", (odomHeading/imuHeading));
+            } else {
+                telemetry.addData("imuHeadingErrorRatio",0);
+            }
+
             telemetry.update();
         }
     }
