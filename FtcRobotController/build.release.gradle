@@ -1,5 +1,5 @@
 dependencies {
-    implementation 'com.acmerobotics.roadrunner:core:0.5.1'
+    implementation 'com.acmerobotics.roadrunner:core:0.5.2'
     implementation 'com.acmerobotics.dashboard:dashboard:0.3.10'
     implementation 'org.firstinspires.ftc:Inspection:6.0.1'
     implementation 'org.firstinspires.ftc:Blocks:6.0.1'
