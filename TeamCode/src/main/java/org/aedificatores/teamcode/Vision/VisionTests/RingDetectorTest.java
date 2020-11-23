@@ -21,13 +21,20 @@ public class RingDetectorTest extends OpMode {
 
     @Override
     public void init() {
-        cam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"));
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        cam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam"), cameraMonitorViewId);
 
-        cam.openCameraDevice();
         pipe = new RingDetector(WIDTH, HEIGHT);
         cam.setPipeline(pipe);
 
-        cam.startStreaming(WIDTH, HEIGHT, OpenCvCameraRotation.UPRIGHT);
+        cam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                cam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
+        });
     }
 
     @Override

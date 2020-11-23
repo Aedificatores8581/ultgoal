@@ -8,21 +8,21 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-enum RingStackType {
-    NONE(0), ONE(190000), QUAD(600000);
-
-    long thresh;
-
-    RingStackType(long thresh) {
-        this.thresh = thresh;
-    }
-
-    public long getThresh() {
-        return thresh;
-    }
-}
-
 public class RingDetector extends OpenCvPipeline {
+    public enum RingStackType {
+        NONE(0), ONE(100000), QUAD(400000);
+
+        long thresh;
+
+        RingStackType(long thresh) {
+            this.thresh = thresh;
+        }
+
+        public long getThresh() {
+            return thresh;
+        }
+    }
+
     private Mat hsvImage;
     private Mat bgrImage;
     private Mat threshold;
@@ -57,7 +57,7 @@ public class RingDetector extends OpenCvPipeline {
 
         colSum = new Mat();
         colSumArray = new int[screenWidth];
-        roi = new Rect(0, 20, 316, 82);
+        roi = new Rect(50, 40, 240, 100);
     }
 
     @Override
