@@ -47,9 +47,9 @@ public class ShooterSubsystem {
 class Lift {
     // TODO Fill Constants
     enum Position {
-        DOWN(0.0),
-        POS_SHOOT_TOP_RING(0.0),
-        POS_SHOOT_MIDDLE_RING(0.0),
+        DOWN(0.8),
+        POS_SHOOT_TOP_RING(0.2),
+        POS_SHOOT_MIDDLE_RING(0.008),
         POS_SHOOT_BOTTOM_RING(0.0);
 
         private double pos;
