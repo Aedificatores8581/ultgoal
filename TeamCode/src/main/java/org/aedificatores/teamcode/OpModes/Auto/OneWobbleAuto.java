@@ -22,19 +22,21 @@ public class OneWobbleAuto extends OpMode {
     enum AutoState {
         DRIVE_TO_DEPOSIT,
         DROP_WOBBLE,
-        DRIVE_BACK_SECOND_WOBBLE,
-        DRIVE_TO_DEPOSIT_SECOND_WOBBLE,
-        DROP_SECOND_WOBBLE
+        PARK,
+        END
     }
 
-    public static Vector2d SIDE_NEAR_POS = new Vector2d(-36.0, 0.0);
+    AutoState state = AutoState.DRIVE_TO_DEPOSIT;
+
+    public static Vector2d SIDE_NEAR_POS = new Vector2d(-36.0, 9.0);
     public static Vector2d SIDE_FAR_POS = new Vector2d(-36.0, -48.0);
     public static Vector2d MIDDLE_POS = new Vector2d(-12.0, -20.0);
+    public static Pose2d PARK_POS = new Pose2d(-12.0, -12.0, -Math.PI/2);
 
     enum WobblePosition {
-        SIDE_NEAR(new Vector2d(-36.0, 0.0)),
-        SIDE_FAR(new Vector2d(-36.0, -48.0)),
-        MIDDLE(new Vector2d(-12.0, -20.0));
+        SIDE_NEAR(SIDE_NEAR_POS),
+        SIDE_FAR(SIDE_FAR_POS),
+        MIDDLE(MIDDLE_POS);
 
         Vector2d pos;
         WobblePosition(Vector2d pos) {
@@ -46,7 +48,8 @@ public class OneWobbleAuto extends OpMode {
     }
 
     SawronBot bot;
-    Trajectory traj;
+    Trajectory trajDeposit;
+    Trajectory trajPark;
     Pose2d startPose = new Pose2d(0.0, 72.0 - 17.0/2.0, Math.PI/2);
     WobblePosition wobblePosition;
 
@@ -71,12 +74,13 @@ public class OneWobbleAuto extends OpMode {
 
         bot = new SawronBot(hardwareMap);
         bot.drivetrain.setPoseEstimate(startPose);
-
+        bot.wobbleGrabber.lift();
     }
 
     @Override
     public void init_loop() {
         telemetry.addData("Ring Stack", pipe.getRingStackType());
+        bot.wobbleGrabber.update();
     }
 
     @Override
@@ -93,18 +97,41 @@ public class OneWobbleAuto extends OpMode {
                 wobblePosition = WobblePosition.SIDE_NEAR;
         }
 
-
-
-        traj = bot.drivetrain.trajectoryBuilder(startPose)
+        trajDeposit = bot.drivetrain.trajectoryBuilder(startPose)
                 .splineToConstantHeading(new Vector2d(6.0, 0.0), Math.PI/2)
                 .splineToConstantHeading(wobblePosition.getPos(),Math.PI/2)
                 .build();
-        bot.drivetrain.followTrajectoryAsync(traj);
+        trajPark = bot.drivetrain.trajectoryBuilder(trajDeposit.end())
+                .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(0.0, 6)), Math.PI/2)
+                .splineToSplineHeading(PARK_POS, 0)
+                .build();
+        bot.drivetrain.followTrajectoryAsync(trajDeposit);
     }
 
     @Override
     public void loop() {
-        bot.drivetrain.update();
+        switch (state) {
+            case DRIVE_TO_DEPOSIT:
+                if (!bot.drivetrain.isBusy()) {
+                    bot.wobbleGrabber.drop();
+                    state = AutoState.DROP_WOBBLE;
+                }
+                break;
+            case DROP_WOBBLE:
+                if (bot.wobbleGrabber.isDown()) {
+                    bot.drivetrain.followTrajectoryAsync(trajPark);
+                    state = AutoState.PARK;
+                }
+                break;
+            case PARK:
+                if (!bot.drivetrain.isBusy()) {
+                    state = AutoState.END;
+                }
+                break;
+            case END:
+                break;
+        }
+        bot.update();
         telemetry.addData("Wobble Position", wobblePosition);
     }
 

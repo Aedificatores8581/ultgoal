@@ -57,7 +57,7 @@ public class RingDetector extends OpenCvPipeline {
 
         colSum = new Mat();
         colSumArray = new int[screenWidth];
-        roi = new Rect(50, 40, 240, 100);
+        roi = new Rect(0, screenHeight/6, screenWidth - 1, 5*screenHeight/12);
     }
 
     @Override

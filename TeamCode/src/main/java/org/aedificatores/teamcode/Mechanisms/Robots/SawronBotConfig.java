@@ -10,7 +10,8 @@ public interface SawronBotConfig {
 
     interface WobbleSub {
         String MOT = "wobble goal grabber";
-        String LIMIT = "wobble limit";
+        String LIMIT_DOWN = "wobble limit down";
+        String LIMIT_UP = "wobble limit up";
         String GATE = "Wobble Goal";
     }
 
