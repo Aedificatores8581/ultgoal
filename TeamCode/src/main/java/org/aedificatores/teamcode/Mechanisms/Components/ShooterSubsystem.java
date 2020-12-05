@@ -3,24 +3,36 @@ package org.aedificatores.teamcode.Mechanisms.Components;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.aedificatores.teamcode.Mechanisms.Sensors.Encoder;
+import org.aedificatores.teamcode.Universal.Taemer;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
 
 import static org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig.ShootSub;
 
 public class ShooterSubsystem {
+    enum State {
+        IDLE,
+        KICKING,
+        MOVING_UP
+    }
+
+    private State state = State.IDLE;
     private Shooter shooter;
+    private Lift lift;
+    private Kicker kicker;
+    Taemer timer;
 
     public ShooterSubsystem(HardwareMap map) {
         shooter = new Shooter(map);
+        kicker = new Kicker(map);
+        lift = new Lift(map);
+        timer = new Taemer();
     }
 
     public void runShooter() {
@@ -29,6 +41,18 @@ public class ShooterSubsystem {
 
     public void stopShooter() {
         shooter.stopShooter();
+    }
+
+    public void toggleShooter() {
+        shooter.toggleShooter();
+    }
+
+    public void advance() {
+        if (state == State.IDLE) {
+            state = State.KICKING;
+            kicker.kick();
+            timer.resetTime();
+        }
     }
 
     public double getTargetShooterVelocity() {
@@ -40,25 +64,48 @@ public class ShooterSubsystem {
     }
 
     public void update() {
+        switch (state) {
+            case IDLE:
+                break;
+            case KICKING:
+                if (kicker.idle()) {
+                    timer.resetTime();
+                    state = State.MOVING_UP;
+                    lift.gotoNextPosition();
+                }
+                break;
+            case MOVING_UP:
+                if (timer.getTime() > 300) {
+                    state = State.IDLE;
+                }
+                break;
+        }
+
         shooter.update();
+        lift.update();
+        kicker.update();
     }
 }
 
 class Lift {
-    // TODO Fill Constants
     enum Position {
-        DOWN(0.8),
-        POS_SHOOT_TOP_RING(0.2),
-        POS_SHOOT_MIDDLE_RING(0.008),
+        DOWN(0.87),
+        POS_SHOOT_TOP_RING(0.23),
+        POS_SHOOT_MIDDLE_RING(0.15),
         POS_SHOOT_BOTTOM_RING(0.0);
 
         private double pos;
+        private static Position[] val = values();
         Position(double pos) {
             this.pos = pos;
         }
 
         public double getPos() {
             return pos;
+        }
+
+        public Position next() {
+            return val[(this.ordinal() + 1) % val.length];
         }
     }
 
@@ -74,39 +121,103 @@ class Lift {
         this.position = position;
     }
 
+    public void gotoNextPosition() {
+        position = position.next();
+    }
+
     void update() {
         servo.setPosition(position.getPos());
     }
 }
 
+class Kicker {
+    enum State {
+        IDLE(.2),
+        KICK_FORE(0.0),
+        KICK_BACK(0.2);
+
+        private double pos;
+
+        State(double pos) {
+            this.pos = pos;
+        }
+
+        public double getPos() {
+            return pos;
+        }
+    }
+
+    Servo servo;
+    State state = State.IDLE;
+    Taemer timer;
+
+    Kicker(HardwareMap map) {
+        servo = map.servo.get(ShootSub.KICK_SERV);
+        timer = new Taemer();
+        timer.resetTime();
+    }
+
+    void update() {
+        switch (state){
+            case KICK_FORE:
+                if (timer.getTime() > 300) {
+                    state = State.KICK_BACK;
+                    timer.resetTime();
+                }
+                break;
+            case KICK_BACK:
+                if (timer.getTime() > 300) {
+                    state = State.IDLE;
+                    timer.resetTime();
+                }
+                break;
+        }
+
+        servo.setPosition(state.getPos());
+    }
+
+    boolean idle() {
+        return state == State.IDLE;
+    }
+
+    void kick() {
+        state = State.KICK_FORE;
+        timer.resetTime();
+    }
+}
+
 @Config
 class Shooter {
-    final double targetShootingSpeed = 0.0; // TODO FIND
-    final double WHEEL_RADIUS = 1.875;
     public static double MAX_RPM = 4000;
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
-    Encoder encoder;
     public static PIDFCoefficients velocityPIDCoeff = new PIDFCoefficients(0.0, 0.0, 0.0,0.0);
     boolean runningMotor = false;
-    long baseTime;
-
+    Taemer timer;
     Shooter(HardwareMap map) {
         actuator = map.get(DcMotorEx.class, ShootSub.SHOOT_MOT);
         actuator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         actuator.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, velocityPIDCoeff);
-        encoder = new Encoder(actuator);
-        resetTime();
+        timer = new Taemer();
+        timer.resetTime();
     }
 
     void runShooter() {
         runningMotor = true;
-        resetTime();
+        timer.resetTime();
     }
 
     void stopShooter() {
         runningMotor = false;
+    }
+
+    void toggleShooter() {
+        if (runningMotor) {
+            stopShooter();
+        } else {
+            runShooter();
+        }
     }
 
     void update () {
@@ -120,25 +231,18 @@ class Shooter {
 
     // Hacky Motion Profile :( (returns in radians/second)
     double getTargetVelFromTime() {
-        long time = getTime();
+        long time = timer.getTime();
         if (time < SPEED_UP_TIME) {
-            return time * MAX_RPM/SPEED_UP_TIME * 2 * Math.PI / 60;
+            return -time * MAX_RPM/SPEED_UP_TIME * 2 * Math.PI / 60;
         } else {
-            return MAX_RPM * 2 * Math.PI / 60;
+            return -MAX_RPM * 2 * Math.PI / 60;
         }
     }
 
     double getActualVelocity() {
-        return -actuator.getVelocity(AngleUnit.RADIANS);
+        return actuator.getVelocity(AngleUnit.RADIANS);
     }
 
-    long getTime() {
-        return System.currentTimeMillis() - baseTime;
-    }
-
-    void resetTime() {
-        baseTime = System.currentTimeMillis();
-    }
 }
 
 class Intake {

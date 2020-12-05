@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import static org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig.WobbleSub;
 import org.aedificatores.teamcode.Mechanisms.Sensors.MagneticLimitSwitch;
+import org.aedificatores.teamcode.Universal.Taemer;
 
 public class WobbleGrabber {
     enum State {
@@ -30,8 +31,8 @@ public class WobbleGrabber {
     DcMotorEx lift;
     MagneticLimitSwitch limitSwitchDown, limitSwitchUp;
     Servo gate;
-    long startTime;
     State state;
+    Taemer timer;
 
     public WobbleGrabber(HardwareMap map) {
         limitSwitchDown = new MagneticLimitSwitch();
@@ -42,6 +43,7 @@ public class WobbleGrabber {
         limitSwitchUp.init(map, WobbleSub.LIMIT_UP);
         gate = map.servo.get(WobbleSub.GATE);
         state = State.IDLE_UP;
+        timer = new Taemer();
     }
 
     public void init() {
@@ -51,7 +53,7 @@ public class WobbleGrabber {
 
     public void drop() {
         state = State.MOVE_DOWN;
-        resetTime();
+        timer.resetTime();
     }
 
     public boolean isUp() {
@@ -62,32 +64,25 @@ public class WobbleGrabber {
         return state == State.IDLE_DOWN;
     }
 
-    private void resetTime() {
-        startTime = System.currentTimeMillis();
-    }
-
-    private long getTime() {
-        return System.currentTimeMillis() - startTime;
-    }
-
     public void lift() {
         state = State.INITIATE_LIFT;
-        resetTime();
+        timer.resetTime();
     }
 
     public void update() {
         switch (state) {
             case INITIATE_LIFT:
                 gate.setPosition(CLOSED_POSITION);
-                if (getTime() > 400) {
-                    resetTime();
+                if (timer.getTime() > 400) {
+                    timer.resetTime();
                     state = State.MOVE_UP;
                 }
                 break;
 
             case MOVE_UP:
                 lift.setPower(POWER);
-                if (limitSwitchUp.isActive() && getTime() > 400) {
+                if (limitSwitchUp.isActive() && timer.getTime() > 400) {
+                    timer.resetTime();
                     state = State.IDLE_UP;
                     lift.setPower(0.0);
                 }
@@ -95,7 +90,8 @@ public class WobbleGrabber {
 
             case MOVE_DOWN:
                 lift.setPower(-POWER);
-                if (limitSwitchDown.isActive() && getTime() > 400) {
+                if (limitSwitchDown.isActive() && timer.getTime() > 400) {
+                    timer.resetTime();
                     state = State.RELEASE_WOBBLE;
                     lift.setPower(0.0);
                 }
@@ -103,8 +99,8 @@ public class WobbleGrabber {
 
             case RELEASE_WOBBLE:
                 gate.setPosition(OPEN_POSITION);
-                if (getTime() > 400) {
-                    resetTime();
+                if (timer.getTime() > 400) {
+                    timer.resetTime();
                     state = State.IDLE_DOWN;
                 }
                 break;
