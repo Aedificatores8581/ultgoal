@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.Mechanisms.Components;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -26,7 +27,8 @@ public class ShooterSubsystem {
     private Shooter shooter;
     private Lift lift;
     private Kicker kicker;
-    Taemer timer;
+    private Taemer timer;
+    private int advancedCounter = 0;
 
     public ShooterSubsystem(HardwareMap map) {
         shooter = new Shooter(map);
@@ -52,7 +54,12 @@ public class ShooterSubsystem {
             state = State.KICKING;
             kicker.kick();
             timer.resetTime();
+            advancedCounter++;
         }
+    }
+
+    public boolean shotAllThree() {
+        return advancedCounter == 4 && state == State.IDLE;
     }
 
     public double getTargetShooterVelocity() {
@@ -75,7 +82,7 @@ public class ShooterSubsystem {
                 }
                 break;
             case MOVING_UP:
-                if (timer.getTime() > 300) {
+                if (timer.getTime() > 1000) {
                     state = State.IDLE;
                 }
                 break;
@@ -91,7 +98,7 @@ class Lift {
     enum Position {
         DOWN(0.87),
         POS_SHOOT_TOP_RING(0.23),
-        POS_SHOOT_MIDDLE_RING(0.15),
+        POS_SHOOT_MIDDLE_RING(0.13),
         POS_SHOOT_BOTTOM_RING(0.0);
 
         private double pos;
@@ -123,6 +130,10 @@ class Lift {
 
     public void gotoNextPosition() {
         position = position.next();
+    }
+
+    public Position getNextPosition() {
+        return position.next();
     }
 
     void update() {
@@ -192,12 +203,13 @@ class Shooter {
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
-    public static PIDFCoefficients velocityPIDCoeff = new PIDFCoefficients(0.0, 0.0, 0.0,0.0);
+    public static PIDFCoefficients velocityPIDCoeff = new PIDFCoefficients(-200, 0.0, 0.0,0.0);
     boolean runningMotor = false;
     Taemer timer;
     Shooter(HardwareMap map) {
         actuator = map.get(DcMotorEx.class, ShootSub.SHOOT_MOT);
         actuator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        actuator.setDirection(DcMotorSimple.Direction.FORWARD);
         actuator.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, velocityPIDCoeff);
         timer = new Taemer();
         timer.resetTime();

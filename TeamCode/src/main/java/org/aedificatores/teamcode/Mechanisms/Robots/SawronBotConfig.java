@@ -13,6 +13,7 @@ public interface SawronBotConfig {
         String LIMIT_DOWN = "wobble limit down";
         String LIMIT_UP = "wobble limit up";
         String GATE = "Wobble Goal";
+        String PULL = "wobble puller";
     }
 
     interface ShootSub {

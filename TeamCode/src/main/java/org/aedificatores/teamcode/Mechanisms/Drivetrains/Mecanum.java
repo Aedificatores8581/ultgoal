@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.LynxModuleUtil;
 import org.aedificatores.teamcode.Mechanisms.Components.ThreeWheelOdometryLocalizer;
+import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
 import org.aedificatores.teamcode.Mechanisms.Sensors.BNO055IMUUtil;
 import org.aedificatores.teamcode.Universal.AxesSigns;
 import org.aedificatores.teamcode.Universal.DashboardUtil;
@@ -71,10 +73,10 @@ public class Mecanum extends MecanumDrive {
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
 
-    private static final String RF = "Front Right";
-    private static final String LF = "Front Left";
-    private static final String RR = "Rear Right";
-    private static final String LR = "Rear Left";
+    private static final String RF = SawronBotConfig.DT.RF;
+    private static final String LF = SawronBotConfig.DT.LF;
+    private static final String RR = SawronBotConfig.DT.RR;
+    private static final String LR = SawronBotConfig.DT.LR;
 
     public enum Mode {
         IDLE,
@@ -105,8 +107,8 @@ public class Mecanum extends MecanumDrive {
     public Mecanum(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
-        dashboard = FtcDashboard.getInstance();
-        dashboard.setTelemetryTransmissionInterval(25);
+        // dashboard = FtcDashboard.getInstance();
+        // dashboard.setTelemetryTransmissionInterval(25);
 
         clock = NanoClock.system();
 
@@ -303,7 +305,7 @@ public class Mecanum extends MecanumDrive {
         fieldOverlay.setStroke("#3F51B5");
         DashboardUtil.drawRobot(fieldOverlay, currentPose);
 
-        dashboard.sendTelemetryPacket(packet);
+        // dashboard.sendTelemetryPacket(packet);
     }
 
     public void waitForIdle() {

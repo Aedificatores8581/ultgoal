@@ -5,14 +5,17 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.exception.RobotCoreException;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.aedificatores.teamcode.Mechanisms.Components.ShooterSubsystem;
+import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
 
 @Autonomous(name = "ShooterSubTest")
 public class ShooterSubTest extends OpMode {
     ShooterSubsystem shooter;
     FtcDashboard dashboard;
+    DcMotorEx motor;
 
     Gamepad prev;
 
@@ -31,19 +34,23 @@ public class ShooterSubTest extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.a && !prev.a) {
-            shooter.toggleShooter();
-        }
+
         if (gamepad1.b) {
             shooter.advance();
         }
-
-        shooter.update();
-
+        if (gamepad1.a && !prev.a) {
+            shooter.toggleShooter();
+        }
         try {
             prev.copy(gamepad1);
         } catch (RobotCoreException e) {
             e.printStackTrace();
         }
+
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("target", shooter.getTargetShooterVelocity());
+        packet.put("actual", shooter.getActualShooterVelocity());
+        dashboard.sendTelemetryPacket(packet);
+        shooter.update();
     }
 }
