@@ -2,6 +2,7 @@ package org.aedificatores.teamcode.Mechanisms.Components;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -40,6 +41,7 @@ public class WobbleGrabber {
         limitSwitchUp = new MagneticLimitSwitch();
 
         lift = map.get(DcMotorEx.class, WobbleSub.MOT);
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
         limitSwitchDown.init(map, WobbleSub.LIMIT_DOWN);
         limitSwitchUp.init(map, WobbleSub.LIMIT_UP);
         gate = map.servo.get(WobbleSub.GATE);
@@ -60,6 +62,10 @@ public class WobbleGrabber {
 
     public boolean isDown() {
         return state == State.IDLE_DOWN;
+    }
+
+    public boolean isLifting() {
+        return state == State.MOVE_UP;
     }
 
     public void setUp(boolean isUp) {

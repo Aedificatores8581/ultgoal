@@ -62,12 +62,20 @@ public class ShooterSubsystem {
         return advancedCounter == 4 && state == State.IDLE;
     }
 
+    public int getAdvancedCounter() {
+        return advancedCounter;
+    }
+
     public double getTargetShooterVelocity() {
         return shooter.getTargetVelFromTime();
     }
 
     public double getActualShooterVelocity() {
         return shooter.getActualVelocity();
+    }
+
+    public boolean idle() {
+        return state == State.IDLE;
     }
 
     public void update() {
@@ -82,7 +90,7 @@ public class ShooterSubsystem {
                 }
                 break;
             case MOVING_UP:
-                if (timer.getTime() > 1000) {
+                if (timer.getTime() > 500) {
                     state = State.IDLE;
                 }
                 break;
@@ -97,8 +105,8 @@ public class ShooterSubsystem {
 class Lift {
     enum Position {
         DOWN(0.87),
-        POS_SHOOT_TOP_RING(0.23),
-        POS_SHOOT_MIDDLE_RING(0.13),
+        POS_SHOOT_TOP_RING(0.25),
+        POS_SHOOT_MIDDLE_RING(0.09),
         POS_SHOOT_BOTTOM_RING(0.0);
 
         private double pos;

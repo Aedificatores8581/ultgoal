@@ -22,6 +22,19 @@ public class WobbleGrabberTest extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        if (gamepad1.a) {
+            grabber.setUp(true);
+        }
+        if (gamepad1.b) {
+            grabber.setUp(false);
+        }
+
+        telemetry.addLine("Press \"A\" to tell the grabber that it is in the up position");
+        telemetry.addLine("Press \"B\" to tell the grabber that it is in the down position");
+    }
+
+    @Override
     public void loop() {
         if (gamepad1.a && !prev.a) {
             grabber.lift();
@@ -38,5 +51,8 @@ public class WobbleGrabberTest extends OpMode {
             requestOpModeStop();
         }
         grabber.update();
+
+        telemetry.addLine("Press \"A\" to lift the wobble goal");
+        telemetry.addLine("Press \"B\" to drop the wobble goal");
     }
 }

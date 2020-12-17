@@ -30,7 +30,7 @@ public class OneWobbleThreeHighAuto extends OpMode {
     }
 
     AutoState state = AutoState.DRIVE_TO_DEPOSIT;
-    FtcDashboard dashboard;
+    // FtcDashboard dashboard;
 
     public static Vector2d SIDE_NEAR_POS = new Vector2d(-36.0, 9.0);
     public static Vector2d SIDE_FAR_POS = new Vector2d(-42.0, -36.0);
@@ -80,8 +80,8 @@ public class OneWobbleThreeHighAuto extends OpMode {
             }
         });
 
-        dashboard = FtcDashboard.getInstance();
-        dashboard.setTelemetryTransmissionInterval(25);
+    //    dashboard = FtcDashboard.getInstance();
+    //    dashboard.setTelemetryTransmissionInterval(25);
 
         bot = new SawronBot(hardwareMap);
         bot.drivetrain.setPoseEstimate(startPose);
@@ -176,10 +176,10 @@ public class OneWobbleThreeHighAuto extends OpMode {
         bot.update();
         telemetry.addData("Wobble Position", wobblePosition);
 
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("target", bot.shooter.getTargetShooterVelocity());
-        packet.put("actual", bot.shooter.getActualShooterVelocity());
-        dashboard.sendTelemetryPacket(packet);
+        // TelemetryPacket packet = new TelemetryPacket();
+        // packet.put("target", bot.shooter.getTargetShooterVelocity());
+        // packet.put("actual", bot.shooter.getActualShooterVelocity());
+        // dashboard.sendTelemetryPacket(packet);
     }
 
     @Override
