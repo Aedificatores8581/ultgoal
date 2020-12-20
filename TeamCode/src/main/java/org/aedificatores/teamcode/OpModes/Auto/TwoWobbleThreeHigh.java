@@ -156,8 +156,6 @@ public class TwoWobbleThreeHigh extends OpMode {
         pipe.close();
         cam.closeCameraDevice();
         cameraStreaming = false;
-
-        bot.shooter.runShooter();
     }
 
 
@@ -178,19 +176,20 @@ public class TwoWobbleThreeHigh extends OpMode {
                 break;
             case DRIVE_BACK:
                 if (!bot.drivetrain.isBusy()) {
-                    bot.wobbleGrabber.lift();
+                    bot.wobbleGrabber.grab();
                     state = AutoState.GET_SECOND_WOBBLE;
                 }
                 break;
             case GET_SECOND_WOBBLE:
-                if (bot.wobbleGrabber.isLifting()) {
+                if (bot.wobbleGrabber.isDown()) {
                     bot.drivetrain.followTrajectoryAsync(trajSecondDeposit);
                     state = AutoState.DRIVE_TO_SECOND_DEPOSIT;
                 }
                 break;
             case DRIVE_TO_SECOND_DEPOSIT:
-                if (!bot.drivetrain.isBusy() && bot.wobbleGrabber.isUp()) {
-                    bot.wobbleGrabber.drop();
+                if (!bot.drivetrain.isBusy()) {
+                    bot.wobbleGrabber.release();
+                    bot.shooter.runShooter();
                     state = AutoState.DROP_SECOND_WOBBLE;
                 }
                 break;

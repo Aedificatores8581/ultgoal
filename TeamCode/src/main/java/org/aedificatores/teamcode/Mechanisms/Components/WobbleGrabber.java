@@ -20,7 +20,7 @@ public class WobbleGrabber {
         MOVE_DOWN,
         OPEN_GATE,
         OPEN_PULLER,
-        IDLE_DOWN
+        IDLE_DOWN,
 
     };
 
@@ -35,6 +35,8 @@ public class WobbleGrabber {
     Servo gate, puller;
     State state;
     Taemer timer;
+
+    boolean onlyGrab = false;
 
     public WobbleGrabber(HardwareMap map) {
         limitSwitchDown = new MagneticLimitSwitch();
@@ -81,12 +83,24 @@ public class WobbleGrabber {
 
     public void lift() {
         if (isDown()) {
+            onlyGrab = false;
             forceLift();
         }
     }
 
     public void forceLift() {
         state = State.PULL_WOBBLE;
+        timer.resetTime();
+    }
+
+    public void grab() {
+        state = State.PULL_WOBBLE;
+        onlyGrab = true;
+        timer.resetTime();
+    }
+
+    public void release() {
+        state = State.OPEN_GATE;
         timer.resetTime();
     }
 
@@ -103,7 +117,7 @@ public class WobbleGrabber {
                 gate.setPosition(GATE_CLOSED_POSITION);
                 if (timer.getTime() > 400) {
                     timer.resetTime();
-                    state = State.MOVE_UP;
+                    state = onlyGrab ? State.IDLE_DOWN : State.MOVE_UP;
                 }
                 break;
 
