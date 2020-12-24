@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.Mechanisms.Drivetrains;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 @Config
 public class DriveConstants {
@@ -20,7 +21,8 @@ public class DriveConstants {
      * Set the value of MOTOR_VELO_PID to `new PIDCoefficients(kP, kI, kD);`
      */
     public static final boolean RUN_USING_ENCODER = false;
-    public static final PIDCoefficients MOTOR_VELO_PID = null;
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
+            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -32,7 +34,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.9685; // in
     public static double GEAR_RATIO = 2; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 15; // in
+    public static double TRACK_WIDTH = 14.5; // in
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -41,7 +43,7 @@ public class DriveConstants {
      * empirically tuned.
      */
     public static double kV = 0.022575; // 1.0 / rpmToVelocity(MAX_RPM)
-    public static double kA = 0.004;
+    public static double kA = 0.0045;
     public static double kStatic = 0;
 
     /*
@@ -66,7 +68,7 @@ public class DriveConstants {
         return rpm * GEAR_RATIO * 2 * Math.PI * WHEEL_RADIUS / 60.0;
     }
 
-    public static final double getMotorVelocityF() {
-        return 32767 * 60.0 / (MAX_RPM * TICKS_PER_REV);
+    public static double getMotorVelocityF(double ticksPerSecond) {
+        return 32767 / ticksPerSecond;
     }
 }

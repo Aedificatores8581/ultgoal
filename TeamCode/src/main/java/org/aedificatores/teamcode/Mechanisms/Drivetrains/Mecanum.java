@@ -158,10 +158,6 @@ public class Mecanum extends MecanumDrive {
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        if (RUN_USING_ENCODER && MOTOR_VELO_PID != null) {
-            setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
-        }
-
         // TODO: reverse any motors using DcMotor.setDirection()
         leftFront.setDirection(REVERSE);
         leftRear.setDirection(REVERSE);
@@ -335,13 +331,6 @@ public class Mecanum extends MecanumDrive {
         return new PIDCoefficients(coefficients.p, coefficients.i, coefficients.d);
     }
 
-    public void setPIDCoefficients(DcMotor.RunMode runMode, PIDCoefficients coefficients) {
-        for (DcMotorEx motor : motors) {
-            motor.setPIDFCoefficients(runMode, new PIDFCoefficients(
-                    coefficients.kP, coefficients.kI, coefficients.kD, getMotorVelocityF()
-            ));
-        }
-    }
 
     public void setWeightedDrivePower(Pose2d drivePower) {
         Pose2d vel = drivePower;

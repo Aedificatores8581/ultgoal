@@ -29,15 +29,15 @@ import java.util.List;
  */
 @Config
 public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
-    public static final double X_MULTIPLIER = 0.994246437;
-    public static final double Y_MULTIPLIER = 0.9938202093;
+    public static final double X_MULTIPLIER = 0.9946990726;
+    public static final double Y_MULTIPLIER = 0.9943345632;
 
     public static double TICKS_PER_REV = 8192;
-    public static double WHEEL_RADIUS = 1.772; // in
+    public static double WHEEL_RADIUS = 1.77165; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = -15.39; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = -5.20; // in; offset of the lateral wheel
+    public static double LATERAL_DISTANCE = 15.51; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = -5.6; // in; offset of the lateral wheel
 
     // frontEncoder is a bit of a misnomer. Probably should have been called backEncoder
     // or strafeEncoder
@@ -45,8 +45,8 @@ public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
 
     public ThreeWheelOdometryLocalizer(HardwareMap hardwareMap) {
         super(Arrays.asList(
-                new Pose2d(0, LATERAL_DISTANCE / 2, 0), // left
-                new Pose2d(0, -LATERAL_DISTANCE / 2, 0), // right
+                new Pose2d(-.25, -LATERAL_DISTANCE / 2, 0), // left
+                new Pose2d(1.125, LATERAL_DISTANCE / 2, 0), // right
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 

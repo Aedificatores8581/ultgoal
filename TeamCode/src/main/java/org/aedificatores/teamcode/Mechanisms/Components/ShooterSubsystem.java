@@ -67,9 +67,8 @@ public class ShooterSubsystem {
     }
 
     public double getTargetShooterVelocity() {
-        return shooter.getTargetVelFromTime();
+        return shooter.getTargetVelocity();
     }
-
     public double getActualShooterVelocity() {
         return shooter.getActualVelocity();
     }
@@ -211,7 +210,7 @@ class Shooter {
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
-    public static PIDFCoefficients velocityPIDCoeff = new PIDFCoefficients(-200, 0.0, 0.0,0.0);
+    public static PIDFCoefficients velocityPIDCoeff = new PIDFCoefficients(200, 0.0, 0.0,0.0);
     boolean runningMotor = false;
     Taemer timer;
     Shooter(HardwareMap map) {
@@ -242,27 +241,20 @@ class Shooter {
 
     void update () {
         if (runningMotor) {
-            actuator.setVelocity(getTargetVelFromTime(), AngleUnit.RADIANS);
+            actuator.setVelocity(-MAX_RPM * 2 * Math.PI / 60);
             actuator.setPower(1.0);
         } else {
             actuator.setPower(0.0);
         }
     }
 
-    // Hacky Motion Profile :( (returns in radians/second)
-    double getTargetVelFromTime() {
-        long time = timer.getTime();
-        if (time < SPEED_UP_TIME) {
-            return -time * MAX_RPM/SPEED_UP_TIME * 2 * Math.PI / 60;
-        } else {
-            return -MAX_RPM * 2 * Math.PI / 60;
-        }
+    double getTargetVelocity() {
+        return -MAX_RPM * 2 * Math.PI / 60;
     }
 
     double getActualVelocity() {
         return actuator.getVelocity(AngleUnit.RADIANS);
     }
-
 }
 
 class Intake {
