@@ -40,8 +40,8 @@ public class TwoWobbleThreeHigh extends OpMode {
     private static Vector2d SIDE_FAR_POS = new Vector2d(48, -60.0);
     private static Vector2d MIDDLE_POS = new Vector2d(20.0, -36);
     private static  Pose2d SECOND_WOBBLE_LINEUP = new Pose2d(-12, -51, 0);
-    private static Vector2d SECOND_WOBBLE = new Vector2d(-33, -51);
-    private static Pose2d POINT_AVOID_RINGS_AGAIN = new Pose2d(-24, -51, Math.PI);
+    private static Pose2d SECOND_WOBBLE = new Pose2d(-34, -51, 0);
+    private static Pose2d POINT_AVOID_RINGS_AGAIN = new Pose2d(-24, -48, Math.PI);
     private static Pose2d SHOOT_POS_ONE = new Pose2d(-8, -10.0, 0);
     private static Vector2d SHOOT_POS_TWO = new Vector2d(-8, -4.0);
     private static Vector2d SHOOT_POS_THREE = new Vector2d(-8, 5);
@@ -129,9 +129,9 @@ public class TwoWobbleThreeHigh extends OpMode {
                 .splineToConstantHeading(wobblePosition.getPos(),Math.PI/6)
                 .build();
         trajSecondWobble = bot.drivetrain.trajectoryBuilder(trajDeposit.end())
-                .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-6, 0)), 0)
+                .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-6, 0)), Math.toRadians(120))
                 .splineToSplineHeading(SECOND_WOBBLE_LINEUP, Math.PI)
-                .splineToConstantHeading(SECOND_WOBBLE, Math.PI)
+                .splineToSplineHeading(SECOND_WOBBLE, Math.PI)
                 .build();
         trajSecondDeposit = bot.drivetrain.trajectoryBuilder(trajSecondWobble.end())
                 .splineToSplineHeading(POINT_AVOID_RINGS_AGAIN, 0)

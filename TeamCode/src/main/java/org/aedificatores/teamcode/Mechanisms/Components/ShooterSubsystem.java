@@ -206,7 +206,7 @@ class Kicker {
 
 @Config
 class Shooter {
-    public static double MAX_RPM = 4000;
+    public static double MAX_RPM = 4100;
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
@@ -225,9 +225,11 @@ class Shooter {
     void runShooter() {
         runningMotor = true;
         timer.resetTime();
+        actuator.setVelocity(-MAX_RPM * 2 * Math.PI / 60, AngleUnit.RADIANS);
     }
 
     void stopShooter() {
+        actuator.setVelocity(0);
         runningMotor = false;
     }
 
@@ -236,16 +238,11 @@ class Shooter {
             stopShooter();
         } else {
             runShooter();
+
         }
     }
 
     void update () {
-        if (runningMotor) {
-            actuator.setVelocity(-MAX_RPM * 2 * Math.PI / 60);
-            actuator.setPower(1.0);
-        } else {
-            actuator.setPower(0.0);
-        }
     }
 
     double getTargetVelocity() {
