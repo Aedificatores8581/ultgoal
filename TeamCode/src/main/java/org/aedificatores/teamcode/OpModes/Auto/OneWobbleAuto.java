@@ -118,7 +118,7 @@ public class OneWobbleAuto extends OpMode {
                 }
                 break;
             case DROP_WOBBLE:
-                if (bot.wobbleGrabber.isDown()) {
+                if (!bot.wobbleGrabber.isBusy()) {
                     bot.drivetrain.followTrajectoryAsync(trajPark);
                     state = AutoState.PARK;
                 }
