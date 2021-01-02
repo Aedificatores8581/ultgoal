@@ -87,6 +87,7 @@ public class WobbleGrabber {
     public void setMode(Mode m) {
         mode = m;
         if (mode == Mode.AUTO) {
+            actuator.setTargetPosition(ENC_PARTWAY);
             actuator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         } else {
             actuator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -143,7 +144,7 @@ public class WobbleGrabber {
     }
 
     public boolean isBusy() {
-        return subsystemState == SubsystemState.IDLE;
+        return !(subsystemState == SubsystemState.IDLE);
     }
 
     public void update() {

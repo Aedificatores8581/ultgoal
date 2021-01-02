@@ -46,7 +46,7 @@ public class TwoWobbleThreeHigh extends OpMode {
     private static Pose2d SHOOT_POS_ONE = new Pose2d(-8, -10.0, 0);
     private static Vector2d SHOOT_POS_TWO = new Vector2d(-8, -4.0);
     private static Vector2d SHOOT_POS_THREE = new Vector2d(-8, 5);
-    private static Vector2d PARK_POS = new Vector2d(0.0, 0.0);
+    private static Vector2d PARK_POS = new Vector2d(12.0, 0.0);
 
     enum WobblePosition {
         SIDE_NEAR(SIDE_NEAR_POS),
