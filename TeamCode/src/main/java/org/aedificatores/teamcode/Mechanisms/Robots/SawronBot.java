@@ -18,7 +18,6 @@ public class SawronBot {
     public SawronBot(HardwareMap map) {
         drivetrain = new Mecanum(map);
         wobbleGrabber = new WobbleGrabber(map);
-        wobbleGrabber.init();
         shooter = new ShooterSubsystem(map);
     }
 

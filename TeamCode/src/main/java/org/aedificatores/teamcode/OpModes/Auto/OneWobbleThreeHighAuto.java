@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.aedificatores.teamcode.Mechanisms.Components.WobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
 import org.aedificatores.teamcode.Vision.RingDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -85,6 +86,7 @@ public class OneWobbleThreeHighAuto extends OpMode {
 
         bot = new SawronBot(hardwareMap);
         bot.drivetrain.setPoseEstimate(startPose);
+        bot.wobbleGrabber.setMode(WobbleGrabber.Mode.TELEOP);
     }
 
     // Used to Account for the fact that we don't know the state of the wobble
@@ -96,7 +98,7 @@ public class OneWobbleThreeHighAuto extends OpMode {
         bot.update();
 
         if (gamepad1.a && !alreadyLifted) {
-            bot.wobbleGrabber.forceLift();
+            bot.wobbleGrabber.reset();
             alreadyLifted = true;
         }
     }
@@ -134,6 +136,7 @@ public class OneWobbleThreeHighAuto extends OpMode {
         cameraStreaming = false;
 
         bot.shooter.runShooter();
+        bot.wobbleGrabber.setMode(WobbleGrabber.Mode.AUTO);
     }
 
     @Override
@@ -146,7 +149,7 @@ public class OneWobbleThreeHighAuto extends OpMode {
                 }
                 break;
             case DROP_WOBBLE:
-                if (bot.wobbleGrabber.isDown()) {
+                if (bot.wobbleGrabber.isBusy()) {
                     bot.drivetrain.followTrajectoryAsync(trajShoot);
                     state = AutoState.DRIVE_TO_SHOOT;
                 }
