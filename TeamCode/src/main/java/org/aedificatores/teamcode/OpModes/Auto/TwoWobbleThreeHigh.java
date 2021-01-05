@@ -3,17 +3,23 @@ package org.aedificatores.teamcode.OpModes.Auto;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.profile.SimpleMotionConstraints;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.aedificatores.teamcode.Mechanisms.Components.WobbleGrabber;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
 import org.aedificatores.teamcode.Vision.RingDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+
+import java.util.Arrays;
 
 @Autonomous(name = "TwoWobbleThreeHighAuto")
 public class TwoWobbleThreeHigh extends OpMode {
@@ -43,10 +49,10 @@ public class TwoWobbleThreeHigh extends OpMode {
     private static  Pose2d SECOND_WOBBLE_LINEUP = new Pose2d(-12, -51, 0);
     private static Pose2d SECOND_WOBBLE = new Pose2d(-34, -51, 0);
     private static Pose2d POINT_AVOID_RINGS_AGAIN = new Pose2d(-24, -48, Math.PI);
-    private static Pose2d SHOOT_POS_ONE = new Pose2d(-8, -10.0, 0);
-    private static Vector2d SHOOT_POS_TWO = new Vector2d(-8, -4.0);
-    private static Vector2d SHOOT_POS_THREE = new Vector2d(-8, 5);
-    private static Vector2d PARK_POS = new Vector2d(12.0, 0.0);
+    private static Pose2d SHOOT_POS_START = new Pose2d(-12, -48, Math.toRadians(17.3));
+    private static Vector2d SHOOT_POS_MIDDLE = new Vector2d(-12-5.7, -48+5.7);
+    private static Vector2d SHOOT_POS_END = new Vector2d(-12-11, -48+11);
+    private static Pose2d PARK_POS = new Pose2d(12.0, -36, 0);
 
     enum WobblePosition {
         SIDE_NEAR(SIDE_NEAR_POS),
@@ -66,11 +72,16 @@ public class TwoWobbleThreeHigh extends OpMode {
     Trajectory trajDeposit;
     Trajectory trajSecondWobble;
     Trajectory trajSecondDeposit;
-    Trajectory trajShootOne;
-    Trajectory trajShootTwo;
-    Trajectory trajShootThree;
-    Trajectory trajPark;
+    Trajectory trajShootAndPark;
     WobblePosition wobblePosition;
+
+    TrajectoryConstraints slowConstraints = new TrajectoryConstraints() {
+        @NotNull
+        @Override
+        public SimpleMotionConstraints get(double v, @NotNull Pose2d pose2d, @NotNull Pose2d pose2d1, @NotNull Pose2d pose2d2) {
+            return new SimpleMotionConstraints(5,5);
+        }
+    };
 
     private static final int WIDTH = 320;
     private static final int HEIGHT = 240;
@@ -140,18 +151,15 @@ public class TwoWobbleThreeHigh extends OpMode {
                 .splineToSplineHeading(POINT_AVOID_RINGS_AGAIN, 0)
                 .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-6, 0)), 0)
                 .build();
-        trajShootOne = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
+        trajShootAndPark = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
                 .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-12, 0)), Math.PI/2)
-                .splineToSplineHeading(SHOOT_POS_ONE, 0)
-                .build();
-        trajShootTwo = bot.drivetrain.trajectoryBuilder(trajShootOne.end())
-                .splineToConstantHeading(SHOOT_POS_TWO, Math.PI/2)
-                .build();
-        trajShootThree = bot.drivetrain.trajectoryBuilder(trajShootTwo.end())
-                .splineToConstantHeading(SHOOT_POS_THREE, Math.PI/2)
-                .build();
-        trajPark = bot.drivetrain.trajectoryBuilder(trajShootThree.end())
-                .splineToConstantHeading(PARK_POS, 0)
+                .splineToSplineHeading(SHOOT_POS_START, Math.PI/4)
+                .addDisplacementMarker(() -> bot.shooter.advance())
+                .splineToConstantHeading(SHOOT_POS_MIDDLE,Math.PI/4, slowConstraints)
+                .addDisplacementMarker(() -> bot.shooter.advance())
+                .splineToConstantHeading(SHOOT_POS_END, Math.PI/4, slowConstraints)
+                .addDisplacementMarker(() -> bot.shooter.advance())
+                .splineToSplineHeading(PARK_POS, 0)
                 .build();
         bot.drivetrain.followTrajectoryAsync(trajDeposit);
 
@@ -201,47 +209,8 @@ public class TwoWobbleThreeHigh extends OpMode {
                 break;
             case DROP_SECOND_WOBBLE:
                 if (!bot.wobbleGrabber.isBusy()) {
-                    bot.drivetrain.followTrajectoryAsync(trajShootOne);
-                    state = AutoState.DRIVE_TO_SHOOT_ONE;
-                    bot.shooter.advance();
-                }
-                break;
-            case DRIVE_TO_SHOOT_ONE:
-                if (!bot.drivetrain.isBusy()) {
-                    state = AutoState.SHOOT_ONE;
-                }
-                break;
-            case SHOOT_ONE:
-                if (bot.shooter.getAdvancedCounter() == 2 && bot.shooter.idle()) {
-                    bot.drivetrain.followTrajectoryAsync(trajShootTwo);
-                    state = AutoState.DRIVE_TO_SHOOT_TWO;
-                } else {
-                    bot.shooter.advance();
-                }
-                break;
-            case DRIVE_TO_SHOOT_TWO:
-                if (!bot.drivetrain.isBusy()) {
-                    state = AutoState.SHOOT_TWO;
-                }
-                break;
-            case SHOOT_TWO:
-                if (bot.shooter.getAdvancedCounter() == 3 && bot.shooter.idle()) {
-                    bot.drivetrain.followTrajectoryAsync(trajShootThree);
-                    state = AutoState.DRIVE_TO_SHOOT_THREE;
-                } else {
-                    bot.shooter.advance();
-                }
-                break;
-            case DRIVE_TO_SHOOT_THREE:
-                if (!bot.drivetrain.isBusy()) {
-                    state = AutoState.SHOOT_THREE;
-                }
-                break;
-            case SHOOT_THREE:
-                if (bot.shooter.getAdvancedCounter() == 4 && bot.shooter.idle()) {
-                    bot.drivetrain.followTrajectoryAsync(trajPark);
+                    bot.drivetrain.followTrajectoryAsync(trajShootAndPark);
                     state = AutoState.PARK;
-                } else {
                     bot.shooter.advance();
                 }
                 break;
