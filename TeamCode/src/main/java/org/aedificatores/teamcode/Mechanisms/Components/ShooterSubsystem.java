@@ -206,7 +206,7 @@ class Kicker {
 
 @Config
 class Shooter {
-    public static double MAX_RPM = 3000;
+    public static double MAX_RPM = 4200;
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
