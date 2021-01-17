@@ -27,14 +27,33 @@ public class ShooterSubsystem {
     private Shooter shooter;
     private Lift lift;
     private Kicker kicker;
+    private Intake intakeMechanism;
+
     private Taemer timer;
     private int advancedCounter = 0;
 
     public ShooterSubsystem(HardwareMap map) {
+        this(map, false);
+    }
+
+    public ShooterSubsystem(HardwareMap map, boolean isAuto) {
         shooter = new Shooter(map);
         kicker = new Kicker(map);
-        lift = new Lift(map);
+        lift = new Lift(map, isAuto);
+        intakeMechanism = new Intake(map);
         timer = new Taemer();
+    }
+
+    public void intake() {
+        intakeMechanism.foreward();
+    }
+
+    public void outtake() {
+        intakeMechanism.reverse();
+    }
+
+    public void intakeOff() {
+        intakeMechanism.off();
     }
 
     public void runShooter() {
@@ -45,12 +64,28 @@ public class ShooterSubsystem {
         shooter.stopShooter();
     }
 
+    public boolean runningShooterMotor() {
+        return shooter.isRunning();
+    }
+
     public void toggleShooter() {
         shooter.toggleShooter();
     }
 
+    public void maxLowerLift() {
+        lift.setPosition(Lift.Position.DOWN);
+    }
+
+    public void maxRaiseLift() {
+        lift.setPosition(Lift.Position.POS_SHOOT_BOTTOM_RING);
+    }
+
+    public void kick() {
+        kicker.kick();
+    }
+
     public void advance() {
-        if (state == State.IDLE) {
+        if (state == State.IDLE && shooter.upToSpeed()) {
             state = State.KICKING;
             kicker.kick();
             timer.resetTime();
@@ -123,12 +158,19 @@ class Lift {
         }
     }
 
+    public boolean isAuto; // HACK!
+
     Servo servo;
     Position position;
 
     Lift(HardwareMap map) {
+        this(map, false);
+    }
+
+    Lift(HardwareMap map, boolean isAuto) {
         servo = map.servo.get(ShootSub.LIFT_SERV);
         position = Position.DOWN;
+        this.isAuto = isAuto;
     }
 
     public void setPosition(Position position) {
@@ -144,7 +186,11 @@ class Lift {
     }
 
     void update() {
-        servo.setPosition(position.getPos());
+        if(isAuto && position == Position.DOWN) {
+            servo.setPosition(0.4); // SUPER HACK
+        } else {
+            servo.setPosition(position.getPos());
+        }
     }
 }
 
@@ -233,6 +279,14 @@ class Shooter {
         runningMotor = false;
     }
 
+    public boolean isRunning() {
+        return runningMotor;
+    }
+
+    public boolean upToSpeed() {
+        return Math.abs(getActualVelocity() - getTargetVelocity()) / getTargetVelocity() < .07;
+    }
+
     void toggleShooter() {
         if (runningMotor) {
             stopShooter();
@@ -258,8 +312,17 @@ class Intake {
     final double SPEED = 0.7;
     DcMotorEx actuator;
 
-    public void on() {
+    Intake(HardwareMap map) {
+        actuator = map.get(DcMotorEx.class, ShootSub.INTAKE_MOT);
+        actuator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    public void foreward() {
         actuator.setPower(SPEED);
+    }
+
+    public void reverse() {
+        actuator.setPower(-SPEED);
     }
 
     public void off() {

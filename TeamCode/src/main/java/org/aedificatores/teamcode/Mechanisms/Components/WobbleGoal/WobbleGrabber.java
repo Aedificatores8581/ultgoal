@@ -1,6 +1,9 @@
-package org.aedificatores.teamcode.Mechanisms.Components;
+package org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -21,6 +24,8 @@ public class WobbleGrabber {
         MOVE_UP,
         MOVE_DOWN,
         OPEN_GRABBER,
+        MOVE_RELEASE,
+        MOVE_BACK_TO_DOWN,
         
         UNINITIALIZED
     };
@@ -43,11 +48,14 @@ public class WobbleGrabber {
     private final double PULL_OPEN_POSITION=0.1;
     private final double POWER = .7;
 
-    private final int ENC_UP = 0;
-    private final int ENC_PARTWAY = -1743;
-    private final int ENC_DOWN = -2884;
+    private final double ENC_UP = 0;
+    private final double ENC_PARTWAY = -2 * Math.PI / 3;
+    private final double ENC_DOWN = -Math.PI;
+    private final double ENC_RELEASE = -6 * Math.PI / 5;
 
-    DcMotorEx actuator;
+
+
+    WobbleMotor motor;
     MagneticLimitSwitch limitSwitchUp, limitSwitchDown;
     Servo gate, puller;
     SubsystemState subsystemState;
@@ -71,9 +79,7 @@ public class WobbleGrabber {
         limitSwitchDown.init(map, WobbleSub.LIMIT_DOWN);
         limitSwitchUp.init(map, WobbleSub.LIMIT_UP);
 
-        actuator = map.get(DcMotorEx.class, WobbleSub.MOT);
-        actuator.setDirection(DcMotorSimple.Direction.REVERSE);
-        actuator.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, pidfCoefficients);
+        motor = new WobbleMotor(map);
 
         gate = map.servo.get(WobbleSub.GATE);
         puller = map.servo.get(WobbleSub.PULL);
@@ -87,28 +93,37 @@ public class WobbleGrabber {
     public void setMode(Mode m) {
         mode = m;
         if (mode == Mode.AUTO) {
-            actuator.setTargetPosition(ENC_PARTWAY);
-            actuator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.gotoAngle(ENC_PARTWAY);
+            motor.setMode(WobbleMotor.Mode.AUTO);
         } else {
-            actuator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motor.setMode(WobbleMotor.Mode.TELEOP);
         }
 
     }
 
     public Mode getMode() {return mode;}
     
-    public int getPosition() {
-        return actuator.getCurrentPosition();
+    public double getAngleRadians() {
+        return motor.getCurrentAngle();
     }
-
-    public int getTargetPosition() {
-        return actuator.getTargetPosition();
+    public double getAngleDegrees() {
+        return motor.getCurrentAngle() * 180 / Math.PI;
+    }
+    public double getCurrentTargetAngleRadians() {
+        return motor.getCurrentTargetAngle();
+    }
+    public double getCurrentTargetAngleDegrees() {
+        return motor.getCurrentTargetAngle() * 180 / Math.PI;
     }
     
     public void setPower(double power) {
         if (mode == Mode.TELEOP) {
-            actuator.setPower(power);
+            motor.setPower(power);
         }
+    }
+
+    public boolean isGrabberClosed() {
+        return grabberClosed;
     }
 
     public void openGrabber() {
@@ -124,7 +139,7 @@ public class WobbleGrabber {
     public void reset() {
         subsystemState = SubsystemState.RESET;
         timer.resetTime();
-        actuator.setTargetPosition(ENC_UP);
+        motor.gotoAngle(ENC_UP);
         closeGrabber();
     }
 
@@ -138,8 +153,7 @@ public class WobbleGrabber {
     public void drop() {
         if (mode == Mode.AUTO) {
             subsystemState = SubsystemState.MOVE_DOWN;
-            actuator.setTargetPosition(ENC_DOWN);
-            actuator.setPower(1.0);
+            motor.gotoAngle(ENC_DOWN);
         }
     }
 
@@ -147,14 +161,16 @@ public class WobbleGrabber {
         return !(subsystemState == SubsystemState.IDLE);
     }
 
+    public boolean isReleasing() {
+        return subsystemState == SubsystemState.MOVE_RELEASE;
+    }
+
     public void update() {
         switch (subsystemState) {
             case RESET:
                 if (mode == Mode.AUTO) {
-                    if (!actuator.isBusy() || limitSwitchUp.isActive()) {
-                        actuator.setPower(0.0);
-                        actuator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        actuator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    if (!motor.isBusy() || limitSwitchUp.isActive()) {
+                        motor.resetEncoders();
 
                         if (grabberState == GrabberState.IDLE) {
                             subsystemState = SubsystemState.IDLE;
@@ -163,14 +179,13 @@ public class WobbleGrabber {
                     
                 } else {
                     if (!limitSwitchUp.isActive()) {
-                        actuator.setPower(POWER);
+                        motor.setPower(POWER);
                     }
                     if (limitSwitchUp.isActive() && grabberState == GrabberState.IDLE) {
-                        actuator.setPower(0.0);
+                        motor.setPower(0.0);
 
                         if (grabberState== GrabberState.IDLE) {
-                            actuator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                            actuator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            motor.resetEncoders();
 
                             subsystemState = SubsystemState.IDLE;
                         }
@@ -180,25 +195,35 @@ public class WobbleGrabber {
             case CLOSE_GRABBER:
                 if (grabberState == GrabberState.IDLE) {
                     subsystemState = SubsystemState.MOVE_UP;
-                    actuator.setTargetPosition(ENC_PARTWAY);
-                    actuator.setPower(1.0);
+                    motor.gotoAngle(ENC_PARTWAY);
                 }
                 break;
             case MOVE_UP:
-                if (!actuator.isBusy()) {
-                    actuator.setPower(0.0);
+                if (!motor.isBusy()) {
+                    motor.setPower(0.0);
                     subsystemState = SubsystemState.IDLE;
                 }
                 break;
             case MOVE_DOWN:
-                if (!actuator.isBusy()) {
-                    actuator.setPower(0.0);
+                if (!motor.isBusy()) {
                     openGrabber();
                     subsystemState = SubsystemState.OPEN_GRABBER;
                 }
                 break;
             case OPEN_GRABBER:
                 if (grabberState == GrabberState.IDLE) {
+                    subsystemState = SubsystemState.MOVE_RELEASE;
+                    motor.gotoAngle(ENC_RELEASE);
+                }
+                break;
+            case MOVE_RELEASE:
+                if (!motor.isBusy()) {
+                    motor.gotoAngle(ENC_DOWN);
+                    subsystemState = SubsystemState.MOVE_BACK_TO_DOWN;
+                }
+                break;
+            case MOVE_BACK_TO_DOWN:
+                if (!motor.isBusy()) {
                     subsystemState = SubsystemState.IDLE;
                 }
                 break;
@@ -240,5 +265,8 @@ public class WobbleGrabber {
             case IDLE:
                 break;
         }
+
+        motor.update();
     }
 }
+

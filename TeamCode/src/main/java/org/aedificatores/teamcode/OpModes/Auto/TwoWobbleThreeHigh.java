@@ -1,6 +1,5 @@
 package org.aedificatores.teamcode.OpModes.Auto;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.profile.SimpleMotionConstraints;
@@ -9,8 +8,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGrabber;
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants;
+import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.WobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
 import org.aedificatores.teamcode.Vision.RingDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -18,8 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import java.util.Arrays;
 
 @Autonomous(name = "TwoWobbleThreeHighAuto")
 public class TwoWobbleThreeHigh extends OpMode {
@@ -106,7 +102,7 @@ public class TwoWobbleThreeHigh extends OpMode {
             }
         });
 
-        bot = new SawronBot(hardwareMap);
+        bot = new SawronBot(hardwareMap, true);
         bot.drivetrain.setPoseEstimate(START_POSE);
 
         bot.wobbleGrabber.setMode(WobbleGrabber.Mode.TELEOP);
@@ -186,13 +182,13 @@ public class TwoWobbleThreeHigh extends OpMode {
                 }
                 break;
             case DROP_WOBBLE:
-                if (!bot.wobbleGrabber.isBusy()) {
+                if (bot.wobbleGrabber.isReleasing()) {
                     bot.drivetrain.followTrajectoryAsync(trajSecondWobble);
                     state = AutoState.DRIVE_BACK;
                 }
                 break;
             case DRIVE_BACK:
-                if (!bot.drivetrain.isBusy()) {
+                if (!bot.drivetrain.isBusy() && !bot.wobbleGrabber.isBusy()) {
                     bot.wobbleGrabber.lift();
                     state = AutoState.GET_SECOND_WOBBLE;
                 }
@@ -211,7 +207,7 @@ public class TwoWobbleThreeHigh extends OpMode {
                 }
                 break;
             case DROP_SECOND_WOBBLE:
-                if (!bot.wobbleGrabber.isBusy()) {
+                if (bot.wobbleGrabber.isReleasing()) {
                     bot.drivetrain.followTrajectoryAsync(trajShoot);
                     state = AutoState.DRIVE_TO_SHOOT;
                     bot.shooter.advance();
