@@ -20,7 +20,7 @@ public class WobbleMotorTest extends OpMode {
     State state = State.DOWN;
     FtcDashboard dashboard;
 
-    private final double ANGLE_UP = -2 * Math.PI / 3;
+    private final double ANGLE_UP = 0;
     private final double ANGLE_DOWN = -Math.PI;
 
 

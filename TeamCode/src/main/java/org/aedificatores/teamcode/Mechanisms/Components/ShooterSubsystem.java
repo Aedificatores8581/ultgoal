@@ -56,6 +56,14 @@ public class ShooterSubsystem {
         intakeMechanism.off();
     }
 
+    public void toggleIntake() {
+        intakeMechanism.toggleForeward();
+    }
+
+    public void toggleOuttake() {
+        intakeMechanism.toggleReverse();
+    }
+
     public void runShooter() {
         shooter.runShooter();
     }
@@ -187,7 +195,7 @@ class Lift {
 
     void update() {
         if(isAuto && position == Position.DOWN) {
-            servo.setPosition(0.4); // SUPER HACK
+            servo.setPosition(0.35); // SUPER HACK
         } else {
             servo.setPosition(position.getPos());
         }
@@ -252,7 +260,7 @@ class Kicker {
 
 @Config
 class Shooter {
-    public static double MAX_RPM = 4200;
+    public static double MAX_RPM = 4450;
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
@@ -309,24 +317,47 @@ class Shooter {
 }
 
 class Intake {
-    final double SPEED = 0.7;
+    final double SPEED = .7;
     DcMotorEx actuator;
+
+    enum IntakeState { FOREWARD, REVERSE, OFF}
+    IntakeState state;
 
     Intake(HardwareMap map) {
         actuator = map.get(DcMotorEx.class, ShootSub.INTAKE_MOT);
         actuator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        state = IntakeState.OFF;
+    }
+
+    public void toggleForeward() {
+        if (state == IntakeState.FOREWARD) {
+            off();
+        } else {
+            foreward();
+        }
+    }
+
+    public void toggleReverse() {
+        if (state == IntakeState.REVERSE) {
+            off();
+        } else {
+            reverse();
+        }
     }
 
     public void foreward() {
         actuator.setPower(SPEED);
+        state = IntakeState.FOREWARD;
     }
 
     public void reverse() {
         actuator.setPower(-SPEED);
+        state = IntakeState.FOREWARD;
     }
 
     public void off() {
         actuator.setPower(0.0);
+        state = IntakeState.REVERSE;
     }
 }
 

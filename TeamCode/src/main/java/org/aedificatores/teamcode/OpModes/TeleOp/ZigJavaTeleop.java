@@ -15,11 +15,32 @@ public class ZigJavaTeleop extends OpMode {
 
     Gamepad prev1 = new Gamepad(), prev2 = new Gamepad();
 
+    enum DriveMode {
+        TRIGGER_BASED,
+        STICK_BASED,
+    }
+
+    DriveMode driveMode;
 
     @Override
     public void init() {
         bot = new SawronBot(hardwareMap, false);
         bot.wobbleGrabber.setMode(WobbleGrabber.Mode.TELEOP);
+        driveMode = DriveMode.TRIGGER_BASED;
+    }
+
+    @Override
+    public void init_loop() {
+        if (gamepad1.a) {
+            driveMode = DriveMode.TRIGGER_BASED;
+        }
+        if (gamepad1.b) {
+            driveMode = DriveMode.STICK_BASED;
+        }
+
+        telemetry.addLine("Press A for Trigger based Driving (i.e. Gwen Mode)");
+        telemetry.addLine("Press B for Stick based Driving (i.e. Non-Gwen Mode)");
+        telemetry.addData("Current Mode: ", driveMode);
     }
 
     @Override
@@ -36,20 +57,28 @@ public class ZigJavaTeleop extends OpMode {
 
     @Override
     public void loop() {
-        bot.drivetrain.setWeightedDrivePower(
-                new Pose2d(
-                        -(gamepad1.left_trigger - gamepad1.right_trigger),
-                        -gamepad1.left_stick_x,
-                        -gamepad1.right_stick_x
-                )
-        );
+        if (driveMode == DriveMode.TRIGGER_BASED) {
+            bot.drivetrain.setWeightedDrivePower(
+                    new Pose2d(
+                            -(gamepad1.left_trigger - gamepad1.right_trigger),
+                            -gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
+                    )
+            );
+        } else {
+            bot.drivetrain.setWeightedDrivePower(
+                    new Pose2d(
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
+                    )
+            );
+        }
 
         if (gamepad1.left_bumper) {
-            bot.shooter.intake();
+            bot.shooter.toggleOuttake();
         } else if (gamepad1.right_bumper) {
-            bot.shooter.outtake();
-        } else {
-            bot.shooter.intakeOff();
+            bot.shooter.toggleIntake();
         }
 
         if (gamepad1.x) {
