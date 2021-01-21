@@ -75,12 +75,6 @@ public class ZigJavaTeleop extends OpMode {
             );
         }
 
-        if (gamepad1.left_bumper) {
-            bot.shooter.toggleOuttake();
-        } else if (gamepad1.right_bumper) {
-            bot.shooter.toggleIntake();
-        }
-
         if (gamepad1.x) {
             bot.shooter.stopShooter();
         }
@@ -91,6 +85,12 @@ public class ZigJavaTeleop extends OpMode {
             } else {
                 bot.shooter.advance();
             }
+        }
+
+        if (gamepad1.left_bumper && !prev1.left_bumper) {
+            bot.shooter.toggleOuttake();
+        } else if (gamepad1.right_bumper && !prev2.right_bumper) {
+            bot.shooter.toggleIntake();
         }
 
         try {
