@@ -53,6 +53,8 @@ public class ZigJavaTeleop extends OpMode {
             telemetry.addLine(e.getMessage());
             requestOpModeStop();
         }
+
+        bot.shooter.runShooter();
     }
 
     @Override
@@ -75,21 +77,17 @@ public class ZigJavaTeleop extends OpMode {
             );
         }
 
-        if (gamepad1.x) {
-            bot.shooter.stopShooter();
+        if (gamepad1.x && !prev1.x) {
+            bot.shooter.toggleShooter();
         }
 
         if (gamepad1.a && !prev1.a) {
-            if (!bot.shooter.runningShooterMotor()) {
-                bot.shooter.runShooter();
-            } else {
-                bot.shooter.advance();
-            }
+            bot.shooter.advance();
         }
 
         if (gamepad1.left_bumper && !prev1.left_bumper) {
             bot.shooter.toggleOuttake();
-        } else if (gamepad1.right_bumper && !prev2.right_bumper) {
+        } else if (gamepad1.right_bumper && !prev1.right_bumper) {
             bot.shooter.toggleIntake();
         }
 
@@ -113,7 +111,19 @@ public class ZigJavaTeleop extends OpMode {
             bot.shooter.kick();
         }
 
-        bot.wobbleGrabber.setPower(gamepad2.right_stick_y);
+        if (gamepad2.a || gamepad2.left_bumper) {
+            bot.shooter.advance();
+        }
+
+        if (gamepad2.y) {
+            bot.shooter.setLiftPosShootTopRing();
+        }
+
+        if (gamepad2.b) {
+            bot.shooter.setLiftPosShootMiddleRing();
+        }
+
+        bot.wobbleGrabber.setPower(-gamepad2.right_stick_y);
 
         if (gamepad2.x && !prev2.x) {
             if (bot.wobbleGrabber.isGrabberClosed()) {

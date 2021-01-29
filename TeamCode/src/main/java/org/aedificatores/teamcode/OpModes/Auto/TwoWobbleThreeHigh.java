@@ -37,7 +37,7 @@ public class TwoWobbleThreeHigh extends OpMode {
     private static final Vector2d POINT_AVOID_RINGS = new Vector2d(-24, -24);
     private static Vector2d SIDE_NEAR_POS = new Vector2d(0.0,-60.0);
     private static Vector2d SIDE_FAR_POS = new Vector2d(48, -60.0);
-    private static Vector2d MIDDLE_POS = new Vector2d(20.0, -36);
+    private static Vector2d MIDDLE_POS = new Vector2d(21.0, -36);
     private static  Pose2d SECOND_WOBBLE_LINEUP = new Pose2d(-12, -51, 0);
     private static Pose2d SECOND_WOBBLE_SIDE_NEAR = new Pose2d(-34, -51, 0);
     private static Pose2d SECOND_WOBBLE_SIDE_FAR = new Pose2d(-34, -48, 0);
@@ -161,11 +161,25 @@ public class TwoWobbleThreeHigh extends OpMode {
                     .addDisplacementMarker(() -> bot.wobbleGrabber.drop())
                     .build();
         }
-        trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
-                .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI/2)
-                .splineToSplineHeading(SHOOT_POS, Math.PI/2)
-                .addDisplacementMarker(() -> bot.shooter.advance())
-                .build();
+        if (wobblePosition == WobblePosition.SIDE_NEAR) {
+            trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
+                    .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI / 2)
+                    .splineToSplineHeading(SHOOT_POS, Math.PI / 2)
+                    .addDisplacementMarker(() -> bot.shooter.advance())
+                    .build();
+        } else if (wobblePosition == WobblePosition.SIDE_FAR) {
+            trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
+                    .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI / 2)
+                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,-Math.toRadians(-3))), Math.PI / 2)
+                    .addDisplacementMarker(() -> bot.shooter.advance())
+                    .build();
+        } else {
+            trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
+                    .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI / 2)
+                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,-Math.toRadians(0))), Math.PI / 2)
+                    .addDisplacementMarker(() -> bot.shooter.advance())
+                    .build();
+        }
         trajPark = bot.drivetrain.trajectoryBuilder(trajShoot.end())
                 .splineToConstantHeading(PARK_POS,0)
                 .build();
@@ -219,7 +233,7 @@ public class TwoWobbleThreeHigh extends OpMode {
                 if (bot.wobbleGrabber.isReleasing()) {
                     bot.drivetrain.followTrajectoryAsync(trajShoot);
                     state = AutoState.DRIVE_TO_SHOOT;
-                    bot.shooter.advance();
+                    bot.shooter.forceAdvance();
                 }
                 break;
             case DRIVE_TO_SHOOT:

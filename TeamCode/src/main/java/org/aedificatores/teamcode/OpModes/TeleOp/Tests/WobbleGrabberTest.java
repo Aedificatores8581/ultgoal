@@ -53,7 +53,7 @@ public class WobbleGrabberTest extends OpMode {
                     grabber.openGrabber();
                 }
 
-                if (gamepad1.a && !prev.a) {
+                if (gamepad1.b && !prev.b) {
                     grabber.closeGrabber();
                 }
 
@@ -68,7 +68,7 @@ public class WobbleGrabberTest extends OpMode {
 
                 telemetry.addLine("\nYou are currently in TELEOP Mode");
                 telemetry.addLine("Use the Left stick to control the grabbers position");
-                telemetry.addLine("Press 'A' and 'B' To open and close the grabber");
+                telemetry.addLine("Press 'A' and 'B' to open and close the grabber");
                 telemetry.addLine("\nTo Switch Mode to auto press 'X'");
                 break;
             case AUTO:

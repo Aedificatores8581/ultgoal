@@ -42,16 +42,16 @@ public class WobbleGrabber {
         TELEOP, AUTO
     }
 
-    private final double GATE_CLOSED_POSITION = .54;
+    private final double GATE_CLOSED_POSITION = .50;
     private final double GATE_OPEN_POSITION = .15;
-    private final double PULL_CLOSED_POSITION=.7;
-    private final double PULL_OPEN_POSITION=0.1;
+    private final double PULL_CLOSED_POSITION=.75;
+    private final double PULL_OPEN_POSITION=0.32;
     private final double POWER = .7;
 
     private final double ENC_UP = 0;
-    private final double ENC_PARTWAY = -2 * Math.PI / 3;
-    private final double ENC_DOWN = -Math.PI;
-    private final double ENC_RELEASE = -6 * Math.PI / 5;
+    private final double ENC_PARTWAY = -Math.toRadians(110);
+    private final double ENC_DOWN = -Math.toRadians(170);
+    private final double ENC_RELEASE = -Math.toRadians(200);
 
 
 
@@ -118,7 +118,14 @@ public class WobbleGrabber {
     
     public void setPower(double power) {
         if (mode == Mode.TELEOP) {
-            motor.setPower(power);
+            if (power <= 0.0 && limitSwitchDown.isActive()) {
+                motor.setPower(0.0);
+            } else if (power > 0.0 && limitSwitchUp.isActive()) {
+                motor.setPower(0.0);
+            } else {
+                motor.setPower(power);
+            }
+
         }
     }
 
@@ -127,13 +134,17 @@ public class WobbleGrabber {
     }
 
     public void openGrabber() {
-        grabberState = GrabberState.OPEN_GATE;
-        timer.resetTime();
+        if (grabberState == GrabberState.IDLE) {
+            grabberState = GrabberState.OPEN_GATE;
+            timer.resetTime();
+        }
     }
 
     public void closeGrabber() {
-        grabberState = GrabberState.CLOSE_PULLER;
-        timer.resetTime();
+        if (grabberState == GrabberState.IDLE) {
+            grabberState = GrabberState.CLOSE_PULLER;
+            timer.resetTime();
+        }
     }
     
     public void reset() {

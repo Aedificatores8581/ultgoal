@@ -88,12 +88,26 @@ public class ShooterSubsystem {
         lift.setPosition(Lift.Position.POS_SHOOT_BOTTOM_RING);
     }
 
+    public void setLiftPosShootTopRing() {
+        lift.setPosition(Lift.Position.POS_SHOOT_TOP_RING);
+    }
+
+    public void setLiftPosShootMiddleRing() {
+        lift.setPosition(Lift.Position.POS_SHOOT_MIDDLE_RING);
+    }
+
     public void kick() {
         kicker.kick();
     }
 
     public void advance() {
-        if (state == State.IDLE && shooter.upToSpeed()) {
+        if (shooter.upToSpeed()) {
+            forceAdvance();
+        }
+    }
+
+    public void forceAdvance() {
+        if (state == State.IDLE) {
             state = State.KICKING;
             kicker.kick();
             timer.resetTime();
@@ -103,6 +117,10 @@ public class ShooterSubsystem {
 
     public boolean shotAllThree() {
         return advancedCounter == 4 && state == State.IDLE;
+    }
+
+    public void resetShots() {
+        advancedCounter = 0;
     }
 
     public int getAdvancedCounter() {
@@ -132,7 +150,7 @@ public class ShooterSubsystem {
                 }
                 break;
             case MOVING_UP:
-                if (timer.getTime() > 500) {
+                if (timer.getTime() > lift.getPosition().getTime()) {
                     state = State.IDLE;
                 }
                 break;
@@ -145,20 +163,25 @@ public class ShooterSubsystem {
 }
 
 class Lift {
-    enum Position {
-        DOWN(0.87),
-        POS_SHOOT_TOP_RING(0.25),
-        POS_SHOOT_MIDDLE_RING(0.09),
-        POS_SHOOT_BOTTOM_RING(0.0);
+    public enum Position {
+        DOWN(0.91, 900),
+        POS_SHOOT_TOP_RING(0.25, 1000),
+        POS_SHOOT_MIDDLE_RING(0.12, 400),
+        POS_SHOOT_BOTTOM_RING(0.0, 400);
 
         private double pos;
+        private int time;
         private static Position[] val = values();
-        Position(double pos) {
+        Position(double pos, int time) {
             this.pos = pos;
+            this.time = time;
         }
 
         public double getPos() {
             return pos;
+        }
+        public int getTime() {
+            return time;
         }
 
         public Position next() {
@@ -187,6 +210,10 @@ class Lift {
 
     public void gotoNextPosition() {
         position = position.next();
+    }
+
+    public Position getPosition() {
+        return position;
     }
 
     public Position getNextPosition() {
@@ -292,7 +319,10 @@ class Shooter {
     }
 
     public boolean upToSpeed() {
-        return Math.abs(getActualVelocity() - getTargetVelocity()) / getTargetVelocity() < .07;
+        // The -30 is a HACK due to some steady state error
+        // TODO: FIX steady state error
+        double target = getTargetVelocity() + 30;
+        return Math.abs((getActualVelocity() - target) / target)  < .02;
     }
 
     void toggleShooter() {
@@ -317,7 +347,7 @@ class Shooter {
 }
 
 class Intake {
-    final double SPEED = .7;
+    final double SPEED = 1.0;
     DcMotorEx actuator;
 
     enum IntakeState { FOREWARD, REVERSE, OFF}
