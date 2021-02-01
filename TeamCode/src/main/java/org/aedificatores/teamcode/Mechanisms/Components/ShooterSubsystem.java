@@ -68,6 +68,10 @@ public class ShooterSubsystem {
         shooter.runShooter();
     }
 
+    public void setSpeed(double speed) {
+        shooter.setSpeed(speed);
+    }
+
     public void stopShooter() {
         shooter.stopShooter();
     }
@@ -294,6 +298,8 @@ class Shooter {
     public static PIDFCoefficients velocityPIDCoeff = new PIDFCoefficients(200, 0.0, 0.0,0.0);
     boolean runningMotor = false;
     Taemer timer;
+    double speed = MAX_RPM;
+
     Shooter(HardwareMap map) {
         actuator = map.get(DcMotorEx.class, ShootSub.SHOOT_MOT);
         actuator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -306,12 +312,16 @@ class Shooter {
     void runShooter() {
         runningMotor = true;
         timer.resetTime();
-        actuator.setVelocity(-MAX_RPM * 2 * Math.PI / 60, AngleUnit.RADIANS);
+        actuator.setVelocity(-speed * 2 * Math.PI / 60, AngleUnit.RADIANS);
     }
 
     void stopShooter() {
         actuator.setVelocity(0);
         runningMotor = false;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     public boolean isRunning() {
@@ -338,7 +348,7 @@ class Shooter {
     }
 
     double getTargetVelocity() {
-        return -MAX_RPM * 2 * Math.PI / 60;
+        return -speed * 2 * Math.PI / 60;
     }
 
     double getActualVelocity() {
