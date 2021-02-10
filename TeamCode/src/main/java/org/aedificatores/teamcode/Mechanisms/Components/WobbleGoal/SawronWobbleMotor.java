@@ -7,19 +7,16 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
-import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
 import org.aedificatores.teamcode.Universal.Taemer;
 
 @Config
-public class WobbleMotor {
+public class SawronWobbleMotor {
     // All positions are in radians in this class
 
     enum State {
@@ -56,7 +53,7 @@ public class WobbleMotor {
     private MotionProfile currentProfile;
     private MotionState currentState;
 
-    public WobbleMotor(HardwareMap map, Mode m) {
+    public SawronWobbleMotor(HardwareMap map, Mode m) {
         actuator = map.get(DcMotorEx.class, SawronBotConfig.WobbleSub.MOT);
         actuator.setDirection(DcMotorSimple.Direction.REVERSE);
         clock = new Taemer();
@@ -66,7 +63,7 @@ public class WobbleMotor {
         setMode(m);
     }
 
-    public WobbleMotor(HardwareMap map) {
+    public SawronWobbleMotor(HardwareMap map) {
         this(map, Mode.TELEOP);
     }
 

@@ -7,9 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
-@Autonomous(name = "MaxVelocityShooter")
-public class MaxVelocityShooter extends OpMode {
+@Autonomous(name = "SawronMaxVelocityShooter", group = OpModeGroups.SAWRON)
+public class SawronMaxVelocityShooter extends OpMode {
     DcMotorEx motor;
     final double TICKS_PER_REV = 28;
     double currentRpm = 0, prevRpm = 0;

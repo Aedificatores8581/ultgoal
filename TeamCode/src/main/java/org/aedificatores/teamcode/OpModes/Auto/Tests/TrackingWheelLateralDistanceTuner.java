@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mecanum;
-import org.aedificatores.teamcode.Mechanisms.Components.ThreeWheelOdometryLocalizer;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronThreeWheelOdometryLocalizer;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 /**
  * Opmode designed to assist the user in tuning the `StandardTrackingWheelLocalizer`'s
@@ -62,15 +63,15 @@ import org.aedificatores.teamcode.Mechanisms.Components.ThreeWheelOdometryLocali
  * precision. The heading should still line up.
  */
 @Config
-@TeleOp(group = "drive")
+@TeleOp(group = OpModeGroups.UNIVERSAL)
 public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
     public static int NUM_TURNS = 10;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Mecanum drive = new Mecanum(hardwareMap);
+        SawronMecanum drive = new SawronMecanum(hardwareMap);
 
-        if (!(drive.getLocalizer() instanceof ThreeWheelOdometryLocalizer)) {
+        if (!(drive.getLocalizer() instanceof SawronThreeWheelOdometryLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "
                     + "drive class. Ensure that \"setLocalizer(new StandardTrackingWheelLocalizer"
                     + "(hardwareMap));\" is called in SampleMecanumDrive.java");
@@ -121,7 +122,7 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
         telemetry.clearAll();
         telemetry.addLine("Localizer's total heading: " + Math.toDegrees(headingAccumulator) + "°");
         telemetry.addLine("Effective LATERAL_DISTANCE: " +
-                (headingAccumulator / (NUM_TURNS * Math.PI * 2)) * ThreeWheelOdometryLocalizer.LATERAL_DISTANCE);
+                (headingAccumulator / (NUM_TURNS * Math.PI * 2)) * SawronThreeWheelOdometryLocalizer.LATERAL_DISTANCE);
 
         telemetry.update();
 

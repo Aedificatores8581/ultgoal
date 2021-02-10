@@ -6,16 +6,17 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mecanum;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 /*
  * This is an example of a more complex path to really test the tuning.
  */
-@Autonomous(group = "drive")
+@Autonomous(group = OpModeGroups.UNIVERSAL)
 public class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Mecanum drive = new Mecanum(hardwareMap);
+        SawronMecanum drive = new SawronMecanum(hardwareMap);
 
         waitForStart();
 

@@ -9,10 +9,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 import org.jetbrains.annotations.NotNull;
 
-@Autonomous(name = "PowerShotTest")
-public class PowerShotTest extends OpMode {
+@Autonomous(name = "SawronPowerShotTest",group = OpModeGroups.SAWRON)
+public class SawronPowerShotTest extends OpMode {
     final Pose2d START_POSE = new Pose2d(6 - 17.5/2.0, -(72 - 18.0/2.0), 0);
     final Vector2d FIRST_SHOT = new Vector2d(3 - 17.5/2.0, -18);
     final Vector2d SECOND_SHOT = new Vector2d(4 - 17.5/2.0, -12);

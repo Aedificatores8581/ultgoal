@@ -10,12 +10,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.WobbleGrabber;
+import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.SawronWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 import org.jetbrains.annotations.NotNull;
 
-@TeleOp(name = "ZigJavaTeleop")
-public class ZigJavaTeleop extends OpMode {
+@TeleOp(name = "SawronJavaTeleop", group = OpModeGroups.SAWRON)
+public class SawronJavaTeleop extends OpMode {
     SawronBot bot;
 
     // Power Shot Related Positions and Contstraints
@@ -59,7 +60,7 @@ public class ZigJavaTeleop extends OpMode {
     @Override
     public void init() {
         bot = new SawronBot(hardwareMap, false);
-        bot.wobbleGrabber.setMode(WobbleGrabber.Mode.TELEOP);
+        bot.wobbleGrabber.setMode(SawronWobbleGrabber.Mode.TELEOP);
         driveMode = DriveMode.TRIGGER_BASED;
     }
 

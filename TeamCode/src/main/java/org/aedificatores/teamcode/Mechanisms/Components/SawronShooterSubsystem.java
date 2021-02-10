@@ -9,14 +9,13 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
 
-import org.aedificatores.teamcode.Mechanisms.Sensors.Encoder;
 import org.aedificatores.teamcode.Universal.Taemer;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
 
 import static org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig.ShootSub;
 
-public class ShooterSubsystem {
+public class SawronShooterSubsystem {
     enum State {
         IDLE,
         KICKING,
@@ -33,11 +32,11 @@ public class ShooterSubsystem {
     private int advancedCounter = 0;
 
     boolean advanceQueued = false;
-    public ShooterSubsystem(HardwareMap map) {
+    public SawronShooterSubsystem(HardwareMap map) {
         this(map, false);
     }
 
-    public ShooterSubsystem(HardwareMap map, boolean isAuto) {
+    public SawronShooterSubsystem(HardwareMap map, boolean isAuto) {
         shooter = new Shooter(map);
         kicker = new Kicker(map);
         lift = new Lift(map, isAuto);

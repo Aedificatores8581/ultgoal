@@ -13,15 +13,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants;
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mecanum;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 import java.util.Objects;
 
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.RUN_USING_ENCODER;
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.kA;
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.kStatic;
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.kV;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.RUN_USING_ENCODER;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.kA;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.kStatic;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.kV;
 
 /*
  * This routine is designed to tune the open-loop feedforward coefficients. Although it may seem unnecessary,
@@ -43,13 +44,13 @@ import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.k
  * copied from roadrunner quickstart
  */
 @Config
-@Autonomous(group = "drive")
+@Autonomous(group = OpModeGroups.UNIVERSAL)
 public class ManualFeedforwardTuner extends LinearOpMode {
     public static double DISTANCE = 72; // in
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
-    private Mecanum drive;
+    private SawronMecanum drive;
 
     enum Mode {
         DRIVER_MODE,
@@ -62,9 +63,9 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal,
-                DriveConstants.BASE_CONSTRAINTS.maxVel,
-                DriveConstants.BASE_CONSTRAINTS.maxAccel,
-                DriveConstants.BASE_CONSTRAINTS.maxJerk);
+                SawronDriveConstants.BASE_CONSTRAINTS.maxVel,
+                SawronDriveConstants.BASE_CONSTRAINTS.maxAccel,
+                SawronDriveConstants.BASE_CONSTRAINTS.maxJerk);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
-        drive = new Mecanum(hardwareMap);
+        drive = new SawronMecanum(hardwareMap);
 
         mode = Mode.TUNING_MODE;
 

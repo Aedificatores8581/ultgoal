@@ -6,7 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 @Config
-public class DriveConstants {
+public class SawronDriveConstants {
     // These are for the GoBuilda 5202-0002-0014 motors on the drivetrain
     public static final double TICKS_PER_REV = 383.6;
     public static final double MAX_RPM = 435;

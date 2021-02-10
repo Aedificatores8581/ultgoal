@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.aedificatores.teamcode.Mechanisms.Components.ShooterSubsystem;
-import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronShooterSubsystem;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
-@Autonomous(name = "ShooterSubTest")
-public class ShooterSubTest extends OpMode {
-    ShooterSubsystem shooter;
+@Autonomous(name = "SawronShooterSubTest", group = OpModeGroups.SAWRON)
+public class SawronShooterSubTest extends OpMode {
+    SawronShooterSubsystem shooter;
     FtcDashboard dashboard;
     DcMotorEx motor;
 
@@ -21,7 +21,7 @@ public class ShooterSubTest extends OpMode {
 
     @Override
     public void init() {
-        shooter = new ShooterSubsystem(hardwareMap);
+        shooter = new SawronShooterSubsystem(hardwareMap);
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
         prev = new Gamepad();

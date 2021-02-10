@@ -4,31 +4,23 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.LynxModuleUtil;
-import org.aedificatores.teamcode.Mechanisms.Components.ThreeWheelOdometryLocalizer;
-import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronThreeWheelOdometryLocalizer;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
 import org.aedificatores.teamcode.Mechanisms.Sensors.BNO055IMUUtil;
 import org.aedificatores.teamcode.Universal.AxesSigns;
 import org.aedificatores.teamcode.Universal.DashboardUtil;
-import org.aedificatores.teamcode.Universal.Math.Pose;
-import org.aedificatores.teamcode.Universal.UniversalFunctions;
-import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
@@ -40,14 +32,11 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -55,7 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.*;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.*;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
@@ -63,7 +52,7 @@ import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.*
  * copied from road runner quickstart
  */
 @Config
-public class Mecanum extends MecanumDrive {
+public class SawronMecanum extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
@@ -104,7 +93,7 @@ public class Mecanum extends MecanumDrive {
 
     private Pose2d lastPoseOnTurn;
 
-    public Mecanum(HardwareMap hardwareMap) {
+    public SawronMecanum(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         dashboard = FtcDashboard.getInstance();
@@ -162,7 +151,7 @@ public class Mecanum extends MecanumDrive {
         leftFront.setDirection(REVERSE);
         leftRear.setDirection(REVERSE);
 
-        setLocalizer(new ThreeWheelOdometryLocalizer(hardwareMap));
+        setLocalizer(new SawronThreeWheelOdometryLocalizer(hardwareMap));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

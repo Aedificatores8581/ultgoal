@@ -7,11 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.WobbleGrabber;
+import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.SawronWobbleGrabber;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
-@TeleOp(name = "WobbleGrabberTest")
-public class WobbleGrabberTest extends OpMode {
-    WobbleGrabber grabber;
+@TeleOp(name = "SawronWobbleGrabberTest", group = OpModeGroups.SAWRON)
+public class SawronWobbleGrabberTest extends OpMode {
+    SawronWobbleGrabber grabber;
     Gamepad prev;
     FtcDashboard dashboard;
 
@@ -20,12 +21,12 @@ public class WobbleGrabberTest extends OpMode {
         AUTO,
         PID,
     }
-    Mode mode = WobbleGrabberTest.Mode.TELEOP;
+    Mode mode = SawronWobbleGrabberTest.Mode.TELEOP;
 
     @Override
     public void init() {
         prev = new Gamepad();
-        grabber = new WobbleGrabber(hardwareMap, WobbleGrabber.Mode.TELEOP);
+        grabber = new SawronWobbleGrabber(hardwareMap, SawronWobbleGrabber.Mode.TELEOP);
 
         dashboard = FtcDashboard.getInstance();
     }
@@ -109,7 +110,7 @@ public class WobbleGrabberTest extends OpMode {
     }
 
     void switchMode(Mode m) {
-        grabber.setMode(m == WobbleGrabberTest.Mode.AUTO ? WobbleGrabber.Mode.AUTO : WobbleGrabber.Mode.TELEOP);
+        grabber.setMode(m == SawronWobbleGrabberTest.Mode.AUTO ? SawronWobbleGrabber.Mode.AUTO : SawronWobbleGrabber.Mode.TELEOP);
         mode = m;
     }
 }

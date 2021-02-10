@@ -7,31 +7,36 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants;
+import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.SawronWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 import org.aedificatores.teamcode.Vision.RingDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "OneWobbleAuto")
+@Autonomous(name = "OneWobbleThreeHighAuto", group = OpModeGroups.SAWRON)
 @Config
-public class OneWobbleAuto extends OpMode {
+public class SawronOneWobbleThreeHighAuto extends OpMode {
 
     enum AutoState {
         DRIVE_TO_DEPOSIT,
         DROP_WOBBLE,
+        DRIVE_TO_SHOOT,
+        SHOOT,
         PARK,
         END
     }
 
     AutoState state = AutoState.DRIVE_TO_DEPOSIT;
+    // FtcDashboard dashboard;
 
     public static Vector2d SIDE_NEAR_POS = new Vector2d(-36.0, 9.0);
-    public static Vector2d SIDE_FAR_POS = new Vector2d(-36.0, -48.0);
+    public static Vector2d SIDE_FAR_POS = new Vector2d(-42.0, -36.0);
     public static Vector2d MIDDLE_POS = new Vector2d(-12.0, -20.0);
-    public static Pose2d PARK_POS = new Pose2d(-12.0, -12.0, -Math.PI/2);
+    public static Pose2d SHOOT_POS = new Pose2d(-0.0, 6.0, Math.toRadians(-100));
+    public static Vector2d PARK_POS = new Vector2d(-0.0, -12.0);
 
     enum WobblePosition {
         SIDE_NEAR(SIDE_NEAR_POS),
@@ -49,6 +54,7 @@ public class OneWobbleAuto extends OpMode {
 
     SawronBot bot;
     Trajectory trajDeposit;
+    Trajectory trajShoot;
     Trajectory trajPark;
     Pose2d startPose = new Pose2d(0.0, 72.0 - 17.0/2.0, Math.PI/2);
     WobblePosition wobblePosition;
@@ -57,6 +63,7 @@ public class OneWobbleAuto extends OpMode {
     private static final int HEIGHT = 240;
     OpenCvCamera cam;
     RingDetector pipe;
+    boolean cameraStreaming = false;
 
     @Override
     public void init() {
@@ -69,18 +76,30 @@ public class OneWobbleAuto extends OpMode {
             @Override
             public void onOpened() {
                 cam.startStreaming(WIDTH, HEIGHT, OpenCvCameraRotation.UPRIGHT);
+                cameraStreaming = true;
             }
         });
 
+    //    dashboard = FtcDashboard.getInstance();
+    //    dashboard.setTelemetryTransmissionInterval(25);
+
         bot = new SawronBot(hardwareMap);
         bot.drivetrain.setPoseEstimate(startPose);
-        bot.wobbleGrabber.lift();
+        bot.wobbleGrabber.setMode(SawronWobbleGrabber.Mode.TELEOP);
     }
+
+    // Used to Account for the fact that we don't know the state of the wobble
+    private boolean alreadyLifted = false;
 
     @Override
     public void init_loop() {
         telemetry.addData("Ring Stack", pipe.getRingStackType());
-        bot.wobbleGrabber.update();
+        bot.update();
+
+        if (gamepad1.a && !alreadyLifted) {
+            bot.wobbleGrabber.reset();
+            alreadyLifted = true;
+        }
     }
 
     @Override
@@ -101,11 +120,22 @@ public class OneWobbleAuto extends OpMode {
                 .splineToConstantHeading(new Vector2d(6.0, 0.0), Math.PI/2)
                 .splineToConstantHeading(wobblePosition.getPos(),Math.PI/2)
                 .build();
-        trajPark = bot.drivetrain.trajectoryBuilder(trajDeposit.end())
+        trajShoot = bot.drivetrain.trajectoryBuilder(trajDeposit.end())
                 .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(0.0, 6)), Math.PI/2)
-                .splineToSplineHeading(PARK_POS, 0)
+                .splineToSplineHeading(SHOOT_POS, 0)
+                .build();
+        trajPark = bot.drivetrain.trajectoryBuilder(trajShoot.end())
+                .splineToConstantHeading(PARK_POS, 0)
                 .build();
         bot.drivetrain.followTrajectoryAsync(trajDeposit);
+
+        cam.stopStreaming();
+        pipe.close();
+        cam.closeCameraDevice();
+        cameraStreaming = false;
+
+        bot.shooter.runShooter();
+        bot.wobbleGrabber.setMode(SawronWobbleGrabber.Mode.AUTO);
     }
 
     @Override
@@ -118,10 +148,22 @@ public class OneWobbleAuto extends OpMode {
                 }
                 break;
             case DROP_WOBBLE:
-                if (!bot.wobbleGrabber.isBusy()) {
+                if (bot.wobbleGrabber.isBusy()) {
+                    bot.drivetrain.followTrajectoryAsync(trajShoot);
+                    state = AutoState.DRIVE_TO_SHOOT;
+                }
+                break;
+            case DRIVE_TO_SHOOT:
+                if (!bot.drivetrain.isBusy()) {
+                    state = AutoState.SHOOT;
+                }
+                break;
+            case SHOOT:
+                if (bot.shooter.shotAllThree()) {
                     bot.drivetrain.followTrajectoryAsync(trajPark);
                     state = AutoState.PARK;
                 }
+                bot.shooter.advance();
                 break;
             case PARK:
                 if (!bot.drivetrain.isBusy()) {
@@ -129,16 +171,25 @@ public class OneWobbleAuto extends OpMode {
                 }
                 break;
             case END:
+                bot.shooter.stopShooter();
+                requestOpModeStop();
                 break;
         }
         bot.update();
         telemetry.addData("Wobble Position", wobblePosition);
+
+        // TelemetryPacket packet = new TelemetryPacket();
+        // packet.put("target", bot.shooter.getTargetShooterVelocity());
+        // packet.put("actual", bot.shooter.getActualShooterVelocity());
+        // dashboard.sendTelemetryPacket(packet);
     }
 
     @Override
     public void stop() {
-        cam.stopStreaming();
-        pipe.close();
-        cam.closeCameraDevice();
+        if (cameraStreaming) {
+            cam.stopStreaming();
+            pipe.close();
+            cam.closeCameraDevice();
+        }
     }
 }
