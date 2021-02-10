@@ -2,7 +2,6 @@ package org.aedificatores.teamcode.Mechanisms.Drivetrains;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 @Config
@@ -54,10 +53,11 @@ public class SawronDriveConstants {
      * acceleration values are required, and the jerk values are optional (setting a jerk of 0.0
      * forces acceleration-limited profiling). All distance units are inches.
      */
-    public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            34.4, 34.4, 0.0,
-            Math.toRadians(360), Math.toRadians(360), 0.0
-    );
+
+    public static double MAX_VEL = 34.4;
+    public static double MAX_ACCEL = 34.4;
+    public static double MAX_ANG_VEL = Math.toRadians(360);
+    public static double MAX_ANG_ACCEL = Math.toRadians(360);
 
 
     public static final double encoderTicksToInches(double ticks) {

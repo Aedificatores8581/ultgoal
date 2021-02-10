@@ -63,9 +63,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal,
-                SawronDriveConstants.BASE_CONSTRAINTS.maxVel,
-                SawronDriveConstants.BASE_CONSTRAINTS.maxAccel,
-                SawronDriveConstants.BASE_CONSTRAINTS.maxJerk);
+                SawronDriveConstants.MAX_VEL,
+                SawronDriveConstants.MAX_ACCEL);
     }
 
     @Override

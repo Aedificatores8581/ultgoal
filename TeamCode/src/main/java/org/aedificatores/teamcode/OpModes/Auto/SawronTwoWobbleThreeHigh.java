@@ -2,9 +2,7 @@ package org.aedificatores.teamcode.OpModes.Auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.profile.SimpleMotionConstraints;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -73,14 +71,6 @@ public class SawronTwoWobbleThreeHigh extends OpMode {
     Trajectory trajShoot;
     Trajectory trajPark;
     WobblePosition wobblePosition;
-
-    TrajectoryConstraints slowConstraints = new TrajectoryConstraints() {
-        @NotNull
-        @Override
-        public SimpleMotionConstraints get(double v, @NotNull Pose2d pose2d, @NotNull Pose2d pose2d1, @NotNull Pose2d pose2d2) {
-            return new SimpleMotionConstraints(5,5);
-        }
-    };
 
     private static final int WIDTH = 320;
     private static final int HEIGHT = 240;
