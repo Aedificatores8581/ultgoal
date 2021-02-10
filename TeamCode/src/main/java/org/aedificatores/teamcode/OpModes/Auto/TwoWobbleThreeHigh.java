@@ -39,8 +39,8 @@ public class TwoWobbleThreeHigh extends OpMode {
     private static Vector2d SIDE_FAR_POS = new Vector2d(48, -60.0);
     private static Vector2d MIDDLE_POS = new Vector2d(21.0, -36);
     private static  Pose2d SECOND_WOBBLE_LINEUP = new Pose2d(-12, -51, 0);
-    private static Pose2d SECOND_WOBBLE_SIDE_NEAR = new Pose2d(-34, -51, 0);
-    private static Pose2d SECOND_WOBBLE_SIDE_FAR = new Pose2d(-34, -48, 0);
+    private static Pose2d SECOND_WOBBLE_SIDE_NEAR = new Pose2d(-34, -51, Math.toRadians(10));
+    private static Pose2d SECOND_WOBBLE_SIDE_FAR = new Pose2d(-34, -48, Math.toRadians(10));
     private static Pose2d SECOND_WOBBLE_MIDDLE = new Pose2d(-34, -51, 0);
     private static Pose2d POINT_AVOID_RINGS_AGAIN = new Pose2d(-24, -48, Math.PI);
     private static Pose2d SHOOT_POS = new Pose2d(-2, -37, Math.toRadians(3));
@@ -164,13 +164,13 @@ public class TwoWobbleThreeHigh extends OpMode {
         if (wobblePosition == WobblePosition.SIDE_NEAR) {
             trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
                     .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI / 2)
-                    .splineToSplineHeading(SHOOT_POS, Math.PI / 2)
+                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,Math.toRadians(5))), Math.PI / 2)
                     .addDisplacementMarker(() -> bot.shooter.advance())
                     .build();
         } else if (wobblePosition == WobblePosition.SIDE_FAR) {
             trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
                     .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI / 2)
-                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,-Math.toRadians(-3))), Math.PI / 2)
+                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,Math.toRadians(5))), Math.PI / 2)
                     .addDisplacementMarker(() -> bot.shooter.advance())
                     .build();
         } else {
@@ -192,6 +192,7 @@ public class TwoWobbleThreeHigh extends OpMode {
         cameraStreaming = false;
 
         bot.wobbleGrabber.setMode(WobbleGrabber.Mode.AUTO);
+        bot.shooter.setSpeedMax();
         bot.wobbleGrabber.lift();
     }
 

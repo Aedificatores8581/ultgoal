@@ -32,6 +32,7 @@ public class ShooterSubsystem {
     private Taemer timer;
     private int advancedCounter = 0;
 
+    boolean advanceQueued = false;
     public ShooterSubsystem(HardwareMap map) {
         this(map, false);
     }
@@ -72,6 +73,10 @@ public class ShooterSubsystem {
         shooter.setSpeed(speed);
     }
 
+    public void setSpeedMax() {
+        shooter.setSpeed(Shooter.MAX_RPM);
+    }
+
     public void stopShooter() {
         shooter.stopShooter();
     }
@@ -110,12 +115,17 @@ public class ShooterSubsystem {
         }
     }
 
+    public void queueAdvance() {
+        advanceQueued = true;
+    }
+
     public void forceAdvance() {
         if (state == State.IDLE) {
             state = State.KICKING;
             kicker.kick();
             timer.resetTime();
             advancedCounter++;
+            advanceQueued = false;
         }
     }
 
@@ -143,6 +153,10 @@ public class ShooterSubsystem {
     }
 
     public void update() {
+        if (advanceQueued && shooter.upToSpeed()) {
+            forceAdvance();
+        }
+
         switch (state) {
             case IDLE:
                 break;
@@ -291,7 +305,7 @@ class Kicker {
 
 @Config
 class Shooter {
-    public static double MAX_RPM = 4450;
+    public static double MAX_RPM = 4550;
     public static double SPEED_UP_TIME = 6000; // milliseconds until max velocity
 
     DcMotorEx actuator;
