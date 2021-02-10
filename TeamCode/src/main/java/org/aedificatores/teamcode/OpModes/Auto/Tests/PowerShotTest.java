@@ -11,12 +11,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
 import org.jetbrains.annotations.NotNull;
 
-@Autonomous
+@Autonomous(name = "PowerShotTest")
 public class PowerShotTest extends OpMode {
-    final Pose2d START_POSE = new Pose2d(6 - 17.0/2.0, -(72 - 18.0/2.0), 0);
-    final Vector2d FIRST_SHOT = new Vector2d(6 - 17.0/2.0, -18);
-    final Vector2d SECOND_SHOT = new Vector2d(6 - 17.0/2.0, -12);
-    final Vector2d THIRD_SHOT = new Vector2d(6 - 17.0/2.0, -6);
+    final Pose2d START_POSE = new Pose2d(6 - 17.5/2.0, -(72 - 18.0/2.0), 0);
+    final Vector2d FIRST_SHOT = new Vector2d(3 - 17.5/2.0, -18);
+    final Vector2d SECOND_SHOT = new Vector2d(4 - 17.5/2.0, -12);
+    final Vector2d THIRD_SHOT = new Vector2d(4 - 17.5/2.0, 0);
 
     Trajectory trajShoot;
 
@@ -25,6 +25,13 @@ public class PowerShotTest extends OpMode {
         @Override
         public SimpleMotionConstraints get(double v, @NotNull Pose2d pose2d, @NotNull Pose2d pose2d1, @NotNull Pose2d pose2d2) {
             return new SimpleMotionConstraints(5,5);
+        }
+    };
+    TrajectoryConstraints medConstraints = new TrajectoryConstraints() {
+        @NotNull
+        @Override
+        public SimpleMotionConstraints get(double v, @NotNull Pose2d pose2d, @NotNull Pose2d pose2d1, @NotNull Pose2d pose2d2) {
+            return new SimpleMotionConstraints(10,10);
         }
     };
 
@@ -39,15 +46,16 @@ public class PowerShotTest extends OpMode {
     public void start() {
         trajShoot = bot.drivetrain.trajectoryBuilder(START_POSE)
                 .splineToConstantHeading(FIRST_SHOT, Math.PI/2)
-                .addDisplacementMarker(() -> bot.shooter.forceAdvance())
+                .addDisplacementMarker(() -> bot.shooter.queueAdvance())
                 .splineToConstantHeading(SECOND_SHOT, Math.PI/2, slowConstraints)
-                .addDisplacementMarker(() -> bot.shooter.forceAdvance())
-                .splineToConstantHeading(THIRD_SHOT, Math.PI/2, slowConstraints)
-                .addDisplacementMarker(() -> bot.shooter.forceAdvance())
+                .addDisplacementMarker(() -> bot.shooter.queueAdvance())
+                .splineToConstantHeading(THIRD_SHOT, Math.PI/2, medConstraints)
+                .addDisplacementMarker(() -> bot.shooter.queueAdvance())
                 .build();
         bot.drivetrain.followTrajectoryAsync(trajShoot);
-        bot.shooter.setSpeed(3000);
+        bot.shooter.setSpeed(3900);
         bot.shooter.runShooter();
+        bot.shooter.setLiftPosShootTopRing();
     }
 
     @Override
