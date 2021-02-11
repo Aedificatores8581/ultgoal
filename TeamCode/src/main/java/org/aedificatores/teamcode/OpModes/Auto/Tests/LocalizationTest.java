@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 
@@ -23,7 +24,7 @@ import org.aedificatores.teamcode.Universal.OpModeGroups;
 public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        SawronMecanum drive = new SawronMecanum(hardwareMap);
+        GandalfMecanum drive = new GandalfMecanum(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
