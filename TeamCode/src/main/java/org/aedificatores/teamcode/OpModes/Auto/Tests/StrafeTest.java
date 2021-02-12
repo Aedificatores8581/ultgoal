@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 
@@ -19,7 +20,7 @@ public class StrafeTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SawronMecanum drive = new SawronMecanum(hardwareMap);
+        GandalfMecanum drive = new GandalfMecanum(hardwareMap);
 
         Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
                 .strafeRight(DISTANCE)
