@@ -31,7 +31,7 @@ import java.util.List;
 @Config
 public class GandalfThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     public static final double X_MULTIPLIER = 0.9940177551;
-    public static final double Y_MULTIPLIER = 1.000491469;
+    public static final double Y_MULTIPLIER = 1.000491469*0.9855840177;
 
     public static double TICKS_PER_REV = 8192;
     public static double WHEEL_RADIUS = 1.77165; // in
