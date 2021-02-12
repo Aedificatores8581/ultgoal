@@ -13,17 +13,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfDriveConstants;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants;
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 import java.util.Objects;
 
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.RUN_USING_ENCODER;
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.kA;
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.kStatic;
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.kV;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfDriveConstants.RUN_USING_ENCODER;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfDriveConstants.kA;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfDriveConstants.kStatic;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfDriveConstants.kV;
 
 /*
  * This routine is designed to tune the open-loop feedforward coefficients. Although it may seem unnecessary,
@@ -64,8 +63,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal,
-                SawronDriveConstants.MAX_VEL,
-                SawronDriveConstants.MAX_ACCEL);
+                GandalfDriveConstants.MAX_VEL,
+                GandalfDriveConstants.MAX_ACCEL);
     }
 
     @Override
