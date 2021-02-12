@@ -47,7 +47,7 @@ public class GandalfDriveConstants {
      */
     public static double WHEEL_RADIUS = 1.9685; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 13.75; // in
+    public static double TRACK_WIDTH = 14.94; // in
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -89,7 +89,7 @@ public class GandalfDriveConstants {
      */
     public static double MAX_VEL = 54.66855022514893;
     public static double MAX_ACCEL = 54.66855022514893;
-    public static double MAX_ANG_VEL = Math.toRadians(227.80197818181819);
+    public static double MAX_ANG_VEL = Math.toRadians(276.6559033);
     public static double MAX_ANG_ACCEL = Math.toRadians(227.80197818181819);
 
 
