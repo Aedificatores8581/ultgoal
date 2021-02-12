@@ -7,7 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
+import org.aedificatores.teamcode.Mechanisms.Components.GandalfThreeWheelOdometryLocalizer;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
 import org.aedificatores.teamcode.Mechanisms.Components.SawronThreeWheelOdometryLocalizer;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 
@@ -69,9 +70,9 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SawronMecanum drive = new SawronMecanum(hardwareMap);
+        GandalfMecanum drive = new GandalfMecanum(hardwareMap);
 
-        if (!(drive.getLocalizer() instanceof SawronThreeWheelOdometryLocalizer)) {
+        if (!(drive.getLocalizer() instanceof GandalfThreeWheelOdometryLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "
                     + "drive class. Ensure that \"setLocalizer(new StandardTrackingWheelLocalizer"
                     + "(hardwareMap));\" is called in SampleMecanumDrive.java");
