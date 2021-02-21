@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ import java.util.Objects;
  */
 
 @Config
-@Autonomous(group = "drive")
+@Autonomous(group = OpModeGroups.UNIVERSAL)
 public class MaxAngularVeloTuner extends LinearOpMode {
     public static double RUNTIME = 4.0;
 

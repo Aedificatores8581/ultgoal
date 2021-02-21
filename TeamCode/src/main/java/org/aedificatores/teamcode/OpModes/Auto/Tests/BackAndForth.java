@@ -30,7 +30,7 @@ import org.aedificatores.teamcode.Universal.OpModeGroups;
 @Autonomous(group = OpModeGroups.UNIVERSAL)
 public class BackAndForth extends LinearOpMode {
 
-    public static double DISTANCE = 50;
+    public static double DISTANCE = 48;
 
     @Override
     public void runOpMode() throws InterruptedException {
