@@ -238,7 +238,7 @@ public class SawronWobbleGrabber {
 
             case CLOSE_PULLER:
                 puller.setPosition(PULL_CLOSED_POSITION);
-                if (timer.getTime() > 300 || grabberClosed) {
+                if (timer.getTimeMillis() > 300 || grabberClosed) {
                     grabberState = GrabberState.CLOSE_GATE;
                     timer.resetTime();
                 }
@@ -246,7 +246,7 @@ public class SawronWobbleGrabber {
 
             case CLOSE_GATE:
                 gate.setPosition(GATE_CLOSED_POSITION);
-                if (timer.getTime() > 300 || grabberClosed) {
+                if (timer.getTimeMillis() > 300 || grabberClosed) {
                     grabberState = GrabberState.IDLE;
                     grabberClosed = true;
                 }
@@ -254,14 +254,14 @@ public class SawronWobbleGrabber {
 
             case OPEN_GATE:
                 gate.setPosition(GATE_OPEN_POSITION);
-                if (timer.getTime() > 300 || !grabberClosed) {
+                if (timer.getTimeMillis() > 300 || !grabberClosed) {
                     grabberState = GrabberState.OPEN_PULLER;
                 }
                 break;
 
             case OPEN_PULLER:
                 puller.setPosition(PULL_OPEN_POSITION);
-                if (timer.getTime() > 300 || !grabberClosed) {
+                if (timer.getTimeMillis() > 300 || !grabberClosed) {
                     grabberState = GrabberState.IDLE;
                     timer.resetTime();
                     grabberClosed = false;

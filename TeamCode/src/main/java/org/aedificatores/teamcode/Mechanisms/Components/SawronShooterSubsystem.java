@@ -167,7 +167,7 @@ public class SawronShooterSubsystem {
                 }
                 break;
             case MOVING_UP:
-                if (timer.getTime() > lift.getPosition().getTime()) {
+                if (timer.getTimeMillis() > lift.getPosition().getTime()) {
                     state = State.IDLE;
                 }
                 break;
@@ -276,13 +276,13 @@ class Kicker {
     void update() {
         switch (state){
             case KICK_FORE:
-                if (timer.getTime() > 300) {
+                if (timer.getTimeMillis() > 300) {
                     state = State.KICK_BACK;
                     timer.resetTime();
                 }
                 break;
             case KICK_BACK:
-                if (timer.getTime() > 300) {
+                if (timer.getTimeMillis() > 300) {
                     state = State.IDLE;
                     timer.resetTime();
                 }

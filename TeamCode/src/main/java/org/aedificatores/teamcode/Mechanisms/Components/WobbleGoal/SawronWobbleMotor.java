@@ -77,14 +77,14 @@ public class SawronWobbleMotor {
     public void update() {
         if (state == State.ACTIVE) {
             if (mode == Mode.AUTO) {
-                currentState = currentProfile.get((double) clock.getTime() / 1000.0);
+                currentState = currentProfile.get(clock.getTimeSec());
                 controller.setTargetPosition(currentState.getX());
                 controller.setTargetVelocity(currentState.getV());
                 controller.setTargetAcceleration(currentState.getA());
                 actuator.setPower(controller.update(getCurrentAngle(), getCurrentAngularVelocity()));
 
                 //if (clock.getTime() / 1000.0 >= currentProfile.duration()) {
-                if (epsilonEquals(getCurrentAngle(), currentProfile.end().getX()) || clock.getTime() / 1000.0 >= currentProfile.duration() + 1.0) {
+                if (epsilonEquals(getCurrentAngle(), currentProfile.end().getX()) || clock.getTimeSec() >= currentProfile.duration() + 1.0) {
                     actuator.setPower(0.0);
                     state = State.IDLE;
                 }
