@@ -3,6 +3,7 @@ package org.aedificatores.teamcode.Vision.VisionTests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 import org.aedificatores.teamcode.Vision.RingDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -10,7 +11,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
-@Autonomous(name = "Ring Detector Test")
+@Autonomous(group = OpModeGroups.UNIVERSAL)
 public class RingDetectorTest extends OpMode {
 
     private static final int WIDTH = 320;
