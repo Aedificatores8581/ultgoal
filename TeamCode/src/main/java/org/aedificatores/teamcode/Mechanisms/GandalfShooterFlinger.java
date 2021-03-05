@@ -18,17 +18,25 @@ import org.aedificatores.teamcode.Universal.Taemer;
 
 @Config
 public class GandalfShooterFlinger {
+    // Roadrunner just sorta assumes that every setpoint/target in its PID Controller
+    // is a position. Of course, here we are trying to control velocity. This is why we, for
+    // example pass the current velocity into the measured position term, since that parameter
+    // is *actually* just the setpoint, and measured velocity is just the derivative of the
+    // setpoint. Same applies to the motion profile
+
     public static final double MAX_VEL = 600*.8; // Radians/sec
     public static final double MAX_ACCEL = 600*.8; //// Radians/sec^2
-    public static final double MAX_JERK = 600*.8; //// Radians/sec^2
+    public static final double MAX_JERK = 600*.8; //// Radians/sec^3
     public static final double RADIANS_PER_ENC = (2 * Math.PI)/28;
 
-    public static double kP = 0;
+    public static double kP = 1e-7;
     public static double kI = 0;
-    public static double kD = 0;
+    public static double kD = 0.000003;
+
+    public static double kA = 0.00001116, kJ = 0.000011;
 
     PIDCoefficients coeffs = new PIDCoefficients(kP, kI, kD);
-    PIDFController controller = new PIDFController(coeffs, 0, 0, 0);
+    PIDFController controller = new PIDFController(coeffs, kA, kJ, 0);
     MotionProfile profile;
 
     DcMotorEx actuator[];
@@ -49,7 +57,7 @@ public class GandalfShooterFlinger {
             actuator[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
         encoder =  new Encoder(map.get(DcMotorEx.class, GandalfBotConfig.SHOOT.FLING[GandalfBotConfig.SHOOT.ODOM_INDEX]));
-        encoder.setDirection(Encoder.Direction.REVERSE);
+        encoder.setDirection(Encoder.Direction.FORWARD);
 
         accelClock = new Taemer();
         profileClock = new Taemer();
@@ -62,12 +70,6 @@ public class GandalfShooterFlinger {
         accelClock.resetTime();
         pastVel = currentVel;
 
-
-        // Roadrunner just sorta assumes that every setpoint/target in its PID Controller
-        // is a position. Of course, here we are trying to control velocity. This is why we, for
-        // example pass the current velocity into the measured position term, since that parameter
-        // is *actually* just the setpoint, and measured velocity is just the derivative of the
-        // setpoint. Same applies to the motion profile
         MotionState targetState = profile.get(profileClock.getTimeSec());
 
         controller.setTargetPosition(targetState.getX()); // NOTE: This ACTUALLY SETS TARGET VELOCITY!!
@@ -96,7 +98,7 @@ public class GandalfShooterFlinger {
     public void setSpeed(double radPerSec) {
         MotionState start = new MotionState(currentVel, currentAccel, 0,0 );
         MotionState goal = new MotionState(radPerSec, 0, 0,0 );
-        profile =  MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VEL, MAX_ACCEL, MAX_JERK);
+        profile =  MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_ACCEL, MAX_JERK);
         profileClock.resetTime();
     }
 
