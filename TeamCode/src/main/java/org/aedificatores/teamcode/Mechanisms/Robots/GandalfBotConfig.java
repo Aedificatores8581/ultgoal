@@ -17,6 +17,6 @@ public interface GandalfBotConfig {
     interface SHOOT {
         String[] FLING = {"shooter1", "shooter2"};
         String INTAKE = "intake";
-        int ODOM_INDEX = 0;
+        int ODOM_INDEX = 1;
     }
 }
