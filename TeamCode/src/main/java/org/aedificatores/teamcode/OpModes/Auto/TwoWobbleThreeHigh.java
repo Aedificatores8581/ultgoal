@@ -170,7 +170,7 @@ public class TwoWobbleThreeHigh extends OpMode {
         } else if (wobblePosition == WobblePosition.SIDE_FAR) {
             trajShoot = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
                     .splineToConstantHeading(wobblePosition.getPos().plus(new Vector2d(-20, 0)), Math.PI / 2)
-                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,Math.toRadians(5))), Math.PI / 2)
+                    .splineToSplineHeading(SHOOT_POS.plus(new Pose2d(0,0,Math.toRadians(2))), Math.PI / 2)
                     .addDisplacementMarker(() -> bot.shooter.advance())
                     .build();
         } else {
