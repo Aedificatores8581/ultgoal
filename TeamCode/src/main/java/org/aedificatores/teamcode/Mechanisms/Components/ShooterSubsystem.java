@@ -182,10 +182,10 @@ public class ShooterSubsystem {
 
 class Lift {
     public enum Position {
-        DOWN(0.91, 900),
-        POS_SHOOT_TOP_RING(0.25, 1000),
-        POS_SHOOT_MIDDLE_RING(0.12, 400),
-        POS_SHOOT_BOTTOM_RING(0.0, 400);
+        DOWN(0.91, 1000),
+        POS_SHOOT_TOP_RING(0.25, 900),
+        POS_SHOOT_MIDDLE_RING(0.12, 200),
+        POS_SHOOT_BOTTOM_RING(0.0, 200);
 
         private double pos;
         private int time;
