@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Mechanisms;
+package org.aedificatores.teamcode.Mechanisms.Components;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;

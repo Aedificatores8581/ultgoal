@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.aedificatores.teamcode.Mechanisms.GandalfShooterFlinger;
+import org.aedificatores.teamcode.Mechanisms.Components.GandalfShooterFlinger;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 @Config
