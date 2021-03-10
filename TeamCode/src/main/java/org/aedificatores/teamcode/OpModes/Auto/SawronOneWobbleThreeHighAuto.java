@@ -7,7 +7,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.SawronWobbleGrabber;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal.SawronWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 import org.aedificatores.teamcode.Vision.RingDetector;

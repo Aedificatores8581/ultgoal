@@ -5,7 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.SawronWobbleMotor;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal.SawronWobbleMotor;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 

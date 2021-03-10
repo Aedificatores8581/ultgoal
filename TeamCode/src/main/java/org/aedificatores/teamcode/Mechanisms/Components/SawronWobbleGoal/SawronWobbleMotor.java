@@ -1,4 +1,4 @@
-package org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal;
+package org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal;
 
 
 import com.acmerobotics.dashboard.config.Config;

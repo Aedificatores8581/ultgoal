@@ -3,7 +3,7 @@ package org.aedificatores.teamcode.Mechanisms.Robots;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.SawronShooterSubsystem;
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.SawronWobbleGrabber;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal.SawronWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
 
 public class SawronBot {
