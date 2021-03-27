@@ -19,4 +19,11 @@ public interface GandalfBotConfig {
         String INTAKE = "intake";
         int ODOM_INDEX = 1;
     }
+
+    interface WOBBLE {
+        String POTENT = "potentiometer";
+        String MOT = "wobble";
+        String SERV_UP = "upper";
+        String SERV_LO = "lower";
+    }
 }
