@@ -22,27 +22,31 @@ public class GandalfWobbleMotorStillTest extends OpMode {
 
     @Override
     public void init() {
-        motor = new GandalfWobbleMotor(hardwareMap, GandalfWobbleMotor.Mode.AUTO);
-        motor.setWobbleState(GandalfWobbleMotor.WobbleState.HOLDING_WOBBLE);
+        motor = new GandalfWobbleMotor(hardwareMap, GandalfWobbleMotor.Mode.TELEOP);
+        motor.setWobbleState(GandalfWobbleMotor.WobbleState.NOT_HOLDING_WOBBLE);
         upper = hardwareMap.servo.get(GandalfBotConfig.WOBBLE.SERV_UP);
         lower = hardwareMap.servo.get(GandalfBotConfig.WOBBLE.SERV_LO);
         dashboard = FtcDashboard.getInstance();
-    }
 
-    @Override
-    public void start() {
-        motor.gotoAngle(motor.getCurrentAngularVelocityRadians());
-        motor.update();
         upper.setPosition(SERV_UP_CLOSED_POS);
         lower.setPosition(SERV_LO_CLOSED_POS);
     }
 
     @Override
+    public void start() {
+    }
+
+    @Override
     public void loop() {
+        motor.setPower(motor.getFeedforeward());
+        motor.update();
+
+        resetStartTime();
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("angle degrees", motor.getCurrentAngleDegrees());
         packet.put("feedforward", motor.getFeedforeward());
-        motor.update();
+        packet.put("power", motor.getPower());
         dashboard.sendTelemetryPacket(packet);
+
     }
 }

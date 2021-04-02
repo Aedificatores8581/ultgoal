@@ -18,18 +18,19 @@ public class GandalfWobbleMotorMoveTest extends OpMode {
     public static final double SERV_LO_CLOSED_POS = .052;
     enum State {MOVING_UP, MOVING_DOWN}
 
-    public static double UP_ANGLE = 270*Math.PI/180.0;
-    public static double DOWN_ANGLE = 0*Math.PI/180.0;
+    public static double UP_ANGLE = 0*Math.PI/180.0;
+    public static double DOWN_ANGLE = 270*Math.PI/180.0;
 
     GandalfWobbleMotor motor;
     Servo upper, lower;
     FtcDashboard dashboard;
 
     State state = State.MOVING_UP;
+    TelemetryPacket packet = new TelemetryPacket();
     @Override
     public void init() {
         motor = new GandalfWobbleMotor(hardwareMap, GandalfWobbleMotor.Mode.AUTO);
-        motor.setWobbleState(GandalfWobbleMotor.WobbleState.HOLDING_WOBBLE);
+        motor.setWobbleState(GandalfWobbleMotor.WobbleState.NOT_HOLDING_WOBBLE);
         upper = hardwareMap.servo.get(GandalfBotConfig.WOBBLE.SERV_UP);
         lower = hardwareMap.servo.get(GandalfBotConfig.WOBBLE.SERV_LO);
         upper.setPosition(SERV_UP_CLOSED_POS);
@@ -40,7 +41,6 @@ public class GandalfWobbleMotorMoveTest extends OpMode {
     @Override
     public void start() {
         motor.gotoAngle(UP_ANGLE);
-        motor.update();
     }
 
     @Override
@@ -59,13 +59,14 @@ public class GandalfWobbleMotorMoveTest extends OpMode {
                 }
                 break;
         }
-
-        TelemetryPacket packet = new TelemetryPacket();
         packet.put("current angle", motor.getCurrentAngleDegrees());
         packet.put("target angle", motor.getTargetAngleDegrees());
         packet.put("current vel", motor.getCurrentAngularVelocityDegrees());
         packet.put("target vel", motor.getTargetAngularVelocityDegrees());
+        packet.put("power", motor.getPower());
+
         dashboard.sendTelemetryPacket(packet);
         motor.update();
+        packet.clearLines();
     }
 }
