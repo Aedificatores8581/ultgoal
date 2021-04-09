@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.MovingStatistics;
 
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfDriveConstants;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
@@ -69,9 +70,8 @@ public class TrackWidthTuner extends LinearOpMode {
                 drive.update();
             }
 
-            double trackWidth = SawronDriveConstants.TRACK_WIDTH * Math.toRadians(ANGLE) / headingAccumulator;
+            double trackWidth = GandalfDriveConstants.TRACK_WIDTH * Math.toRadians(ANGLE) / drive.getPoseEstimate().getHeading();
             trackWidthStats.add(trackWidth);
-
             sleep(DELAY);
         }
 

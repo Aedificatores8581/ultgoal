@@ -9,9 +9,9 @@ public interface GandalfBotConfig {
     }
 
     interface ODOM {
-        String RIGHT = "Front Right";
+        String RIGHT = "Rear Right";
         String LEFT = "Front Left";
-        String STRAFE = "Rear Right";
+        String STRAFE = "Front Right";
     }
 
     interface SHOOT {

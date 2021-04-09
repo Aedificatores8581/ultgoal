@@ -18,8 +18,8 @@ public class GandalfWobbleMotorMoveTest extends OpMode {
     public static final double SERV_LO_CLOSED_POS = .052;
     enum State {MOVING_UP, MOVING_DOWN}
 
-    public static double UP_ANGLE = 0*Math.PI/180.0;
-    public static double DOWN_ANGLE = 270*Math.PI/180.0;
+    public static double UP_ANGLE = 100*Math.PI/180.0;
+    public static double DOWN_ANGLE = 260*Math.PI/180.0;
 
     GandalfWobbleMotor motor;
     Servo upper, lower;

@@ -31,9 +31,9 @@ public class GandalfWobbleMotor {
     public static final double GRABBER_MASS = .650; // in kilograms
     public static final double WOBBLE_MASS = .410; // in kilograms
 
-    public static double maxAccel = 6;
-    public static double maxVel = 5;
-    public static PIDCoefficients coeff = new PIDCoefficients(0.0, 0.0, 0.0);
+    public static double maxAccel = 4;
+    public static double maxVel = 3;
+    public static PIDCoefficients coeff = new PIDCoefficients(1.2, 0.0, 0.1);
     PIDFController controller = new PIDFController(coeff, 0.0, 0.0, 0.0);
 
     public enum WobbleState {
