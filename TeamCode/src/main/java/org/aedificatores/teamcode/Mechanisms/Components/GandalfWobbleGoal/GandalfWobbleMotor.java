@@ -111,6 +111,7 @@ public class GandalfWobbleMotor {
         this.mode = mode;
     }
 
+    // Not exactly used in practice
     public void setWobbleState(WobbleState state) {
         wobbleState = state;
     }
@@ -129,7 +130,7 @@ public class GandalfWobbleMotor {
                     actuator.setPower(power);
 
                     //if (clock.getTime() / 1000.0 >= currentProfile.duration()) {
-                    if (epsilonEquals(getCurrentAngleRadians(), currentProfile.end().getX()) || clock.getTimeSec() >= currentProfile.duration() + 1.0) {
+                    if (epsilonEquals(getCurrentAngleRadians(), currentProfile.end().getX()) || clock.getTimeSec() >= currentProfile.duration() + .2) {
                         moving = false;
                     }
                 case IDLE:
@@ -165,7 +166,7 @@ public class GandalfWobbleMotor {
     }
 
     // angle is in radians, velocity in rad/s
-    // unused. used to be for when we had a much less intensive gearing, se we would
+    // unused. used to be for when we had a much less intensive gearing, so we would
     // have to counteract the forces of gravity to make the wobble goal stay still.
     public double getFeedforeward() {
         return 0.0;

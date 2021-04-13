@@ -14,8 +14,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 @Autonomous(group = OpModeGroups.UNIVERSAL)
 public class RingDetectorTest extends OpMode {
 
-    private static final int WIDTH = 320;
-    private static final int HEIGHT = 240;
+    private static final int WIDTH = 640;
+    private static final int HEIGHT = 480;
 
     OpenCvCamera cam;
     RingDetector pipe;
@@ -33,7 +33,7 @@ public class RingDetectorTest extends OpMode {
             @Override
             public void onOpened()
             {
-                cam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                cam.startStreaming(WIDTH, HEIGHT, OpenCvCameraRotation.UPRIGHT);
             }
         });
     }

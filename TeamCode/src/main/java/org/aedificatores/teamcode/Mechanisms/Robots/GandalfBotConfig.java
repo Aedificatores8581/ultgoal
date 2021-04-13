@@ -26,4 +26,12 @@ public interface GandalfBotConfig {
         String SERV_UP = "upper";
         String SERV_LO = "lower";
     }
+
+    interface INTAKE {
+        String MOT = "intake";
+        String SERV = "intake";
+        String ENC = "wobble";
+        String TRANSFER_LEFT = "transferleft";
+        String TRANSFER_RIGHT = "transferright";
+    }
 }

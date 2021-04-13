@@ -1,16 +1,20 @@
 package org.aedificatores.teamcode.Vision;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+@Config
 public class RingDetector extends OpenCvPipeline {
     public enum RingStackType {
-        NONE(0), ONE(100000), QUAD(400000);
+        NONE(0), ONE(50000), QUAD(190000);
 
         long thresh;
 
@@ -27,6 +31,9 @@ public class RingDetector extends OpenCvPipeline {
     private Mat bgrImage;
     private Mat threshold;
     private Mat thresholdAfterROI;
+    private Mat dilation;
+    private Mat erosion;
+    private Mat kernel;
     private Rect roi;
 
     private Mat colSum;
@@ -39,10 +46,10 @@ public class RingDetector extends OpenCvPipeline {
     private RingStackType ringStackType;
 
     private int screenWidth, screenHeight;
-    private int H_MIN = 0,
-            S_MIN = 185,
-            V_MIN = 40,
-            H_MAX = 70,
+    public static int H_MIN = 0,
+            S_MIN = 100,
+            V_MIN = 0,
+            H_MAX = 41,
             S_MAX = 255,
             V_MAX = 255;
 
@@ -54,10 +61,14 @@ public class RingDetector extends OpenCvPipeline {
         bgrImage = new Mat();
         threshold = new Mat();
         thresholdAfterROI = new Mat();
+        dilation = new Mat();
+        erosion = new Mat();
+
+        kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3));
 
         colSum = new Mat();
         colSumArray = new int[screenWidth];
-        roi = new Rect(0, screenHeight/6, screenWidth - 1, 5*screenHeight/12);
+        roi = new Rect(screenWidth/3, screenHeight/3, (int)(1.0/3*screenWidth - 1), 3*screenHeight/12);
     }
 
     @Override
@@ -72,9 +83,15 @@ public class RingDetector extends OpenCvPipeline {
                 new Scalar(H_MIN, S_MIN, V_MIN),
                 new Scalar(H_MAX, S_MAX, V_MAX),
                 threshold);
-        thresholdAfterROI = threshold.submat(roi);
 
-        Imgproc.cvtColor(threshold, bgrImage, Imgproc.COLOR_GRAY2BGR);
+
+        Imgproc.erode(threshold, erosion, kernel);
+        Imgproc.dilate(erosion, dilation, kernel);
+        Imgproc.erode(dilation, erosion, kernel);
+        Imgproc.dilate(erosion, dilation, kernel);
+        thresholdAfterROI = dilation.submat(roi);
+
+        Imgproc.cvtColor(dilation, bgrImage, Imgproc.COLOR_GRAY2BGR);
         Imgproc.cvtColor(bgrImage, input, Imgproc.COLOR_BGR2RGBA);
         Imgproc.rectangle(input, roi, new Scalar(0,255,0), 4);
 
@@ -119,6 +136,9 @@ public class RingDetector extends OpenCvPipeline {
         bgrImage.release();
         threshold.release();
         thresholdAfterROI.release();
+        dilation.release();
+        erosion.release();
+        kernel.release();
         colSum.release();
     }
 }
