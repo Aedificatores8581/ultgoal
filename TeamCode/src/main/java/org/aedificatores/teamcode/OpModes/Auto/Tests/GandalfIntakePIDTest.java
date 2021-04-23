@@ -30,25 +30,11 @@ public class GandalfIntakePIDTest extends OpMode {
 
     @Override
     public void start() {
-        // motor.gotoAngle(UP_ANGLE);
+        motor.gotoAngle(UP_ANGLE);
     }
 
     @Override
     public void loop() {
-        switch (state) {
-            case MOVING_UP:
-                if (!motor.isMoving()) {
-                    motor.gotoAngle(DOWN_ANGLE);
-                    state = GandalfWobbleMotorMoveTest.State.MOVING_DOWN;
-                }
-                break;
-            case MOVING_DOWN:
-                if (!motor.isMoving()) {
-                    motor.gotoAngle(UP_ANGLE);
-                    state = GandalfWobbleMotorMoveTest.State.MOVING_UP;
-                }
-                break;
-        }
         packet.put("current angle", motor.getCurrentAngleDegrees());
         packet.put("target angle", motor.getTargetAngleDegrees());
         packet.put("current vel", motor.getCurrentAngularVelocityDegrees());

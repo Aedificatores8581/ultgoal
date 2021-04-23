@@ -39,9 +39,13 @@ public class GandalfIntakeLift {
         TELEOP
     }
 
+    public enum State {
+        IDLE,
+        RUNNING
+    }
+
     Mode mode;
-
-
+    State state = State.IDLE;
     public GandalfIntakeLift(HardwareMap map, double angle, Mode m) {
         startingAngle = angle;
         servo = map.crservo.get(GandalfBotConfig.INTAKE.SERV);
@@ -49,14 +53,14 @@ public class GandalfIntakeLift {
         tmp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tmp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         enc = new Encoder(tmp);
-        enc.setDirection(Encoder.Direction.REVERSE);
+        enc.setDirection(Encoder.Direction.FORWARD);
         clock = new Taemer();
         clock.resetTime();
         mode = m;
     }
 
     public void update() {
-        if (mode == Mode.AUTO) {
+        if (mode == Mode.AUTO && state == State.RUNNING) {
             currentState = currentProfile.get(clock.getTimeSec());
             controller.setTargetPosition(currentState.getX());
             controller.setTargetVelocity(currentState.getV());
@@ -79,7 +83,7 @@ public class GandalfIntakeLift {
     }
 
     public double getTargetAngleRadians() {
-        return currentProfile.get(clock.getTimeSec()).getX();
+        return (state == State.RUNNING) ? currentProfile.get(clock.getTimeSec()).getX() : 0.0;
     }
 
     public double getTargetAngleDegrees() {
@@ -87,7 +91,7 @@ public class GandalfIntakeLift {
     }
 
     public double getTargetAngularVelocityRadians() {
-        return currentProfile.get(clock.getTimeSec()).getV();
+        return (state == State.RUNNING) ? currentProfile.get(clock.getTimeSec()).getV() : 0.0;
     }
 
     public double getTargetAngularVelocityDegrees() {
@@ -125,6 +129,7 @@ public class GandalfIntakeLift {
         currentProfile =  MotionProfileGenerator.generateSimpleMotionProfile(start, goal, maxVel, maxAccel, 0.0);
         clock.resetTime();
         moving = true;
+        state = State.RUNNING;
     }
 
     private boolean epsilonEquals(double a, double b) {

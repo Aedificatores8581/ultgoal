@@ -1,5 +1,7 @@
 package org.aedificatores.teamcode.Mechanisms.Components.GandalfWobbleGoal;
 
+import android.telephony.AccessNetworkConstants;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -26,6 +28,10 @@ public class GandalfWobbleGrabber {
         }
     };
 
+    public enum GrabberState {
+        OPEN, CLOSED
+    }
+
     enum SubsystemState {
         IDLE,
         CLOSE_GRABBER,
@@ -37,9 +43,9 @@ public class GandalfWobbleGrabber {
 
     public static final double GRABBER_TIME_OUT = .5;
     public static final double SERV_UP_CLOSED_POS = .1278;
-    public static final double SERV_LO_CLOSED_POS = .052;
+    public static final double SERV_LO_CLOSED_POS = .3328;
     public static final double SERV_UP_OPEN_POS = .66;
-    public static final double SERV_LO_OPEN_POS = .6;
+    public static final double SERV_LO_OPEN_POS = .7756;
     public static final double LIFTED_ANGLE = 240*Math.PI/180;
     public static final double DROPPED_ANGLE = 270*Math.PI/180;
 
@@ -49,6 +55,7 @@ public class GandalfWobbleGrabber {
     Mode mode;
     Taemer clock;
     SubsystemState subsystemState = SubsystemState.UNINITIALIZED;
+    GrabberState grabberState = GrabberState.OPEN;
 
     public GandalfWobbleGrabber(HardwareMap map, Mode m) {
         upper = map.servo.get(GandalfBotConfig.WOBBLE.SERV_UP);
@@ -93,11 +100,21 @@ public class GandalfWobbleGrabber {
     public void openGrabber() {
         upper.setPosition(SERV_UP_OPEN_POS);
         lower.setPosition(SERV_LO_OPEN_POS);
+        grabberState = GrabberState.OPEN;
     }
 
     public void closeGrabber() {
         upper.setPosition(SERV_UP_CLOSED_POS);
         lower.setPosition(SERV_LO_CLOSED_POS);
+        grabberState = GrabberState.CLOSED;
+    }
+
+    public void toggleGrabber() {
+        if (grabberState == GrabberState.OPEN) {
+            closeGrabber();
+        } else {
+            openGrabber();
+        }
     }
 
     public void lift() {
@@ -114,6 +131,10 @@ public class GandalfWobbleGrabber {
             subsystemState = SubsystemState.MOVE_DOWN;
             actuator.gotoAngle(DROPPED_ANGLE);
         }
+    }
+
+    public boolean isIdle() {
+        return subsystemState == SubsystemState.IDLE || subsystemState == SubsystemState.UNINITIALIZED;
     }
 
     public void update() {

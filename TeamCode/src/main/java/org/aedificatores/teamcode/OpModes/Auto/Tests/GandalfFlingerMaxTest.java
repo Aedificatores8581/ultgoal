@@ -14,7 +14,7 @@ import org.aedificatores.teamcode.Universal.Taemer;
 
 @Autonomous(group = OpModeGroups.GANDALF)
 public class GandalfFlingerMaxTest extends OpMode {
-    final int TICKS_PER_REV = 8192;
+    final int TICKS_PER_REV = 28;
     final int ACCEL_MAX_HISTORY = 100;
 
     FtcDashboard dashboard;
@@ -66,11 +66,11 @@ public class GandalfFlingerMaxTest extends OpMode {
         telemetry.addData("Enc Accel (rad/s)", toRadians(accel));
         telemetry.addLine("\n");
 
-        if (accel > maxAccel) {
+        if (Math.abs(accel) > Math.abs(maxAccel)) {
             maxAccel = accel;
         }
 
-        if (vel > maxVel) {
+        if (Math.abs(vel) > Math.abs(maxVel)) {
             maxVel = vel;
         }
 

@@ -78,6 +78,9 @@ public class GandalfMecanum extends MecanumDrive {
     private static final String RR = GandalfBotConfig.DT.RR;
     private static final String LR = GandalfBotConfig.DT.LR;
 
+    boolean sendPacket = true;
+
+
     public enum Mode {
         IDLE,
         TURN,
@@ -216,6 +219,14 @@ public class GandalfMecanum extends MecanumDrive {
         throw new AssertionError();
     }
 
+    public void stopPackets() {
+        sendPacket = false;
+    }
+
+    public void sendPackets() {
+        sendPacket = true;
+    }
+
     public void update() {
         updatePoseEstimate();
 
@@ -296,7 +307,9 @@ public class GandalfMecanum extends MecanumDrive {
         fieldOverlay.setStroke("#3F51B5");
         DashboardUtil.drawRobot(fieldOverlay, currentPose);
 
-        dashboard.sendTelemetryPacket(packet);
+        if (sendPacket) {
+            dashboard.sendTelemetryPacket(packet);
+        }
     }
 
     public void setIdle() {

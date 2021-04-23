@@ -1,5 +1,8 @@
 package org.aedificatores.teamcode.Universal;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+
 import org.opencv.core.Point3;
 import java.util.Arrays;
 
@@ -13,6 +16,10 @@ public class UniversalFunctions {
             max = temp;
         }
         return Math.max(Math.min(max, test), min);
+    }
+
+    public static Vector2d pos2vec(Pose2d pos) {
+	    return new Vector2d(pos.getX(), pos.getY());
     }
 
     public static int clamp(int min, int test, int max) {

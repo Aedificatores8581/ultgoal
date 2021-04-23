@@ -16,8 +16,12 @@ public interface GandalfBotConfig {
 
     interface SHOOT {
         String[] FLING = {"shooter1", "shooter2"};
-        String INTAKE = "intake";
+        String RING_DETECT = "ring detect";
         int ODOM_INDEX = 1;
+
+
+        String SHOOTER_LED_C1 = "shooterled1";
+        String SHOOTER_LED_C2 = "shooterled2";
     }
 
     interface WOBBLE {
@@ -33,5 +37,11 @@ public interface GandalfBotConfig {
         String ENC = "wobble";
         String TRANSFER_LEFT = "transferleft";
         String TRANSFER_RIGHT = "transferright";
+        String INTAKE_DETECT = "transfersensor";
+        String BOTTOM_DETECT = "transfersensortop";
+        String TOP_DETECT = "topringdetect2";
+
+        String TRANSFER_LED_C1 = "transferled1";
+        String TRANSFER_LED_C2 = "transferled2";
     }
 }

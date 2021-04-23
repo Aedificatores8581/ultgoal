@@ -11,8 +11,9 @@ public class GandalfTransfer {
 
     public GandalfTransfer(HardwareMap map) {
         left = map.crservo.get(GandalfBotConfig.INTAKE.TRANSFER_LEFT);
+        left.setDirection(DcMotorSimple.Direction.REVERSE);
         right = map.crservo.get(GandalfBotConfig.INTAKE.TRANSFER_RIGHT);
-        right.setDirection(DcMotorSimple.Direction.REVERSE);
+        right.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void setPower(double pow) {
