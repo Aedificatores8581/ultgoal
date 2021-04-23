@@ -1,7 +1,9 @@
 package org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Robots.GandalfBotConfig;
@@ -21,18 +23,18 @@ public class GandalfIntake {
     private static final double BOTTOM_DIST_THRESHOLD = 6.0;
     private static final double INTAKE_DIST_THRESHOLD = 1.0;
 
-    private RevColorSensorV3 topSensor;
-    private RevColorSensorV3 bottomSensor;
-    private RevColorSensorV3 intakeSensor;
+    private DistanceSensor topSensor;
+    private DistanceSensor bottomSensor;
+    private DistanceSensor intakeSensor;
 
     public GandalfIntake(HardwareMap map, double angle, GandalfIntakeLift.Mode m) {
         actuator = map.get(DcMotorEx.class, GandalfBotConfig.INTAKE.MOT);
         lift = new GandalfIntakeLift(map, angle, m);
         transfer = new GandalfTransfer(map);
 
-        topSensor = map.get(RevColorSensorV3.class, GandalfBotConfig.INTAKE.TOP_DETECT);
-        bottomSensor = map.get(RevColorSensorV3.class, GandalfBotConfig.INTAKE.BOTTOM_DETECT);
-        intakeSensor = map.get(RevColorSensorV3.class, GandalfBotConfig.INTAKE.INTAKE_DETECT);
+        topSensor = map.get(DistanceSensor.class, GandalfBotConfig.INTAKE.TOP_DETECT);
+        bottomSensor = map.get(DistanceSensor.class, GandalfBotConfig.INTAKE.BOTTOM_DETECT);
+        intakeSensor = map.get(DistanceSensor.class, GandalfBotConfig.INTAKE.INTAKE_DETECT);
     }
 
     public void update() {
