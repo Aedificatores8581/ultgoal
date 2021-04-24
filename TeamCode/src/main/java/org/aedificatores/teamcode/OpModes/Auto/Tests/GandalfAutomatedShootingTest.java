@@ -17,7 +17,7 @@ public class GandalfAutomatedShootingTest extends OpMode {
     GandalfBot bot;
     Taemer loopClock;
     FtcDashboard dashboard;
-    public static double SHOOTER_SPEED = 233;
+    public static double SHOOTER_SPEED = 242.6;
 
     @Override
     public void init() {
@@ -37,10 +37,12 @@ public class GandalfAutomatedShootingTest extends OpMode {
         telemetry.addLine("Press 'A' to start shooting");
 
         packet.put("dist", bot.shooter.getDistanceReading());
-        telemetry.addLine("actual vel: " + bot.shooter.getCurrentVelocity() + "\n" +
-                "target vel: " + bot.shooter.getTargetVelocity() + "\n" +
-                "up to speed: " + ((bot.shooter.upToSpeed()) ? "yup\n" : "nope\n") +
-                "loop time: " + loopClock.getTimeSec() + "\n");
+        telemetry.addData("actual vel", bot.shooter.getCurrentVelocity());
+        telemetry.addData("target vel",  bot.shooter.getTargetVelocity());
+        telemetry.addData("up to speed", ((bot.shooter.upToSpeed()) ? "yup" : "nope"));
+        telemetry.addData("ready to shoot", ((bot.shooter.readyToShoot()) ? "yup" : "nope"));
+        telemetry.addData("rings to shoot",  bot.ringsToShoot());
+        telemetry.addData("loop time", loopClock.getTimeSec());
         loopClock.resetTime();
 
         dashboard.sendTelemetryPacket(packet);

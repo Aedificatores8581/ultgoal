@@ -22,6 +22,10 @@ public class UniversalFunctions {
 	    return new Vector2d(pos.getX(), pos.getY());
     }
 
+    public static Pose2d vec2pos(Vector2d vec, double heading) {
+        return new Pose2d(vec.getX(), vec.getY(), heading);
+    }
+
     public static int clamp(int min, int test, int max) {
         if (max < min) {
             int temp = min;

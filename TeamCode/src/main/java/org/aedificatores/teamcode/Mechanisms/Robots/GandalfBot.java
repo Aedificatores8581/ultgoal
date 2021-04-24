@@ -22,7 +22,7 @@ public class GandalfBot {
     }
 
     public static final double TRANSFER_CLOCK_THRESH = .6;
-    public static final double MAX_SHOOT_TIME = 3.0;
+    public static final double MAX_SHOOT_TIME = 5.0;
 
     public GandalfMecanum drivetrain;
     public GandalfWobbleGrabber wobbleGrabber;
@@ -39,6 +39,7 @@ public class GandalfBot {
     Taemer maxShootTimeClock;
 
     boolean runTransfer = false;
+    boolean isAuto = false;
 
     public GandalfBot(HardwareMap map, boolean isAuto) {
         drivetrain = new GandalfMecanum(map);
@@ -53,6 +54,7 @@ public class GandalfBot {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
+        this.isAuto = isAuto;
         transferClock = new Taemer();
         maxShootTimeClock = new Taemer();
     }
@@ -67,7 +69,7 @@ public class GandalfBot {
             case START_SHOOTER:
                 if (shooter.readyToShoot()) {
                     shootingState = AutoShootingState.RUN_TRANSFER;
-                    intake.transfer.setPower(.5);
+                    forceTransfer();
                     intake.actuator.setPower(1.0);
                     maxShootTimeClock.resetTime();
                 }
@@ -75,38 +77,38 @@ public class GandalfBot {
             case PAUSE_TRANSFER:
                 if (shooter.readyToShoot() || transferClock.getTimeSec() > TRANSFER_CLOCK_THRESH) {
                     shootingState = AutoShootingState.RUN_TRANSFER;
-                    intake.transfer.setPower(.5);
                     intake.actuator.setPower(1.0);
+                    forceTransfer();
                 }
                 break;
             case RUN_TRANSFER:
-                if (shooter.containsRing()) {
-                    intake.transfer.setPower(0.0);
+                if (!shooter.upToSpeed()) {
+                    stopforceTransfer();
                     intake.actuator.setPower(0.0);
-                    if (--numRings == 0) {
-                        shooter.setSpeed(0.0);
-                        shootingState = AutoShootingState.IDLE;
-                    } else {
-                        shootingState = AutoShootingState.PAUSE_TRANSFER;
-                    }
+                    shootingState = AutoShootingState.PAUSE_TRANSFER;
                     transferClock.resetTime();
                 }
         }
 
         if (shootingState != AutoShootingState.IDLE && shootingState != AutoShootingState.START_SHOOTER && maxShootTimeClock.getTimeSec() > MAX_SHOOT_TIME) {
-            shooter.setSpeed(0.0);
-            intake.transfer.setPower(0.0);
-            intake.actuator.setPower(0.0);
+            if (isAuto) {
+                shooter.setSpeed(0.0);
+                intake.actuator.setPower(0.0);
+            }
+            stopforceTransfer();
             shootingState = AutoShootingState.IDLE;
             shooterIndicator.setColor(RevLEDIndicator.Color.OFF);
         }
 
-        if (intake.ringInIntake() && !ringAtTop() || runTransfer) {
-            intake.transfer.setPower(.75);
+        if (ringAtTop()) {
             transferIndicator.setColor(RevLEDIndicator.Color.GREEN);
         } else {
-            intake.transfer.setPower(0.0);
             transferIndicator.setColor(RevLEDIndicator.Color.OFF);
+        }
+        if (intake.ringInIntake() && !ringAtTop() || runTransfer) {
+            intake.transfer.setPower(.75);
+        } else {
+            intake.transfer.setPower(0.0);
         }
 
         for (LynxModule hub : allHubs) {
@@ -127,6 +129,10 @@ public class GandalfBot {
         this.numRings = numRings;
         shooter.setSpeed(shooterSpeed);
         shooterIndicator.setColor(RevLEDIndicator.Color.RED);
+    }
+
+    public int ringsToShoot() {
+        return numRings;
     }
 
     public boolean shooterIdle() {

@@ -174,7 +174,8 @@ public class GandalfThreeHighTwoWobble extends OpMode {
         if (wobblePosition == WobblePosition.SIDE_NEAR) {
             trajPark = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())
                     .splineToConstantHeading(UniversalFunctions.pos2vec(wobblePosition.getPos().plus(new Pose2d(-19, 0, 0))), Math.toRadians(60))
-                    .splineToConstantHeading(PARK_POS, 0)
+                    .splineToConstantHeading(UniversalFunctions.pos2vec(wobblePosition.getPos().plus(new Pose2d(-19, 19, 0))), Math.toRadians(60))
+                    .splineToSplineHeading(UniversalFunctions.vec2pos(PARK_POS, Math.toRadians(0)), 0)
                     .build();
         } else {
             trajPark = bot.drivetrain.trajectoryBuilder(trajSecondDeposit.end())

@@ -95,10 +95,6 @@ public class GandalfShooterFlinger {
             currentPower += controller.update(currentVel, currentAccel);
         }
 
-        if (containsRing()) {
-            reshootClock.resetTime();
-        }
-
         for (int i = 0; i < 2; ++i) actuator[i].setPower(currentPower);
 
     }
@@ -111,12 +107,12 @@ public class GandalfShooterFlinger {
         return shooterSensor.getDistance(DistanceUnit.CM) < V3_DISTANCE_THRESHOLD;
     }
     public boolean upToSpeed() {
-        double THRESHOLD = 10;
+        double THRESHOLD = 4;
         return Math.abs(getCurrentVelocity() - getFinalTargetVelocity()) < THRESHOLD && subsystemState == SubsystemState.RUNNING;
     }
 
     public boolean readyToShoot() {
-        return upToSpeed() && !containsRing() && reshootClock.getTimeSec() > RESHOOT_TIMER_TRESH;
+        return upToSpeed() && !containsRing();
     }
 
     public double getCurrentAcceleration() {

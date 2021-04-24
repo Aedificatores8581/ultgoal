@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class RevLEDIndicator {
     public enum Color {
         AMBER(false, false),
-        RED(true, false),
-        GREEN(false, true),
+        GREEN(true, false),
+        RED(false, true),
         OFF(true, true);
         private boolean c1, c2;
 
@@ -31,8 +31,11 @@ public class RevLEDIndicator {
 
     public RevLEDIndicator(HardwareMap map, String c1, String c2) {
         channel1 = map.digitalChannel.get(c1);
+        channel1.setMode(DigitalChannel.Mode.OUTPUT);
         channel2 = map.digitalChannel.get(c2);
-        currentColor = Color.OFF;
+        channel2.setMode(DigitalChannel.Mode.OUTPUT);
+        setColor(Color.OFF);
+
     }
 
     public void setColor(Color c) {

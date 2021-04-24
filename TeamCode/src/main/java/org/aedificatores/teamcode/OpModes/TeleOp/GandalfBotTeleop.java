@@ -20,7 +20,7 @@ public class GandalfBotTeleop extends OpMode {
         STICK_BASED,
     }
 
-    public static final double SHOOTER_SPEED = 237.6;
+    public static final double SHOOTER_SPEED = 239.6;
 
 
     DriveMode driveMode;
@@ -60,6 +60,8 @@ public class GandalfBotTeleop extends OpMode {
 
     @Override
     public void loop() {
+        telemetry.addLine("GAMEPAD 1:");
+        telemetry.addLine("----------------------");
         if (driveMode == DriveMode.TRIGGER_BASED) {
             bot.drivetrain.setWeightedDrivePower(
                     new Pose2d(
@@ -68,6 +70,8 @@ public class GandalfBotTeleop extends OpMode {
                             -gamepad1.right_stick_x
                     )
             );
+            telemetry.addLine("Left and right trigger for moving back/foreward");
+            telemetry.addLine("left and right stick for strafe/turn");
         } else {
             bot.drivetrain.setWeightedDrivePower(
                     new Pose2d(
@@ -76,6 +80,7 @@ public class GandalfBotTeleop extends OpMode {
                             -gamepad1.right_stick_x
                     )
             );
+            telemetry.addLine("left and right stick for omnidrectional movement/turn");
         }
 
         if (gamepad1.a) {
@@ -119,5 +124,14 @@ public class GandalfBotTeleop extends OpMode {
         }
 
         bot.update();
+
+        telemetry.addLine("Hold 'A' to force transfer to go on");
+        telemetry.addLine("'B' to shoot 3 rings thru shooter automation (not recommended");
+        telemetry.addLine("'X' to open/close wobble grabber");
+        telemetry.addLine("Left and right bumper for outtake/intake");
+        telemetry.addLine("\nGAMEPAD 2:");
+        telemetry.addLine("----------------------");
+        telemetry.addLine("Right stick for wobble grabber position");
+        telemetry.addLine("'X' to open/close wobble grabber");
     }
 }

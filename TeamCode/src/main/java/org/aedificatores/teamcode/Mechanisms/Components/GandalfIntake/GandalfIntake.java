@@ -50,18 +50,18 @@ public class GandalfIntake {
     }
 
     public void toggleIntake() {
-        if (state != IntakeState.OFF) {
-            off();
-        } else {
+        if (state != IntakeState.FOREWARD) {
             forward();
+        } else {
+            off();
         }
     }
 
     public void toggleOuttake() {
-        if (state != IntakeState.OFF) {
-            off();
-        } else {
+        if (state != IntakeState.REVERSE) {
             backward();
+        } else {
+            off();
         }
     }
 
