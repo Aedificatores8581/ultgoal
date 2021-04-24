@@ -51,7 +51,7 @@ public class GandalfThreeHighTwoWobble extends OpMode {
     private static Pose2d POINT_AVOID_RINGS_AGAIN = new Pose2d(-24, -48, Math.PI);
     private static Vector2d PARK_POS = new Vector2d(10.0, -30);
 
-    public static double SHOOTER_SPEED = 233;
+    public static double SHOOTER_SPEED = 239.6;
 
     enum WobblePosition {
         SIDE_NEAR(SIDE_NEAR_POS),
