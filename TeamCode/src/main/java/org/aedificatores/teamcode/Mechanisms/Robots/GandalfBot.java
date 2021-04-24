@@ -22,7 +22,7 @@ public class GandalfBot {
     }
 
     public static final double TRANSFER_CLOCK_THRESH = .6;
-    public static final double MAX_SHOOT_TIME = 5.0;
+    public static final double MAX_SHOOT_TIME = 6.0;
 
     public GandalfMecanum drivetrain;
     public GandalfWobbleGrabber wobbleGrabber;
