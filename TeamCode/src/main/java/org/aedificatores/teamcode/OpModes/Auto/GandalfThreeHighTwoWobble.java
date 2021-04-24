@@ -117,7 +117,7 @@ public class GandalfThreeHighTwoWobble extends OpMode {
             bot.wobbleGrabber.toggleGrabber();
         }
 
-        bot.wobbleGrabber.setPower(gamepad1.left_stick_y * .8);
+        bot.wobbleGrabber.setPower(gamepad1.left_stick_y * .4);
         try {
             prev1.copy(gamepad1);
         } catch (RobotCoreException e) {
@@ -155,7 +155,7 @@ public class GandalfThreeHighTwoWobble extends OpMode {
             trajSecondWobble = bot.drivetrain.trajectoryBuilder(trajDeposit.end())
                     .splineToSplineHeading(wobblePosition.getPos().plus(new Pose2d(-6, 0, 0)), Math.PI)
                     .splineToSplineHeading(SECOND_WOBBLE.plus(new Pose2d(40, 0, 0)), Math.PI)
-                    .splineToSplineHeading(SECOND_WOBBLE, Math.PI)
+                    .splineToSplineHeading(SECOND_WOBBLE.plus(new Pose2d(0, 3)), Math.PI)
                     .addDisplacementMarker(() -> bot.wobbleGrabber.lift())
                     .build();
         } else {
