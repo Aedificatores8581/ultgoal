@@ -181,13 +181,15 @@ public class GandalfBotTeleop extends OpMode {
             }
 
             telemetry.addLine("Hold 'A' to force transfer to go on");
-            telemetry.addLine("'B' to shoot 3 rings thru shooter automation (not recommended");
             telemetry.addLine("'X' to open/close wobble grabber");
             telemetry.addLine("Left and right bumper for outtake/intake");
             telemetry.addLine("\nGAMEPAD 2:");
             telemetry.addLine("----------------------");
             telemetry.addLine("Right stick for wobble grabber position");
             telemetry.addLine("'X' to open/close wobble grabber");
+            telemetry.addLine("'B' to shoot 3 rings thru shooter automation");
+            telemetry.addLine("dpad up/down to control intake angle");
+            telemetry.addLine("dpad left/right to control transfer");
         } else {
             if (gamepad2.y && !prev2.y) {
                 ++currentShotCounter;
@@ -208,7 +210,7 @@ public class GandalfBotTeleop extends OpMode {
                 }
             }
 
-            if (gamepad2.x && !prev2.x) {
+            if (gamepad2.b && !prev2.b) {
                 currentShotCounter = 0;
                 bot.stopforceTransfer();
                 bot.drivetrain.setIdle();
@@ -217,16 +219,18 @@ public class GandalfBotTeleop extends OpMode {
             }
 
             try {
-                prev2.copy(gamepad1);
+                prev2.copy(gamepad2);
             } catch (RobotCoreException e) {
                 telemetry.addLine("Tried to Copy gamepad 2.");
                 telemetry.addLine(e.getMessage());
                 requestOpModeStop();
             }
+            telemetry.addData("current shot", currentShotCounter);
             telemetry.addLine("POWER SHOT MODE (Gamepad 2 only)");
             telemetry.addLine("----------------------");
             telemetry.addLine("Press 'Y' to advance to the next shot");
-            telemetry.addLine("Press 'X' to Cancel ");
+            telemetry.addLine("Press 'B' to Cancel ");
+
         }
         bot.update();
     }
