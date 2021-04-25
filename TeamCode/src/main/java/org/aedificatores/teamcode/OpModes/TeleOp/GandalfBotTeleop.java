@@ -3,19 +3,15 @@ package org.aedificatores.teamcode.OpModes.TeleOp;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants;
+import org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake.GandalfIntakeLift;
+import org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake.GandalfTransfer.TransferPriority;
 import org.aedificatores.teamcode.Mechanisms.Robots.GandalfBot;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
-
-import java.util.Arrays;
 
 @TeleOp(group = OpModeGroups.GANDALF)
 public class GandalfBotTeleop extends OpMode {
@@ -37,11 +33,13 @@ public class GandalfBotTeleop extends OpMode {
 
     public static final double SHOOTER_SPEED = 239.6;
     public static final double POWERSHOT_SPEED = 210;
+    public static final double INTAKE_UP_ANGLE = Math.toRadians(100);
+    public static final double INTAKE_DOWN_ANGLE = Math.toRadians(6);
 
     final Pose2d START_POSE = new Pose2d(0 - 17.5/2.0, -(72 - 18.0/2.0), 0);
     final Vector2d[] SHOT_POSITIONS = { new Vector2d(-3 - 17.5/2.0, -18),
                                         new Vector2d(-2 - 17.5/2.0, -12),
-                                        new Vector2d(-2 - 17.5/2.0, 0)};
+                                        new Vector2d(-2 - 17.5/2.0, -6)};
     Trajectory trajShoot;
     int currentShotCounter = 0;
 
@@ -50,6 +48,7 @@ public class GandalfBotTeleop extends OpMode {
     @Override
     public void init() {
         bot = new GandalfBot(hardwareMap, false);
+        bot.intake.lift.setMode(GandalfIntakeLift.Mode.AUTO);
         driveMode = DriveMode.TRIGGER_BASED;
     }
 
@@ -112,11 +111,8 @@ public class GandalfBotTeleop extends OpMode {
             }
 
             if (gamepad1.a) {
-                bot.intake.transfer.setPower(.75);
-            }
-
-            if (gamepad1.b && !prev1.b) {
-                bot.shootRings(SHOOTER_SPEED, 3);
+                // bot.intake.transfer.setPower(.75);
+                bot.intake.transfer.queueSetPower(.75, TransferPriority.SHOOT_RING);
             }
 
             if (gamepad1.left_bumper && !prev1.left_bumper) {
@@ -129,7 +125,41 @@ public class GandalfBotTeleop extends OpMode {
                 bot.wobbleGrabber.toggleGrabber();
             }
 
-            if (gamepad1.y && !prev1.y) {
+            try {
+                prev1.copy(gamepad1);
+            } catch (RobotCoreException e) {
+                telemetry.addLine("Tried to Copy gamepad 1.");
+                telemetry.addLine(e.getMessage());
+                requestOpModeStop();
+            }
+
+            bot.wobbleGrabber.setPower(gamepad2.left_stick_y);
+
+            if (gamepad2.a) {
+                bot.intake.transfer.queueSetPower(.75, TransferPriority.SHOOT_RING);
+            }
+
+            if (gamepad2.dpad_left) {
+                bot.intake.transfer.queueSetPower(-.75, TransferPriority.EMERGENCY);
+            } else if (gamepad2.dpad_right) {
+                bot.intake.transfer.queueSetPower(.75, TransferPriority.EMERGENCY);
+            }
+
+            if (gamepad2.dpad_up && !prev2.dpad_up) {
+                bot.intake.lift.gotoAngle(INTAKE_UP_ANGLE);
+            } else if(gamepad2.dpad_down && !prev2.dpad_down) {
+                bot.intake.lift.gotoAngle(INTAKE_DOWN_ANGLE);
+            }
+
+            if (gamepad2.x && !prev2.x) {
+                bot.wobbleGrabber.toggleGrabber();
+            }
+
+            if (gamepad2.b && !prev2.b) {
+                bot.shootRings(SHOOTER_SPEED, 3);
+            }
+
+            if (gamepad2.y && !prev2.y) {
                 bot.drivetrain.setPoseEstimate(START_POSE);
                 trajShoot = bot.drivetrain.trajectoryBuilder(START_POSE)
                         .splineToConstantHeading(SHOT_POSITIONS[currentShotCounter], Math.PI/2)
@@ -140,20 +170,6 @@ public class GandalfBotTeleop extends OpMode {
                 bot.stopforceTransfer();
                 scoringMode = ScoringMode.POWERSHOT_AUTOMATION;
                 bot.shooter.setSpeed(POWERSHOT_SPEED);
-            }
-
-            try {
-                prev1.copy(gamepad1);
-            } catch (RobotCoreException e) {
-                telemetry.addLine("Tried to Copy gamepad 1.");
-                telemetry.addLine(e.getMessage());
-                requestOpModeStop();
-            }
-
-            bot.wobbleGrabber.setPower(-gamepad2.right_stick_y);
-
-            if (gamepad2.x && !prev2.x) {
-                bot.wobbleGrabber.toggleGrabber();
             }
 
             try {
@@ -173,7 +189,7 @@ public class GandalfBotTeleop extends OpMode {
             telemetry.addLine("Right stick for wobble grabber position");
             telemetry.addLine("'X' to open/close wobble grabber");
         } else {
-            if (gamepad1.y && !prev1.y) {
+            if (gamepad2.y && !prev2.y) {
                 ++currentShotCounter;
                 if (currentShotCounter > 2) {
                     currentShotCounter = 0;
@@ -192,7 +208,7 @@ public class GandalfBotTeleop extends OpMode {
                 }
             }
 
-            if (gamepad1.b && !prev1.b) {
+            if (gamepad2.x && !prev2.x) {
                 currentShotCounter = 0;
                 bot.stopforceTransfer();
                 bot.drivetrain.setIdle();
@@ -201,16 +217,16 @@ public class GandalfBotTeleop extends OpMode {
             }
 
             try {
-                prev1.copy(gamepad1);
+                prev2.copy(gamepad1);
             } catch (RobotCoreException e) {
-                telemetry.addLine("Tried to Copy gamepad 1.");
+                telemetry.addLine("Tried to Copy gamepad 2.");
                 telemetry.addLine(e.getMessage());
                 requestOpModeStop();
             }
-            telemetry.addLine("POWER SHOT MODE (Gamepad 1 only)");
+            telemetry.addLine("POWER SHOT MODE (Gamepad 2 only)");
             telemetry.addLine("----------------------");
             telemetry.addLine("Press 'Y' to advance to the next shot");
-            telemetry.addLine("Press 'B' to Cancel ");
+            telemetry.addLine("Press 'X' to Cancel ");
         }
         bot.update();
     }

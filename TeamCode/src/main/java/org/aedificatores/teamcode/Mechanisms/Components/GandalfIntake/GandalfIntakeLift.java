@@ -110,6 +110,10 @@ public class GandalfIntakeLift {
         return getCurrentAngularVelocityRadians() * 180/Math.PI;
     }
 
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
     public void setPower(double x) {
         power = x;
     }

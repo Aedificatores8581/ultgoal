@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake.GandalfIntake;
 import org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake.GandalfIntakeLift;
+import org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake.GandalfTransfer.TransferPriority;
 import org.aedificatores.teamcode.Mechanisms.Components.GandalfShooterFlinger;
 import org.aedificatores.teamcode.Mechanisms.Components.GandalfWobbleGoal.GandalfWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
@@ -106,9 +107,10 @@ public class GandalfBot {
             transferIndicator.setColor(RevLEDIndicator.Color.OFF);
         }
         if (intake.ringInIntake() && !ringAtTop() || runTransfer) {
-            intake.transfer.setPower(.75);
+            intake.transfer.queueSetPower(.75, TransferPriority.MOVE_RING_AUTOMATION);
+            // intake.transfer.setPower(.75);
         } else {
-            intake.transfer.setPower(0.0);
+            intake.transfer.queueSetPower(0.0, TransferPriority.LOW_PRIORITY_STOP);
         }
 
         for (LynxModule hub : allHubs) {

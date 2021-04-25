@@ -3,13 +3,12 @@ package org.aedificatores.teamcode.OpModes.Auto.Tests;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.aedificatores.teamcode.Mechanisms.Components.GandalfShooterFlinger;
+import org.aedificatores.teamcode.Mechanisms.Components.GandalfIntake.GandalfTransfer.TransferPriority;
 import org.aedificatores.teamcode.Mechanisms.Components.GandalfWobbleGoal.GandalfWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.GandalfBot;
 import org.aedificatores.teamcode.Universal.OpModeGroups;
@@ -45,9 +44,11 @@ public class GandalfShooterTest extends OpMode {
     @Override
     public void loop() {
         if (gamepad1.a && bot.shooter.upToSpeed()) {
-            bot.intake.transfer.setPower(.75);
+            //bot.intake.transfer.setPower(.75);
+            bot.intake.transfer.queueSetPower(.75, TransferPriority.SHOOT_RING);
         } else if (gamepad1.b) {
-            bot.intake.transfer.setPower(0.0);
+            // bot.intake.transfer.setPower(0.0);
+            bot.intake.transfer.queueSetPower(0.0, TransferPriority.LOW_PRIORITY_STOP);
         }
 
         SPEED += gamepad1.left_stick_y;

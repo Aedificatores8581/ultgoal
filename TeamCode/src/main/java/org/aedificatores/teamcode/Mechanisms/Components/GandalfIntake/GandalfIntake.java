@@ -39,6 +39,7 @@ public class GandalfIntake {
 
     public void update() {
         lift.update();
+        transfer.update();
     }
 
     public boolean ringInIntake() {
