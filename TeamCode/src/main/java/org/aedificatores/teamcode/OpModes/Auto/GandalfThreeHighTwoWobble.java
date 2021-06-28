@@ -194,7 +194,7 @@ public class GandalfThreeHighTwoWobble extends OpMode {
         bot.update();
         bot.wobbleGrabber.setMode(GandalfWobbleGrabber.Mode.AUTO);
         bot.wobbleGrabber.lift();
-        bot.intake.lift.gotoAngle(10*Math.PI/180);
+        bot.intake.lift.gotoAngle(0*Math.PI/180);
     }
 
     @Override
@@ -252,6 +252,7 @@ public class GandalfThreeHighTwoWobble extends OpMode {
             case PARK:
                 if (!bot.drivetrain.isBusy()) {
                     state = AutoState.END;
+                    GandalfBot.currentPositionEstimate = bot.drivetrain.getPoseEstimate();
                 }
                 break;
             case END:

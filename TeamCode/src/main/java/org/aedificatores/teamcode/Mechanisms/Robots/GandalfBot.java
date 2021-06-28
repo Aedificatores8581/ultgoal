@@ -1,5 +1,6 @@
 package org.aedificatores.teamcode.Mechanisms.Robots;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -24,6 +25,7 @@ public class GandalfBot {
 
     public static final double TRANSFER_CLOCK_THRESH = .6;
     public static final double MAX_SHOOT_TIME = 6.0;
+    public static Pose2d currentPositionEstimate = new Pose2d();
 
     public GandalfMecanum drivetrain;
     public GandalfWobbleGrabber wobbleGrabber;
@@ -39,7 +41,9 @@ public class GandalfBot {
     Taemer transferClock;
     Taemer maxShootTimeClock;
 
+    double shooterSpeedThresh = 7.0;
     boolean runTransfer = false;
+    boolean runTransferSpeedRange = false;
     boolean isAuto = false;
 
     public GandalfBot(HardwareMap map, boolean isAuto) {
@@ -68,7 +72,7 @@ public class GandalfBot {
 
         switch (shootingState) {
             case START_SHOOTER:
-                if (shooter.readyToShoot()) {
+                if (shooter.readyToShoot() || maxShootTimeClock.getTimeSec() > 7.0) {
                     shootingState = AutoShootingState.RUN_TRANSFER;
                     forceTransfer();
                     intake.actuator.setPower(1.0);
@@ -113,6 +117,12 @@ public class GandalfBot {
             intake.transfer.queueSetPower(0.0, TransferPriority.LOW_PRIORITY_STOP);
         }
 
+        if (runTransferSpeedRange && shooter.upToSpeed(shooterSpeedThresh)) {
+            intake.transfer.queueSetPower(.75, TransferPriority.SHOOT_RING);
+        } else {
+            intake.transfer.queueSetPower(0.0, TransferPriority.LOW_PRIORITY_STOP);
+        }
+
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
@@ -121,9 +131,14 @@ public class GandalfBot {
     public void forceTransfer() {
         runTransfer = true;
     }
+    public void forceTransferForSpeedRange(double shooterSpeedThresh) {
+        runTransferSpeedRange = true;
+        this.shooterSpeedThresh = shooterSpeedThresh;
+    }
 
     public void stopforceTransfer() {
         runTransfer = false;
+        runTransferSpeedRange = false;
     }
 
     public void shootRings(double shooterSpeed, int numRings) {
@@ -131,6 +146,7 @@ public class GandalfBot {
         this.numRings = numRings;
         shooter.setSpeed(shooterSpeed);
         shooterIndicator.setColor(RevLEDIndicator.Color.RED);
+        maxShootTimeClock.resetTime();
     }
 
     public int ringsToShoot() {

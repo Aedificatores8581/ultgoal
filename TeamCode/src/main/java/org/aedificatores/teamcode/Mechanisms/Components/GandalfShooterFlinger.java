@@ -111,6 +111,10 @@ public class GandalfShooterFlinger {
         return Math.abs(getCurrentVelocity() - getFinalTargetVelocity()) < THRESHOLD && subsystemState == SubsystemState.RUNNING;
     }
 
+    public boolean upToSpeed(double thresh) {
+        return Math.abs(getCurrentVelocity() - getFinalTargetVelocity()) < thresh && subsystemState == SubsystemState.RUNNING;
+    }
+
     public boolean readyToShoot() {
         return upToSpeed() && !containsRing();
     }

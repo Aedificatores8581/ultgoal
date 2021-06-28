@@ -15,6 +15,7 @@ import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 @TeleOp(group = OpModeGroups.GANDALF)
 public class GandalfBotTeleop extends OpMode {
+    private static final double SPEED_THRESH = 7.0;
     GandalfBot bot;
 
     Gamepad prev1 = new Gamepad(), prev2 = new Gamepad();
@@ -26,7 +27,8 @@ public class GandalfBotTeleop extends OpMode {
 
     enum ScoringMode {
         DRIVER_CONTROLLED,
-        POWERSHOT_AUTOMATION
+        POWERSHOT_AUTOMATION,
+        SHOOT_AUTOMATION
     }
 
     ScoringMode scoringMode = ScoringMode.DRIVER_CONTROLLED;
@@ -34,16 +36,31 @@ public class GandalfBotTeleop extends OpMode {
     public static final double SHOOTER_SPEED = 239.6;
     public static final double POWERSHOT_SPEED = 210;
     public static final double INTAKE_UP_ANGLE = Math.toRadians(100);
-    public static final double INTAKE_DOWN_ANGLE = Math.toRadians(6);
+    public static final double INTAKE_DOWN_ANGLE = Math.toRadians(0);
 
     final Pose2d START_POSE = new Pose2d(0 - 17.5/2.0, -(72 - 18.0/2.0), 0);
-    final Vector2d[] SHOT_POSITIONS = { new Vector2d(-3 - 17.5/2.0, -18),
-                                        new Vector2d(-2 - 17.5/2.0, -12),
-                                        new Vector2d(-2 - 17.5/2.0, -6)};
+    final Vector2d[] POWER_SHOT_POSITIONS = { new Vector2d(-3 - 17.5/2.0, -18),
+                                        new Vector2d(-2 - 17.5/2.0, -9),
+                                        new Vector2d(-2 - 17.5/2.0, -3)};
+    final Pose2d HIGH_GOAL_SHOT_LOCATION = new Pose2d(-10, -19, Math.toRadians(-7));
+    Trajectory trajPowerShot;
     Trajectory trajShoot;
     int currentShotCounter = 0;
 
     DriveMode driveMode;
+
+    public double scaleControlSCurve(double x) {
+        if (x >= 0.0) {
+            return 1 / (1 + Math.exp(-10 * (x - 1. / 2)));
+        } else {
+            return -1 / (1 + Math.exp(10 * (x + 1. / 2)));
+        }
+    }
+
+    public double scaleControlPoly(double x) {
+        final double curve = .7;
+        return curve * Math.pow(x,3) + (1-curve) * x;
+    }
 
     @Override
     public void init() {
@@ -75,13 +92,10 @@ public class GandalfBotTeleop extends OpMode {
             telemetry.addLine(e.getMessage());
             requestOpModeStop();
         }
-        trajShoot = bot.drivetrain.trajectoryBuilder(START_POSE)
-                .splineToConstantHeading(SHOT_POSITIONS[0], Math.PI/2)
-                .addDisplacementMarker(() -> bot.forceTransfer())
-                .addDisplacementMarker(() -> bot.intake.forward())
-                .build();
 
         bot.shooter.setSpeed(SHOOTER_SPEED);
+        bot.intake.lift.gotoAngle(INTAKE_DOWN_ANGLE);
+        bot.drivetrain.setPoseEstimate(GandalfBot.currentPositionEstimate);
     }
 
     @Override
@@ -94,7 +108,7 @@ public class GandalfBotTeleop extends OpMode {
                         new Pose2d(
                                 -(gamepad1.left_trigger - gamepad1.right_trigger),
                                 -gamepad1.left_stick_x,
-                                -gamepad1.right_stick_x
+                                -scaleControlPoly(gamepad1.right_stick_x)
                         )
                 );
                 telemetry.addLine("Left and right trigger for moving back/foreward");
@@ -123,6 +137,14 @@ public class GandalfBotTeleop extends OpMode {
 
             if (gamepad1.x && !prev1.x) {
                 bot.wobbleGrabber.toggleGrabber();
+            }
+
+            if (gamepad1.y && !prev1.y) {
+                trajShoot = bot.drivetrain.trajectoryBuilder(bot.drivetrain.getPoseEstimate())
+                        .splineToSplineHeading(HIGH_GOAL_SHOT_LOCATION, 0)
+                        .build();
+                bot.drivetrain.followTrajectoryAsync(trajShoot);
+                scoringMode = ScoringMode.SHOOT_AUTOMATION;
             }
 
             try {
@@ -161,12 +183,12 @@ public class GandalfBotTeleop extends OpMode {
 
             if (gamepad2.y && !prev2.y) {
                 bot.drivetrain.setPoseEstimate(START_POSE);
-                trajShoot = bot.drivetrain.trajectoryBuilder(START_POSE)
-                        .splineToConstantHeading(SHOT_POSITIONS[currentShotCounter], Math.PI/2)
+                trajPowerShot = bot.drivetrain.trajectoryBuilder(START_POSE)
+                        .splineToConstantHeading(POWER_SHOT_POSITIONS[currentShotCounter], Math.PI/2)
                         .addDisplacementMarker(() -> bot.forceTransfer())
                         .addDisplacementMarker(() -> bot.intake.forward())
                         .build();
-                bot.drivetrain.followTrajectoryAsync(trajShoot);
+                bot.drivetrain.followTrajectoryAsync(trajPowerShot);
                 bot.stopforceTransfer();
                 scoringMode = ScoringMode.POWERSHOT_AUTOMATION;
                 bot.shooter.setSpeed(POWERSHOT_SPEED);
@@ -186,11 +208,13 @@ public class GandalfBotTeleop extends OpMode {
             telemetry.addLine("\nGAMEPAD 2:");
             telemetry.addLine("----------------------");
             telemetry.addLine("Right stick for wobble grabber position");
+            telemetry.addLine("Hold 'A' to force transfer to go on");
             telemetry.addLine("'X' to open/close wobble grabber");
             telemetry.addLine("'B' to shoot 3 rings thru shooter automation");
+            telemetry.addLine("'Y' to do powershots");
             telemetry.addLine("dpad up/down to control intake angle");
             telemetry.addLine("dpad left/right to control transfer");
-        } else {
+        } else if (scoringMode == ScoringMode.POWERSHOT_AUTOMATION){
             if (gamepad2.y && !prev2.y) {
                 ++currentShotCounter;
                 if (currentShotCounter > 2) {
@@ -200,12 +224,12 @@ public class GandalfBotTeleop extends OpMode {
                     scoringMode = ScoringMode.DRIVER_CONTROLLED;
                     bot.shooter.setSpeed(SHOOTER_SPEED);
                 } else {
-                    trajShoot = bot.drivetrain.trajectoryBuilder(bot.drivetrain.getPoseEstimate())
-                            .splineToConstantHeading(SHOT_POSITIONS[currentShotCounter], Math.PI/2)
+                    trajPowerShot = bot.drivetrain.trajectoryBuilder(bot.drivetrain.getPoseEstimate())
+                            .splineToConstantHeading(POWER_SHOT_POSITIONS[currentShotCounter], Math.PI/2)
                             .addDisplacementMarker(() -> bot.forceTransfer())
                             .addDisplacementMarker(() -> bot.intake.forward())
                             .build();
-                    bot.drivetrain.followTrajectoryAsync(trajShoot);
+                    bot.drivetrain.followTrajectoryAsync(trajPowerShot);
                     bot.stopforceTransfer();
                 }
             }
@@ -231,6 +255,20 @@ public class GandalfBotTeleop extends OpMode {
             telemetry.addLine("Press 'Y' to advance to the next shot");
             telemetry.addLine("Press 'B' to Cancel ");
 
+        } else if (scoringMode == ScoringMode.SHOOT_AUTOMATION) {
+            if (gamepad1.b && !prev1.b || !bot.drivetrain.isBusy()) {
+                bot.drivetrain.setIdle();
+                scoringMode = ScoringMode.DRIVER_CONTROLLED;
+                bot.stopforceTransfer();
+            }
+
+            try {
+                prev1.copy(gamepad1);
+            } catch (RobotCoreException e) {
+                telemetry.addLine("Tried to Copy gamepad 1.");
+                telemetry.addLine(e.getMessage());
+                requestOpModeStop();
+            }
         }
         bot.update();
     }
