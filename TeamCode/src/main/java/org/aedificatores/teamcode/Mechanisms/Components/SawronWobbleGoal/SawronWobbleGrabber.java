@@ -1,12 +1,6 @@
-package org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal;
+package org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.control.PIDFController;
-import com.acmerobotics.roadrunner.profile.MotionProfile;
-import com.acmerobotics.roadrunner.profile.MotionState;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,7 +10,7 @@ import org.aedificatores.teamcode.Mechanisms.Sensors.MagneticLimitSwitch;
 import org.aedificatores.teamcode.Universal.Taemer;
 
 @Config
-public class WobbleGrabber {
+public class SawronWobbleGrabber {
     enum SubsystemState {
         RESET,
         IDLE,
@@ -55,7 +49,7 @@ public class WobbleGrabber {
 
 
 
-    WobbleMotor motor;
+    SawronWobbleMotor motor;
     MagneticLimitSwitch limitSwitchUp, limitSwitchDown;
     Servo gate, puller;
     SubsystemState subsystemState;
@@ -69,17 +63,17 @@ public class WobbleGrabber {
     boolean onlyGrab = false;
     boolean partway;
 
-    public WobbleGrabber(HardwareMap map) {
+    public SawronWobbleGrabber(HardwareMap map) {
         this(map, Mode.AUTO);
     }
 
-    public WobbleGrabber(HardwareMap map, Mode m) {
+    public SawronWobbleGrabber(HardwareMap map, Mode m) {
         limitSwitchDown = new MagneticLimitSwitch();
         limitSwitchUp = new MagneticLimitSwitch();
         limitSwitchDown.init(map, WobbleSub.LIMIT_DOWN);
         limitSwitchUp.init(map, WobbleSub.LIMIT_UP);
 
-        motor = new WobbleMotor(map);
+        motor = new SawronWobbleMotor(map);
 
         gate = map.servo.get(WobbleSub.GATE);
         puller = map.servo.get(WobbleSub.PULL);
@@ -94,9 +88,9 @@ public class WobbleGrabber {
         mode = m;
         if (mode == Mode.AUTO) {
             motor.gotoAngle(ENC_PARTWAY);
-            motor.setMode(WobbleMotor.Mode.AUTO);
+            motor.setMode(SawronWobbleMotor.Mode.AUTO);
         } else {
-            motor.setMode(WobbleMotor.Mode.TELEOP);
+            motor.setMode(SawronWobbleMotor.Mode.TELEOP);
         }
 
     }
@@ -244,7 +238,7 @@ public class WobbleGrabber {
 
             case CLOSE_PULLER:
                 puller.setPosition(PULL_CLOSED_POSITION);
-                if (timer.getTime() > 300 || grabberClosed) {
+                if (timer.getTimeMillis() > 300 || grabberClosed) {
                     grabberState = GrabberState.CLOSE_GATE;
                     timer.resetTime();
                 }
@@ -252,7 +246,7 @@ public class WobbleGrabber {
 
             case CLOSE_GATE:
                 gate.setPosition(GATE_CLOSED_POSITION);
-                if (timer.getTime() > 300 || grabberClosed) {
+                if (timer.getTimeMillis() > 300 || grabberClosed) {
                     grabberState = GrabberState.IDLE;
                     grabberClosed = true;
                 }
@@ -260,14 +254,14 @@ public class WobbleGrabber {
 
             case OPEN_GATE:
                 gate.setPosition(GATE_OPEN_POSITION);
-                if (timer.getTime() > 300 || !grabberClosed) {
+                if (timer.getTimeMillis() > 300 || !grabberClosed) {
                     grabberState = GrabberState.OPEN_PULLER;
                 }
                 break;
 
             case OPEN_PULLER:
                 puller.setPosition(PULL_OPEN_POSITION);
-                if (timer.getTime() > 300 || !grabberClosed) {
+                if (timer.getTimeMillis() > 300 || !grabberClosed) {
                     grabberState = GrabberState.IDLE;
                     timer.resetTime();
                     grabberClosed = false;

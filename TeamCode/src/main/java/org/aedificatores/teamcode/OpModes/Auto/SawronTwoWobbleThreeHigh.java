@@ -2,23 +2,21 @@ package org.aedificatores.teamcode.OpModes.Auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.profile.SimpleMotionConstraints;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.WobbleGrabber;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal.SawronWobbleGrabber;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 import org.aedificatores.teamcode.Vision.RingDetector;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.jetbrains.annotations.NotNull;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "TwoWobbleThreeHighAuto")
-public class TwoWobbleThreeHigh extends OpMode {
+@Autonomous(name = "TwoWobbleThreeHighAuto", group = OpModeGroups.SAWRON)
+public class SawronTwoWobbleThreeHigh extends OpMode {
     enum AutoState {
         DRIVE_TO_DEPOSIT,
         DROP_WOBBLE,
@@ -73,14 +71,6 @@ public class TwoWobbleThreeHigh extends OpMode {
     Trajectory trajPark;
     WobblePosition wobblePosition;
 
-    TrajectoryConstraints slowConstraints = new TrajectoryConstraints() {
-        @NotNull
-        @Override
-        public SimpleMotionConstraints get(double v, @NotNull Pose2d pose2d, @NotNull Pose2d pose2d1, @NotNull Pose2d pose2d2) {
-            return new SimpleMotionConstraints(5,5);
-        }
-    };
-
     private static final int WIDTH = 320;
     private static final int HEIGHT = 240;
     OpenCvCamera cam;
@@ -104,7 +94,7 @@ public class TwoWobbleThreeHigh extends OpMode {
 
         bot = new SawronBot(hardwareMap, true);
         bot.drivetrain.setPoseEstimate(START_POSE);
-        bot.wobbleGrabber.setMode(WobbleGrabber.Mode.TELEOP);
+        bot.wobbleGrabber.setMode(SawronWobbleGrabber.Mode.TELEOP);
     }
 
     // Used to Account for the fact that we don't know the state of the wobble
@@ -191,7 +181,7 @@ public class TwoWobbleThreeHigh extends OpMode {
         cam.closeCameraDevice();
         cameraStreaming = false;
 
-        bot.wobbleGrabber.setMode(WobbleGrabber.Mode.AUTO);
+        bot.wobbleGrabber.setMode(SawronWobbleGrabber.Mode.AUTO);
         bot.shooter.setSpeedMax();
         bot.wobbleGrabber.lift();
     }

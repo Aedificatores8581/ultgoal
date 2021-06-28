@@ -28,7 +28,7 @@ import java.util.List;
  *
  */
 @Config
-public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
+public class SawronThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     public static final double X_MULTIPLIER = 0.9946990726;
     public static final double Y_MULTIPLIER = 0.9943345632;
 
@@ -43,7 +43,7 @@ public class ThreeWheelOdometryLocalizer extends ThreeTrackingWheelLocalizer {
     // or strafeEncoder
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
-    public ThreeWheelOdometryLocalizer(HardwareMap hardwareMap) {
+    public SawronThreeWheelOdometryLocalizer(HardwareMap hardwareMap) {
         super(Arrays.asList(
                 new Pose2d(-.25, -LATERAL_DISTANCE / 2, 0), // left
                 new Pose2d(1.125, LATERAL_DISTANCE / 2, 0), // right

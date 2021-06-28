@@ -4,19 +4,19 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.aedificatores.teamcode.Mechanisms.Components.WobbleGoal.WobbleMotor;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronWobbleGoal.SawronWobbleMotor;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 
-@Autonomous(name = "WobbleMotorTest")
-public class WobbleMotorTest extends OpMode {
+@Autonomous(name = "SawronWobbleMotorTest", group = OpModeGroups.SAWRON)
+public class SawronWobbleMotorTest extends OpMode {
     enum State {
         DOWN,
         UP,
     }
 
-    WobbleMotor motor;
+    SawronWobbleMotor motor;
     State state = State.DOWN;
     FtcDashboard dashboard;
 
@@ -26,7 +26,7 @@ public class WobbleMotorTest extends OpMode {
 
     @Override
     public void init() {
-        motor = new WobbleMotor(hardwareMap, WobbleMotor.Mode.TELEOP);
+        motor = new SawronWobbleMotor(hardwareMap, SawronWobbleMotor.Mode.TELEOP);
         dashboard = FtcDashboard.getInstance();
     }
 
@@ -38,7 +38,7 @@ public class WobbleMotorTest extends OpMode {
 
     @Override
     public void start() {
-        motor.setMode(WobbleMotor.Mode.AUTO);
+        motor.setMode(SawronWobbleMotor.Mode.AUTO);
         motor.resetEncoders();
         motor.gotoAngle(ANGLE_DOWN);
     }

@@ -2,33 +2,30 @@ package org.aedificatores.teamcode.Mechanisms.Drivetrains;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.aedificatores.teamcode.Mechanisms.Components.LynxModuleUtil;
-import org.aedificatores.teamcode.Mechanisms.Components.ThreeWheelOdometryLocalizer;
-import org.aedificatores.teamcode.Mechanisms.Robots.SawronBot;
+import org.aedificatores.teamcode.Mechanisms.Components.SawronThreeWheelOdometryLocalizer;
 import org.aedificatores.teamcode.Mechanisms.Robots.SawronBotConfig;
 import org.aedificatores.teamcode.Mechanisms.Sensors.BNO055IMUUtil;
 import org.aedificatores.teamcode.Universal.AxesSigns;
 import org.aedificatores.teamcode.Universal.DashboardUtil;
-import org.aedificatores.teamcode.Universal.Math.Pose;
-import org.aedificatores.teamcode.Universal.UniversalFunctions;
-import org.aedificatores.teamcode.Universal.Math.Vector2;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
@@ -40,14 +37,10 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
-import com.acmerobotics.roadrunner.trajectory.constraints.MecanumConstraints;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -55,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.*;
+import static org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronDriveConstants.*;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
@@ -63,7 +56,7 @@ import static org.aedificatores.teamcode.Mechanisms.Drivetrains.DriveConstants.*
  * copied from road runner quickstart
  */
 @Config
-public class Mecanum extends MecanumDrive {
+public class SawronMecanum extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
@@ -93,7 +86,8 @@ public class Mecanum extends MecanumDrive {
     private MotionProfile turnProfile;
     private double turnStart;
 
-    private DriveConstraints constraints;
+    private TrajectoryVelocityConstraint velConstraint;
+    private TrajectoryAccelerationConstraint accelConstraint;
     private TrajectoryFollower follower;
 
     private List<Pose2d> poseHistory;
@@ -104,7 +98,7 @@ public class Mecanum extends MecanumDrive {
 
     private Pose2d lastPoseOnTurn;
 
-    public Mecanum(HardwareMap hardwareMap) {
+    public SawronMecanum(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         dashboard = FtcDashboard.getInstance();
@@ -117,7 +111,12 @@ public class Mecanum extends MecanumDrive {
         turnController = new PIDFController(HEADING_PID);
         turnController.setInputBounds(0, 2 * Math.PI);
 
-        constraints = new MecanumConstraints(BASE_CONSTRAINTS, TRACK_WIDTH);
+        velConstraint = new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(MAX_ANG_VEL),
+                new MecanumVelocityConstraint(MAX_VEL, TRACK_WIDTH)
+        ));
+        accelConstraint = new ProfileAccelerationConstraint(MAX_ACCEL);
+
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
@@ -162,19 +161,19 @@ public class Mecanum extends MecanumDrive {
         leftFront.setDirection(REVERSE);
         leftRear.setDirection(REVERSE);
 
-        setLocalizer(new ThreeWheelOdometryLocalizer(hardwareMap));
+        setLocalizer(new SawronThreeWheelOdometryLocalizer(hardwareMap));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, constraints);
+        return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
-        return new TrajectoryBuilder(startPose, reversed, constraints);
+        return new TrajectoryBuilder(startPose, reversed, velConstraint, accelConstraint);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
-        return new TrajectoryBuilder(startPose, startHeading, constraints);
+        return new TrajectoryBuilder(startPose, startHeading, velConstraint, accelConstraint);
     }
 
     public void turnAsync(double angle) {
@@ -185,9 +184,8 @@ public class Mecanum extends MecanumDrive {
         turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(heading, 0, 0, 0),
                 new MotionState(heading + angle, 0, 0, 0),
-                constraints.maxAngVel,
-                constraints.maxAngAccel,
-                constraints.maxAngJerk
+                MAX_ANG_VEL,
+                MAX_ANG_ACCEL
         );
 
         turnStart = clock.seconds();

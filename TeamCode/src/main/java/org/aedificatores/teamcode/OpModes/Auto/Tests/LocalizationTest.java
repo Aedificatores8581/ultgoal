@@ -1,14 +1,14 @@
 package org.aedificatores.teamcode.OpModes.Auto.Tests;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mecanum;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.GandalfMecanum;
+import org.aedificatores.teamcode.Mechanisms.Drivetrains.SawronMecanum;
+import org.aedificatores.teamcode.Universal.OpModeGroups;
 
 /**
  * This is a simple teleop routine for testing localization. Drive the robot around like a normal
@@ -20,11 +20,11 @@ import org.aedificatores.teamcode.Mechanisms.Drivetrains.Mecanum;
  * copied from roadrunner quickstart
  */
 @Config
-@TeleOp(name = "LocalizationTest", group = "drive")
+@TeleOp(name = "LocalizationTest", group = OpModeGroups.UNIVERSAL)
 public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Mecanum drive = new Mecanum(hardwareMap);
+        GandalfMecanum drive = new GandalfMecanum(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
