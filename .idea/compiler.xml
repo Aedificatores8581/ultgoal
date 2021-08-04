@@ -5,8 +5,8 @@
       <module name="Android.FtcRobotController" target="1.8" />
       <module name="Android.TeamCode" target="1.8" />
       <module name="libSpeedyDoge" target="1.7" />
-      <module name="ultimate-goal.FtcRobotController" target="1.8" />
-      <module name="ultimate-goal.TeamCode" target="1.8" />
+      <module name="ultimate-goal.FtcRobotController" target="11" />
+      <module name="ultimate-goal.TeamCode" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
